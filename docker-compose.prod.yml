@@ -1,0 +1,28 @@
+services:
+  app:
+    image: ghcr.io/shba007/motiatemplate:latest
+    env_file:
+      - .env
+    volumes:
+      - motiatemplate_data:/app/data
+    expose:
+      - 3000
+    networks:
+      - internal
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+
+volumes:
+  motiatemplate_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /root/motiatemplate/data
+
+networks:
+  internal:
+    driver: overlay
