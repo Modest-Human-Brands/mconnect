@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.2.5
+
+[compare changes](https://github.com/shba007/mconnect/compare/v0.2.4...v0.2.5)
+
+### 💅 Refactors
+
+- Simplify Dockerfile by removing unnecessary stages and using consistent base images ([81b37d0](https://github.com/shba007/mconnect/commit/81b37d0))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.2.4
 
 [compare changes](https://github.com/shba007/mconnect/compare/v0.2.3...v0.2.4)
