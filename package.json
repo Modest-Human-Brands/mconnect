@@ -22,7 +22,7 @@
     "detect": "gitleaks git --verbose",
     "lint": "eslint . --fix",
     "format": "prettier . --write",
-    "build": "motia build",
+    "build": "motia build --external @maizzle/framework,@tailwindcss/oxide,oxfmt",
     "start": "motia start",
     "clean": "rm -rf .motia dist",
     "mazzile:dev": "maizzle serve",
