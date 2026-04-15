@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.1.0
+
+### 🚀 Enhancements
+
+- Initialize project with essential configurations and modules ([693699e](https://github.com/shba007/motiatemplate/commit/693699e))
+- **email:** Add email templates and API integration for Hostinger ([a5d7453](https://github.com/shba007/motiatemplate/commit/a5d7453))
+
+### 🩹 Fixes
+
+- **build:** ⚠️ Update build script to include external dependencies ([5defddc](https://github.com/shba007/motiatemplate/commit/5defddc))
+
+#### ⚠️ Breaking Changes
+
+- **build:** ⚠️ Update build script to include external dependencies ([5defddc](https://github.com/shba007/motiatemplate/commit/5defddc))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.0.2
 
 ### 🚀 Enhancements

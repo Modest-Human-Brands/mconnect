@@ -1,6 +1,6 @@
 {
   "name": "motiatemplate",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Motia + Typescript + Bun Template",
   "author": "Shirsendu Bairagi <shirsendu2001@gmail.com>",
   "license": "MIT",
