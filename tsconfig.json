@@ -17,6 +17,6 @@
     "allowJs": true,
     "baseUrl": "."
   },
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["**/*.ts", "**/*.vue", ".maizzle/*.d.ts"],
+  "exclude": ["node_modules", "dist", "build_production"]
 }
