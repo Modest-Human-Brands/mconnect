@@ -1,0 +1,59 @@
+# Changelog
+
+## v0.2.0
+
+### 🚀 Enhancements
+
+- Initialize project with essential configurations and modules ([693699e](https://github.com/shba007/mconnect/commit/693699e))
+- **email:** Add email templates and API integration for Hostinger ([a5d7453](https://github.com/shba007/mconnect/commit/a5d7453))
+
+### 🩹 Fixes
+
+- **build:** ⚠️ Update build script to include external dependencies ([5defddc](https://github.com/shba007/mconnect/commit/5defddc))
+
+### 💅 Refactors
+
+- Rename project from MotiaTemplate to MConnect and update related references ([048a07b](https://github.com/shba007/mconnect/commit/048a07b))
+
+### 🤖 CI
+
+- **release:** Update version ([a17ac60](https://github.com/shba007/mconnect/commit/a17ac60))
+- **release:** Update version ([c8e183f](https://github.com/shba007/mconnect/commit/c8e183f))
+
+#### ⚠️ Breaking Changes
+
+- **build:** ⚠️ Update build script to include external dependencies ([5defddc](https://github.com/shba007/mconnect/commit/5defddc))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+- Shba007 ([@shba007](https://github.com/shba007))
+
+## v0.2.0
+
+### 🚀 Enhancements
+
+- Initialize project with essential configurations and modules ([693699e](https://github.com/shba007/mconnect/commit/693699e))
+- **email:** Add email templates and API integration for Hostinger ([a5d7453](https://github.com/shba007/mconnect/commit/a5d7453))
+
+### 🩹 Fixes
+
+- **build:** ⚠️ Update build script to include external dependencies ([5defddc](https://github.com/shba007/mconnect/commit/5defddc))
+
+### 💅 Refactors
+
+- Rename project from MotiaTemplate to MConnect and update related references ([048a07b](https://github.com/shba007/mconnect/commit/048a07b))
+
+### 🤖 CI
+
+- **release:** Update version ([a17ac60](https://github.com/shba007/mconnect/commit/a17ac60))
+- **release:** Update version ([c8e183f](https://github.com/shba007/mconnect/commit/c8e183f))
+
+#### ⚠️ Breaking Changes
+
+- **build:** ⚠️ Update build script to include external dependencies ([5defddc](https://github.com/shba007/mconnect/commit/5defddc))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+- Shba007 ([@shba007](https://github.com/shba007))
