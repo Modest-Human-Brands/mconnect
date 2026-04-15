@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.2.4
+
+[compare changes](https://github.com/shba007/mconnect/compare/v0.2.3...v0.2.4)
+
+### 💅 Refactors
+
+- Remove redundant name fields from module configurations in iii-config-production.yaml ([1156a15](https://github.com/shba007/mconnect/commit/1156a15))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.2.3
 
 [compare changes](https://github.com/shba007/mconnect/compare/v0.2.2...v0.2.3)
