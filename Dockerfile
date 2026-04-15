@@ -29,6 +29,8 @@ COPY --from=builder /app/package.json .
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY iii-config-production.yaml .
+COPY public ./public
+COPY email ./email
 
 ENV NODE_ENV=production
 ENV MOTIA_APP_VERSION=$VERSION
