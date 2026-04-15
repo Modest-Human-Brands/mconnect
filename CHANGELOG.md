@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.2.2
+
+[compare changes](https://github.com/shba007/mconnect/compare/v0.2.1...v0.2.2)
+
+### 🩹 Fixes
+
+- Remove unnecessary apk add commands and update exec command in iii-config.yaml ([977f23f](https://github.com/shba007/mconnect/commit/977f23f))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.2.1
 
 [compare changes](https://github.com/shba007/mconnect/compare/v0.2.0...v0.2.1)
