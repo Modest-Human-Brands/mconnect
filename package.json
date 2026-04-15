@@ -1,12 +1,12 @@
 {
-  "name": "motiatemplate",
+  "name": "mconnect",
   "version": "0.1.0",
-  "description": "Motia + Typescript + Bun Template",
+  "description": "",
   "author": "Shirsendu Bairagi <shirsendu2001@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shba007/motiatemplate.git"
+    "url": "git+https://github.com/shba007/mconnect.git"
   },
   "type": "module",
   "private": true,

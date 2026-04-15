@@ -2,7 +2,7 @@
   <img src="./public/logo.png" lt="Logo" width="65" />
 <p>
 
-# MotiaTemplate
+# MConnect
 
 ![Landing](public/previews/landing.webp)
 
@@ -25,7 +25,7 @@
 Clone the template
 
 ```bash
-bunx giget@latest gh:shba007/motiatemplate#<branch> <project>
+bunx giget@latest gh:shba007/mconnect#<branch> <project>
 ```
 
 ## Change Placeholder Value
@@ -80,36 +80,36 @@ docker node ls
 
 ```bash
 docker volume create \
-  --name motiatemplate_static \
+  --name mconnect_static \
   --driver local \
   --opt type=none \
-  --opt device=~/shba007/motiatemplate/static \
+  --opt device=~/shba007/mconnect/static \
   --opt o=bind
 ```
 
 5. Use Docker Stack to deploy multi-container application
 
 ```bash
-upload static into /root/motiatemplate
+upload static into /root/mconnect
 ```
 
 6. Scale service
 
 ```bash
-docker service scale motiatemplate_app=2
+docker service scale mconnect_app=2
 ```
 
 7. Verify
 
 ```bash
 docker service ls
-docker service ps motiatemplate_app
+docker service ps mconnect_app
 ```
 
 ## License
 
-Published under the [MIT](https://github.com/shba007/nuxtemplate/blob/main/LICENSE) license.
+Published under the [MIT](https://github.com/shba007/mconnect/blob/main/LICENSE) license.
 <br><br>
-<a href="https://github.com/shba007/nuxtemplate/graphs/contributors">
-<img src="https://contrib.rocks/image?repo=shba007/nuxtemplate" />
+<a href="https://github.com/shba007/mconnect/graphs/contributors">
+<img src="https://contrib.rocks/image?repo=shba007/mconnect" />
 </a>
