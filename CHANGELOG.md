@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.2.1
+
+[compare changes](https://github.com/shba007/mconnect/compare/v0.2.0...v0.2.1)
+
+### 🩹 Fixes
+
+- Update build command in Dockerfile and format apk add commands ([c174979](https://github.com/shba007/mconnect/commit/c174979))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.2.0
 
 ### 🚀 Enhancements
