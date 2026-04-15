@@ -1,6 +1,5 @@
 modules:
-  - name: stream
-    class: modules::stream::StreamModule
+  - class: modules::stream::StreamModule
     config:
       port: ${STREAMS_PORT:3112}
       host: 0.0.0.0
@@ -10,8 +9,7 @@ modules:
           store_method: file_based
           file_path: ./data/streams_store
 
-  - name: state
-    class: modules::state::StateModule
+  - class: modules::state::StateModule
     config:
       adapter:
         class: modules::state::adapters::KvStore
@@ -19,8 +17,7 @@ modules:
           store_method: file_based
           file_path: ./data/state_store.db
 
-  - name: api
-    class: modules::api::RestApiModule
+  - class: modules::api::RestApiModule
     config:
       port: 3111
       host: 0.0.0.0
@@ -36,8 +33,7 @@ modules:
           - DELETE
           - OPTIONS
 
-  - name: observability
-    class: modules::observability::OtelModule
+  - class: modules::observability::OtelModule
     config:
       enabled: ${OTEL_ENABLED:true}
       service_name: ${OTEL_SERVICE_NAME:iii-engine}
@@ -57,26 +53,22 @@ modules:
       logs_retention_seconds: ${OTEL_LOGS_RETENTION_SECONDS:3600}
       logs_sampling_ratio: ${OTEL_LOGS_SAMPLING_RATIO:1.0}
 
-  - name: queue
-    class: modules::queue::QueueModule
+  - class: modules::queue::QueueModule
     config:
       adapter:
         class: modules::queue::BuiltinQueueAdapter
 
-  - name: pubsub
-    class: modules::pubsub::PubSubModule
+  - class: modules::pubsub::PubSubModule
     config:
       adapter:
         class: modules::pubsub::LocalAdapter
 
-  - name: cron
-    class: modules::cron::CronModule
+  - class: modules::cron::CronModule
     config:
       adapter:
         class: modules::cron::KvCronAdapter
 
-  - name: shell
-    class: modules::shell::ExecModule
+  - class: modules::shell::ExecModule
     config:
       exec:
         - bun run --enable-source-maps dist/index-production.js
