@@ -6,110 +6,16 @@
 
 ![Landing](public/previews/landing.webp)
 
-> Motia + Typescript + Bun Template
+> A client outreach and communication hub for managing message/mail/popup templates, tracking campaigns, and monitoring client in-reach and out-reach activity
 
 - 📦 Event Driven
 - 🐋 Containerized
 - 🪄 CI/CD (Github Action)
 
-# Todo
-
-- [ ] Add Testing
-
-## External Dependencies
-
-- gitleaks
-
-## Clone Template
-
-Clone the template
-
-```bash
-bunx giget@latest gh:shba007/mconnect#<branch> <project>
-```
-
-## Change Placeholder Value
-
-### In docker-compose.yml
-
-- name
-- image
-- port
-
-### In package.json change the following
-
-- name
-- description
-- docker:build
-- docker:start
-
-### In github registry add Repo or Org Vars following
-
-- Vars
-  - USERNAME
-
-## Change the Icons and Screenshots
-
-dir public
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-## How to Deploy
-
-1. Initialize Swarm on the Manager Node
-
-```bash
-docker swarm init --advertise-addr <MANAGER-IP>
-```
-
-2. Join Worker Nodes to the Swarm
-
-```bash
-docker swarm join --token <WORKER-TOKEN> <MANAGER-IP>:2377
-```
-
-3. Check Node Status
-
-```bash
-docker node ls
-```
-
-4. Create a docker volume
-
-```bash
-docker volume create \
-  --name mconnect_static \
-  --driver local \
-  --opt type=none \
-  --opt device=~/shba007/mconnect/static \
-  --opt o=bind
-```
-
-5. Use Docker Stack to deploy multi-container application
-
-```bash
-upload static into /root/mconnect
-```
-
-6. Scale service
-
-```bash
-docker service scale mconnect_app=2
-```
-
-7. Verify
-
-```bash
-docker service ls
-docker service ps mconnect_app
-```
-
 ## License
 
-Published under the [MIT](https://github.com/shba007/mconnect/blob/main/LICENSE) license.
+Published under the [MIT](https://github.com/Modest-Human-Brands/mconnect/blob/main/LICENSE) license.
 <br><br>
-<a href="https://github.com/shba007/mconnect/graphs/contributors">
-<img src="https://contrib.rocks/image?repo=shba007/mconnect" />
+<a href="https://github.com/Modest-Human-Brands/mconnect/graphs/contributors">
+<img src="https://contrib.rocks/image?repo=Modest-Human-Brands/mconnect" />
 </a>
