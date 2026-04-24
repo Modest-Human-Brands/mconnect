@@ -1,28 +1,24 @@
 import { http, type Handlers, type StepConfig } from 'motia'
 import { z } from 'zod'
-import path from 'node:path'
-import fs from 'node:fs/promises'
-import { render } from '@maizzle/framework'
+import { render } from '@vue-email/render'
 import { ofetch } from 'ofetch'
 
-const TEMPLATES = { otp: { subject: 'OTP Request for Login', template: await fs.readFile(path.join(process.cwd(), '/email/templates/otp.vue'), 'utf8') } }
+import { InternshipCertificate } from '../../../../email/templates/InternshipCertificate'
 
-interface HostingerSendResponseSchema {
-  messageId: string
-  queueId: string
-  response: string
-  sendAt: string
-}
-
-function injectProps(rawTemplate: string, props: Record<string, string>) {
-  return rawTemplate.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (match, key) => {
-    return props[key] === undefined ? match : props[key]
-  })
+const TEMPLATES = {
+  otp: {
+    subject: 'OTP Request for Login',
+    template: InternshipCertificate,
+  },
+  'internship-completion': {
+    subject: 'Internship completion certificate',
+    template: InternshipCertificate,
+  },
 }
 
 export const config = {
   name: 'SendEmail',
-  description: 'Render an email template and send it via Hostinger',
+  description: 'Render and send branded emails via Hostinger Bridge',
   flows: ['email-send-flow'],
   triggers: [
     http('POST', '/email/hostinger/send', {
@@ -30,35 +26,28 @@ export const config = {
         from: z.email(),
         displayName: z.string(),
         to: z.array(z.email()),
-        subject: z.string(),
-        template: z.enum(['otp']),
-        data: z.record(z.string(), z.string()),
+        subject: z.string().optional(),
+        template: z.enum(['otp', 'internship-completion']),
+        data: z.record(z.string(), z.any()),
       }),
-      responseSchema: {
-        200: z.object({
-          success: z.boolean(),
-          messageId: z.string().optional(),
-          status: z.string(),
-        }),
-        500: z.object({
-          success: z.boolean(),
-          error: z.string(),
-        }),
-      },
     }),
   ],
-  enqueues: [],
 } as const satisfies StepConfig
 
 export const handler: Handlers<typeof config> = async ({ request }) => {
-  const { from, displayName, to, template: templateName, data } = request.body
+  const { from, displayName, to, template: templateName, data, subject } = request.body
 
   try {
-    const selectedTemplate = TEMPLATES[templateName]
-    const template = injectProps(selectedTemplate.template, data)
-    const { html } = await render(template)
+    const selected = TEMPLATES[templateName]
 
-    const hostingerResponse = await ofetch<HostingerSendResponseSchema>('/send', {
+    const templateProps = {
+      ...data,
+      organization: typeof data.organization === 'string' ? JSON.parse(data.organization) : data.organization,
+    }
+
+    const html = await render(selected.template, templateProps)
+
+    const response = await ofetch('/send', {
       baseURL: `${import.meta.env.HOSTINGER_EMAIL_BASE_URL}/v2`,
       method: 'POST',
       headers: {
@@ -67,9 +56,9 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
       body: {
         from,
         displayName,
-        to: to,
-        subject: selectedTemplate.subject,
-        html: html,
+        to,
+        subject: subject || selected.subject,
+        html,
         attachments: [],
         trackingEnabled: false,
       },
@@ -79,16 +68,15 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
       status: 200,
       body: {
         success: true,
-        messageId: hostingerResponse.messageId,
-        status: hostingerResponse.response,
+        messageId: response.messageId,
+        status: response.response,
       },
     }
   } catch (error: any) {
-    console.error('Email sending failed:', error)
-
+    console.error('[Motia SendEmail Error]:', error)
     return {
       status: 500,
-      body: error.message || 'Failed to communicate with Hostinger Bridge API',
+      body: { success: false, error: error.message },
     }
   }
 }

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "lib": ["ES2020"],
+    "lib": ["ES2022"],
     "declaration": true,
     "outDir": "./dist",
     "rootDir": ".",
@@ -15,8 +15,10 @@
     "moduleDetection": "force",
     "isolatedModules": true,
     "allowJs": true,
-    "baseUrl": "."
+    "jsx": "react",
+    "jsxFactory": "jsx",
+    "jsxFragmentFactory": "Fragment"
   },
-  "include": ["**/*.ts", "**/*.vue", ".maizzle/*.d.ts"],
+  "include": ["**/*.ts", "**/*.vue", ".maizzle/*.d.ts", "email/templates/InternshipCertificate.tsx", "email/templates/InternshipCertificate.tsx"],
   "exclude": ["node_modules", "dist", "build_production"]
 }

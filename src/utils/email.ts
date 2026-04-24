@@ -1,5 +1,3 @@
-// --- NEW SCHEMA ---
-
 export interface PaginatedEmails {
   meta: PaginationMeta
   messages: EmailMessage[]
