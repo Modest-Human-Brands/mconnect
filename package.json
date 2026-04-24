@@ -1,6 +1,6 @@
 {
   "name": "mconnect",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "A client outreach and communication hub for managing message/mail/popup templates, tracking campaigns, and monitoring client in-reach and out-reach activity",
   "author": "Shirsendu Bairagi <shirsendu2001@gmail.com>",
   "license": "MIT",
