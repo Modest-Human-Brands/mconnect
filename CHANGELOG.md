@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.2.6
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.2.5...v0.2.6)
+
+### 🚀 Enhancements
+
+- Add internship completion template ([e22cdf5](https://github.com/Modest-Human-Brands/mconnect/commit/e22cdf5))
+
+### 🏡 Chore
+
+- Update dependencies and improve documentation ([d75b54b](https://github.com/Modest-Human-Brands/mconnect/commit/d75b54b))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.2.5
 
 [compare changes](https://github.com/shba007/mconnect/compare/v0.2.4...v0.2.5)
