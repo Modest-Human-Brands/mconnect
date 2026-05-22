@@ -37,8 +37,8 @@ export interface EmailBody {
 }
 
 export interface EmailMessage {
-  id: string // The base64 ID
-  messageId: string // The global <...xyz> message ID
+  id: string
+  messageId: string
   uid: number // The IMAP numeric UID
   folder: string // Mapped from 'path' (e.g., "INBOX.Sent")
   timestamp: string // Mapped from 'date'

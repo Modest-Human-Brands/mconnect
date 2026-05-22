@@ -6,10 +6,13 @@ export const config = {
   description: 'Return Health Status',
   flows: ['health-check-flow'],
   triggers: [
-    http('GET', '/health', {
+    http('GET', '/api/health', {
       responseSchema: {
         200: z.object({
           status: z.string(),
+          version: z.string(),
+          buildTime: z.number(),
+          node: z.string(),
         }),
       },
     }),

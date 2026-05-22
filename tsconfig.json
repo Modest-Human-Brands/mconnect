@@ -14,11 +14,8 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "isolatedModules": true,
-    "allowJs": true,
-    "jsx": "react",
-    "jsxFactory": "jsx",
-    "jsxFragmentFactory": "Fragment"
+    "allowJs": true
   },
-  "include": ["**/*.ts", "**/*.vue", ".maizzle/*.d.ts", "email/templates/InternshipCertificate.tsx", "email/templates/InternshipCertificate.tsx"],
+  "include": ["**/*.ts", "**/*.vue"],
   "exclude": ["node_modules", "dist", "build_production"]
 }
