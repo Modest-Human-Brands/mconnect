@@ -2,7 +2,6 @@ import { loadConfig } from 'c12'
 import nodemailer from 'nodemailer'
 
 let cachedEmailConfig: any = null
-const transporterCache = new Map<string, nodemailer.Transporter>()
 
 async function getEmailInfrastructure() {
   if (cachedEmailConfig) return cachedEmailConfig
@@ -20,29 +19,6 @@ async function getEmailInfrastructure() {
   return cachedEmailConfig
 }
 
-function getOrCreateTransporter(providerName: string, settings: any): nodemailer.Transporter {
-  if (transporterCache.has(providerName)) {
-    return transporterCache.get(providerName)!
-  }
-
-  if (!settings?.host || !settings?.auth) {
-    throw new Error(`Connection parameters for email provider "${providerName}" are incomplete.`)
-  }
-
-  const transporter = nodemailer.createTransport({
-    host: settings.host,
-    port: Number(settings.port || 465),
-    secure: settings.secure ?? settings.port === 465,
-    auth: {
-      user: settings.auth.user,
-      pass: settings.auth.pass,
-    },
-  })
-
-  transporterCache.set(providerName, transporter)
-  return transporter
-}
-
 interface DispatchEmailPayload {
   to: string
   subject: string
@@ -54,7 +30,19 @@ interface DispatchEmailPayload {
 
 const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { settings: any; defaults: any }) => Promise<{ messageId: string }>> = {
   smtp: async (payload) => {
-    const transporter = getOrCreateTransporter('smtp', payload.settings)
+    if (!payload.settings?.host || !payload.settings?.auth) {
+      throw new Error(`Connection parameters for email provider Hostinger are incomplete.`)
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: payload.settings.host,
+      port: Number(payload.settings.port || 465),
+      secure: payload.settings.secure ?? payload.settings.port === 465,
+      auth: {
+        user: payload.settings.auth.user,
+        pass: payload.settings.auth.pass,
+      },
+    })
     const fromName = payload.displayName || payload.defaults?.fromName
     const fromEmail = payload.settings?.auth?.user || payload.defaults?.fallbackFromEmail
 
@@ -70,7 +58,20 @@ const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { s
     return { messageId: info.messageId }
   },
   hostinger: async (payload) => {
-    const transporter = getOrCreateTransporter('hostinger', payload.settings)
+    if (!payload.settings?.host || !payload.settings?.auth) {
+      throw new Error(`Connection parameters for email provider Hostinger are incomplete.`)
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: payload.settings.host,
+      port: Number(payload.settings.port || 465),
+      secure: payload.settings.secure ?? payload.settings.port === 465,
+      auth: {
+        user: payload.settings.auth.user,
+        pass: payload.settings.auth.pass,
+      },
+    })
+
     const fromName = payload.displayName || payload.defaults?.fromName
     const fromEmail = payload.settings?.auth?.user || payload.defaults?.fallbackFromEmail
 
@@ -86,7 +87,20 @@ const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { s
     return { messageId: info.messageId }
   },
   gmail: async (payload) => {
-    const transporter = getOrCreateTransporter('gmail', payload.settings)
+    if (!payload.settings?.host || !payload.settings?.auth) {
+      throw new Error(`Connection parameters for email provider Hostinger are incomplete.`)
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: payload.settings.host,
+      port: Number(payload.settings.port || 465),
+      secure: payload.settings.secure ?? payload.settings.port === 465,
+      auth: {
+        user: payload.settings.auth.user,
+        pass: payload.settings.auth.pass,
+      },
+    })
+
     const fromName = payload.displayName || payload.defaults?.fromName
     const fromEmail = payload.settings?.auth?.user || payload.defaults?.fallbackFromEmail
 
@@ -108,7 +122,7 @@ const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { s
   },
 }
 
-export async function dispatchEmail(payload: DispatchEmailPayload) {
+export default async function (payload: DispatchEmailPayload) {
   const emailConfigProfile = await getEmailInfrastructure()
   const activeProviderName = emailConfigProfile.activeProvider
 

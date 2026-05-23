@@ -51,7 +51,7 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
     const fallbackName = from.split('@')[0]
     const pocPerson = nameMatch ? nameMatch[1] : fallbackName
 
-    const { clientId } = await ofetch(`${apiBaseUrl}/api/contacts`, {
+    const { contactId } = await ofetch(`${apiBaseUrl}/api/contacts`, {
       method: 'PUT',
       body: {
         email: from.toLowerCase().trim(),
@@ -81,7 +81,7 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
           rich_text: [{ text: { content: `Subject: ${subject}\n\n${text || 'HTML content only'}` } }],
         },
         Contact: {
-          relation: [{ id: clientId }],
+          relation: [{ id: contactId }],
         },
       },
     })

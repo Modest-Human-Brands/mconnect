@@ -4,7 +4,7 @@ import { createSSRApp, h } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 import notion from '../../../../utils/notion'
 import { templateRegistry } from '../../../../utils/template-registry-email'
-import { dispatchEmail } from '../../../../utils/email-providers'
+import dispatchEmail from '../../../../utils/email-providers'
 
 import '../../../../../templates/text/email/InternshipCompletionCertificateV1'
 import '../../../../../templates/text/email/QuotationV1'
@@ -12,7 +12,7 @@ import '../../../../../templates/text/email/QuotationV1'
 const notionDbId = JSON.parse(import.meta.env.NOTION_DB_ID)
 
 const pathParamsSchema = z.object({ channel: z.literal('mail') })
-const basePayload = z.object({ clientId: z.string() })
+const basePayload = z.object({ contactId: z.string() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -25,7 +25,7 @@ const templatedContent = z.object({
   template: z.string().min(1),
   text: z.string().optional(),
   html: z.string().optional(),
-  variables: z.record(z.any()),
+  variables: z.record(z.any(), z.any()),
 })
 
 const bodySchema = z.union([
@@ -54,13 +54,13 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
   const body = request.body as BodyPayload
 
   try {
-    const contactPage = (await notion.pages.retrieve({ page_id: body.clientId })) as any
+    const contactPage = (await notion.pages.retrieve({ page_id: body.contactId })) as any
     const recipientEmail = contactPage.properties?.Email?.email
 
     if (!recipientEmail) {
       return {
         status: 400,
-        body: { error: `Contact page '${body.clientId}' does not contain a valid Email address.` },
+        body: { error: `Contact page '${body.contactId}' does not contain a valid Email address.` },
       }
     }
 
@@ -119,7 +119,7 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
         Summary: {
           rich_text: [{ text: { content: `[Driver: ${dispatchResult.activeProviderName.toUpperCase()}] Subject: ${activeSubject}\n\n${finalizedText}` } }],
         },
-        Contact: { relation: [{ id: body.clientId }] },
+        Contact: { relation: [{ id: body.contactId }] },
       },
     })
 

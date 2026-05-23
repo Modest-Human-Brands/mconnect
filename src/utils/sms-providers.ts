@@ -26,21 +26,21 @@ interface ProviderPayload {
 }
 
 const smsProviderAdapters: Record<string, (payload: ProviderPayload) => Promise<{ providerMessageId: string }>> = {
-  fast2sms: async ({ to, text, settings }) => {
-    if (!settings?.apiKey) throw new Error('Fast2SMS apiKey configuration missing.')
+  fast2sms: async (payload) => {
+    if (!payload.settings?.apiKey) throw new Error('Fast2SMS apiKey configuration missing.')
 
     const response = await ofetch('https://www.fast2sms.com/dev/bulkV2', {
       method: 'POST',
       headers: {
-        authorization: settings.apiKey,
+        authorization: payload.settings.apiKey,
         'Content-Type': 'application/json',
       },
       body: {
-        route: settings.route,
-        message: text,
+        route: payload.settings.route,
+        message: payload.text,
         language: 'english',
         flash: 0,
-        numbers: to.replace(/\D/g, ''),
+        numbers: payload.to.replace(/\D/g, ''),
       },
     })
 
@@ -50,40 +50,32 @@ const smsProviderAdapters: Record<string, (payload: ProviderPayload) => Promise<
     return { providerMessageId: response.request_id || `fast2sms-${Date.now()}` }
   },
 
-  vobiz: async ({ to, text, settings }) => {
-    if (!settings?.authId || !settings?.authToken || !settings?.channelId) {
+  vobiz: async (payload) => {
+    if (!payload.settings?.authId || !payload.settings?.authToken || !payload.settings?.channelId) {
       throw new Error('Vobiz authentication fields are incomplete.')
     }
 
-    const response = await ofetch('https://api.vobiz.ai/v1/messaging/send', {
+    const response = await ofetch('/messaging/send', {
+      baseURL: 'https://api.vobiz.ai/v1',
       method: 'POST',
       headers: {
-        'X-Auth-ID': settings.authId,
-        'X-Auth-Token': settings.authToken,
+        'X-Auth-ID': payload.settings.authId,
+        'X-Auth-Token': payload.settings.authToken,
         'Content-Type': 'application/json',
       },
       body: {
-        channel_id: settings.channelId,
-        to: to.startsWith('+') ? to : `+${to}`,
+        channel_id: payload.settings.channelId,
+        to: payload.to.startsWith('+') ? payload.to : `+${payload.to}`,
         type: 'text',
-        text: { body: text },
+        text: { body: payload.text },
       },
     })
 
     return { providerMessageId: response.message_id || `vobiz-${Date.now()}` }
   },
-
-  mockGateway: async ({ to, text }) => {
-    console.log(`📡 [Mock Gateway Dispatch] Sent to ${to}: "${text}"`)
-    return { providerMessageId: `mock-${Date.now()}` }
-  },
 }
 
-/**
- * Global SMS Dispatch Driver Engine
- * Standardizes inputs and executes the active configuration provider
- */
-export async function dispatchSMS(to: string, text: string) {
+export default async function (to: string, text: string) {
   const smsConfigProfile = await getSMSInfrastructure()
   const activeProviderName = smsConfigProfile.activeProvider
 

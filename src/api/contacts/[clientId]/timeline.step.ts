@@ -4,7 +4,7 @@ import notion from '../../../utils/notion'
 
 const notionDbId = JSON.parse(import.meta.env.NOTION_DB_ID)
 
-const pathParamsSchema = z.object({ clientId: z.string() })
+const pathParamsSchema = z.object({ contactId: z.string() })
 const queryParamsSchema = z.object({
   limit: z.number().optional(),
   skip: z.number().optional(),
@@ -23,7 +23,7 @@ export const config = {
   description: 'Fetch chronological interaction history for a specific contact profile with skip pagination',
   flows: ['contact-timeline-flow'],
   triggers: [
-    http('GET', '/api/contacts/:clientId/timeline', {
+    http('GET', '/api/contacts/:contactId/timeline', {
       pathParams: pathParamsSchema,
       queryParams: queryParamsSchema,
       responseSchema: {
@@ -35,7 +35,7 @@ export const config = {
 }
 
 export const handler = async ({ request }) => {
-  const { clientId } = request.pathParams as z.infer<typeof pathParamsSchema>
+  const { contactId } = request.pathParams as z.infer<typeof pathParamsSchema>
   const { limit, skip } = request.queryParams as z.infer<typeof queryParamsSchema>
 
   try {
@@ -49,7 +49,7 @@ export const handler = async ({ request }) => {
         filter: {
           property: 'Contact',
           relation: {
-            contains: clientId,
+            contains: contactId,
           },
         },
         sorts: [

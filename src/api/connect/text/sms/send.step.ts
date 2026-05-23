@@ -2,7 +2,7 @@ import { http, type Handlers, type StepConfig } from 'motia'
 import { z } from 'zod'
 import notion from '../../../../utils/notion'
 import { templateRegistry } from '../../../../utils/template-registry-sms'
-import { dispatchSMS } from '../../../../utils/sms-providers'
+import dispatchSMS from '../../../../utils/sms-providers'
 
 import '../../../../../templates/text/sms/InternshipCompletionCertificateV1'
 import '../../../../../templates/text/sms/QuotationV1'
@@ -10,7 +10,7 @@ import '../../../../../templates/text/sms/QuotationV1'
 const notionDbId = JSON.parse(import.meta.env.NOTION_DB_ID)
 
 const pathParamsSchema = z.object({ channel: z.literal('sms') })
-const basePayload = z.object({ clientId: z.string() })
+const basePayload = z.object({ contactId: z.string() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -47,13 +47,13 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
   const body = request.body as BodyPayload
 
   try {
-    const contactPage = (await notion.pages.retrieve({ page_id: body.clientId })) as any
+    const contactPage = (await notion.pages.retrieve({ page_id: body.contactId })) as any
     const recipientPhone = contactPage.properties?.Phone?.phone_number
 
     if (!recipientPhone) {
       return {
         status: 400,
-        body: { error: `Contact page '${body.clientId}' does not contain a valid Phone number.` },
+        body: { error: `Contact page '${body.contactId}' does not contain a valid Phone number.` },
       }
     }
 
@@ -85,7 +85,7 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
         Summary: {
           rich_text: [{ text: { content: `[Gateway: ${dispatchResult.activeProviderName.toUpperCase()}] ${finalizedText}` } }],
         },
-        Contact: { relation: [{ id: body.clientId }] },
+        Contact: { relation: [{ id: body.contactId }] },
       },
     })
 

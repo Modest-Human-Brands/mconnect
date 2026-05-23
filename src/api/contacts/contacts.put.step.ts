@@ -51,7 +51,7 @@ const bodySchema = contactSchema
     projectCount: true,
   })
   .extend({
-    clientId: z.string().optional().nullable(),
+    contactId: z.string().optional().nullable(),
   })
 
 const NOTION_PROPERTY_MAP = {
@@ -86,7 +86,7 @@ export const config = {
     http('PUT', '/api/contacts', {
       bodySchema: bodySchema,
       responseSchema: {
-        200: z.object({ clientId: z.string(), status: z.string() }),
+        200: z.object({ contactId: z.string(), status: z.string() }),
       },
     }),
   ],
@@ -100,7 +100,7 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
     const properties: Record<string, any> = {}
 
     for (const [incomingKey, value] of Object.entries(body)) {
-      if (value === undefined || incomingKey === 'clientId') continue
+      if (value === undefined || incomingKey === 'contactId') continue
 
       const mapping = NOTION_PROPERTY_MAP[incomingKey as keyof typeof NOTION_PROPERTY_MAP]
       if (!mapping) continue
@@ -143,12 +143,12 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
       }
     }
 
-    let targetPageId = body.clientId
+    let targetPageId = body.contactId
 
     if (!targetPageId) {
       if (body.phone) {
         const phonePages = await notion.databases.query({
-          database_id: notionDbId.contact,
+          data_source_id: notionDbId.contact,
           filter: {
             property: 'Phone',
             phone_number: { contains: body.phone },
@@ -162,7 +162,7 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
 
       if (!targetPageId && body.email) {
         const emailPages = await notion.databases.query({
-          database_id: notionDbId.contact,
+          data_source_id: notionDbId.contact,
           filter: {
             property: 'Email',
             email: { equals: body.email },
@@ -184,7 +184,7 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
       })
     } else {
       const newPage = await notion.pages.create({
-        parent: { database_id: notionDbId.contact },
+        parent: { data_source_id: notionDbId.contact },
         properties,
       })
       targetPageId = newPage.id
@@ -194,7 +194,7 @@ export const handler: Handlers<typeof config> = async ({ request }) => {
     return {
       status: 200,
       body: {
-        clientId: targetPageId,
+        contactId: targetPageId,
         status: operationStatus,
       },
     }

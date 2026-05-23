@@ -30,7 +30,7 @@
 
 ### `PUT /api/contacts`
 
-**Description:** Upserts client profiles inside the unified Notion CRM using camelCase parameters. This endpoint is backed by a single master schema definition. It strips away read-only fields (such as Notion formulas or rollups like `profit` and `projectCount`) before processing writes. If no `clientId` is supplied, it performs a fallback check querying the database for existing duplicates matching on `Phone` or `Email` values sequentially before creating a new page record.
+**Description:** Upserts client profiles inside the unified Notion CRM using camelCase parameters. This endpoint is backed by a single master schema definition. It strips away read-only fields (such as Notion formulas or rollups like `profit` and `projectCount`) before processing writes. If no `contactId` is supplied, it performs a fallback check querying the database for existing duplicates matching on `Phone` or `Email` values sequentially before creating a new page record.
 
 **Input (JSON):**
 
@@ -52,14 +52,14 @@
 #### Payload Parameter Rules
 
 - **Required Fields:** `brand`, `company`, `email`, `address`, `phone`, `pocPerson`
-- **Optional/Nullable Fields:** `clientId`, `status` (Strict Status Enum), `type` (Strict Company Type Enum), `tags`, `acquisitionDate`, `place`, `whatsapp`, `pocCompany`, `pocAddress`, `pocEmail`, `pocPhone`, `website`, `facebook`, `instagram`, `twitter`, `linkedIn`
+- **Optional/Nullable Fields:** `contactId`, `status` (Strict Status Enum), `type` (Strict Company Type Enum), `tags`, `acquisitionDate`, `place`, `whatsapp`, `pocCompany`, `pocAddress`, `pocEmail`, `pocPhone`, `website`, `facebook`, `instagram`, `twitter`, `linkedIn`
 - **Ignored Fields (Read-Only):** `id`, `url`, `index`, `createdTime`, `lastEditedTime`, `profit`, `projectCount`
 
 **Output (JSON - 200 OK):**
 
 ```json
 {
-  "clientId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
+  "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
   "status": "created"
 }
 ```
@@ -97,13 +97,13 @@
 }
 ```
 
-### 🕒 `GET /api/contacts/:clientId/timeline`
+### 🕒 `GET /api/contacts/:contactId/timeline`
 
 **Description:** Retrieves a chronologically descended list (newest first) of communication interaction logs linked to a specific contact page using traditional offset-based pagination.
 
 **Path Parameters:**
 
-- 🆔 `clientId` (string, required): The unique identifier of the target contact page.
+- 🆔 `contactId` (string, required): The unique identifier of the target contact page.
 
 **Query Parameters:**
 
@@ -142,16 +142,12 @@
 
 ---
 
-## 2. Omnichannel Ingest Controller
+## 2. Channel-Specific Ingest Controllers
 
-### 📡 `POST /webhook/ingest/:channel`
+### 📨 `POST /api/text/email/receive`
 
-**Description:** Receives inbound message streams from third-party communication channels (such as incoming IMAP email workers or SMS webhooks), standardizes their properties, and records the interaction to the matching CRM contact timeline page.
-
-**Path Parameters:**
-
-- 🔀 `channel` (string, required): The entry communication vector. E.g., `email`, `sms`.
-
+**File Position:** `src/api/connect/text/email/receive.step.ts`
+**Description:** Dedicated webhook target endpoint managed by incoming IMAP email background pollers or external mail hooks. Standardizes incoming mail metadata payloads and appends them straight onto the client's CRM Timeline page.
 **Input Body (JSON):**
 
 ```json
@@ -160,18 +156,16 @@
   "to": "replies@modesthuman.com",
   "subject": "Project Scope Questions",
   "text": "Hi team, I had a few questions regarding the new project deadline...",
-  "html": "<p>Hi team, I had a few questions regarding the new project deadline...</p>"
+  "html": "<p>Hi team...</p>"
 }
 ```
 
-**Output (JSON - 200 OK):**
+**Output (JSON - 200 OK):** `{ "success": true, "interactionId": "log-uuid-1234" }`
 
-```json
-{
-  "success": true,
-  "interactionId": "log-uuid-1234"
-}
-```
+### 💬 `POST /api/text/sms/receive`
+
+**File Position:** `src/api/connect/text/sms/receive.step.ts`
+**Description:** Dedicated inbound hook for processing incoming mobile network transactional reply event streams.
 
 ---
 
@@ -251,7 +245,7 @@ Use this payload setup when pulling a registered compilation structure (like an 
 
 ```json
 {
-  "clientId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
+  "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
   "channel": "email",
   "template": "internship-completion-certificate",
   "variables": {
@@ -300,7 +294,7 @@ Use this payload setup to bypass the compilation registry entirely and pass raw 
 
 ```json
 {
-  "clientId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
+  "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
   "template": "none",
   "subject": "Automated Integration Test Notification",
   "displayName": "Internal Automated Service",
@@ -331,7 +325,7 @@ Use this payload setup to route data through the specialized `smsTemplateRegistr
 
 ```json
 {
-  "clientId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
+  "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
   "template": "internship-completion-certificate",
   "variables": {
     "recipientName": "Alex Mercer",
@@ -373,7 +367,7 @@ Use this payload setup when sending manual, transactional text broadcasts, or cu
 
 ```json
 {
-  "clientId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
+  "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
   "template": "none",
   "text": "Hi Alex, this is an automated message to confirm that the email delivery pipeline and API integration are functioning correctly. No further action is required."
 }
@@ -442,7 +436,24 @@ Use this payload setup when sending manual, transactional text broadcasts, or cu
 
 ---
 
-Progress = 7/13 = 53%
+### Roadmap
+
+| Order  | Route                                   | Module                 | Complexity Profile                                                                        | Status      |
+| ------ | --------------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------- | ----------- |
+| **1**  | `GET /api/health`                       | 0. Health Layer        | **Trivial**: Simple hardcoded static JSON response checking node availability.            | ✅ **Done** |
+| **2**  | `GET /api/contacts`                     | 1. Unified Directory   | **Low**: Standard read-only paginated list retrieval from Notion database.                | ✅ **Done** |
+| **3**  | `GET /api/contacts/:contactId/timeline` | 1. Unified Directory   | **Low**: Filtered paginated query retrieving chronological interaction rows.              | ✅ **Done** |
+| **4**  | `PUT /api/contacts`                     | 1. Unified Directory   | **Medium**: Smart upsert involving duplicate matching sequences and field filtering.      | ✅ **Done** |
+| **5**  | `POST /api/campaigns/enroll`            | 5. Automated Campaigns | **Medium**: Basic sequence registration mutating campaign membership states.              | ⏳ Pending  |
+| **6**  | `POST /api/text/sms/send`               | 4.2 SMS Gateway        | **Medium**: Dynamic string variable interpolation linked to the Fast2SMS provider.        | ✅ **Done** |
+| **7**  | `POST /api/text/email/send`             | 4.1 Email Gateway      | **High**: Dynamic Vue SFC compilation with custom setup proxies and download hooks.       | ✅ **Done** |
+| **8**  | `POST /api/text/email/receive`          | 2. Ingest Controllers  | **High**: Channel-isolated ingest processor handling incoming email payloads from disk.   | ✅ **Done** |
+| **9**  | `POST /webhook/voice/fallback`          | 3. Voice Control Layer | **High**: Telephony error XML handler triggering background message responders.           | ⏳ Pending  |
+| **10** | `POST /api/voice/inbound-route`         | 3. Voice Control Layer | **Advanced**: Real-time caller ID evaluation, dynamic MP3 hold music, and hunting logic.  | ⏳ Pending  |
+| **11** | `POST /api/voice/bridge`                | 3. Voice Control Layer | **Advanced**: Dual-leg REST telephone bridging, active session hooks, and call recording. | ⏳ Pending  |
+| **12** | `POST /api/campaigns/trigger-action`    | 5. Automated Campaigns | **Critical**: Time-boundary state machine tracking active steps and multi-channel events. | ⏳ Pending  |
+
+Progress = 7/12 = 58%
 
 ## License
 

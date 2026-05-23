@@ -389,4 +389,6 @@ target
 .mypy*
 test*
 .DS_Store
-.maizzle
+
+config
+static
