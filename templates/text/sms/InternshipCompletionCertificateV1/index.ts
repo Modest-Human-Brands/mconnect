@@ -1,4 +1,4 @@
-import registerSMSTemplate from '../../../../src/utils/template-registry-sms'
+import registerSMSTemplate from '~/server/utils/template-registry-sms'
 
 export interface InternshipCompletionSMSPayload {
   recipientName: string

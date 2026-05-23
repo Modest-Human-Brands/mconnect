@@ -1,0 +1,40 @@
+graph TD
+    subgraph Clients
+        C[Customer Physical Phone]
+    end
+
+    subgraph Telephony Gateway
+        VG[Vobiz PSTN/VoiceXML]
+    end
+
+    subgraph mconnect Backend Engine
+        API[Nitro / API Handlers]
+        DB[(Notion CRM / State)]
+    end
+
+    subgraph Real-Time Media
+        LK[LiveKit Media Server]
+        Rec[S3 Storage / Recordings]
+    end
+
+    subgraph Agents
+        AW[Agent WebRTC / Browser]
+        AP[Agent Physical Phone]
+        Sup[Supervisor Dashboard]
+    end
+
+    %% Customer Connections
+    C <-->|Standard Call| VG
+    VG <-->|Webhooks / XML| API
+    
+    %% Bridging the Realms
+    VG <-->|SIP Trunking / Audio Fork| LK
+    
+    %% Agent Connections
+    API <-->|Generates Tokens| AW
+    AW <-->|WebRTC| LK
+    VG <-->|Outbound Leg| AP
+    Sup -.->|Listen/Whisper| LK
+
+    %% Recording
+    LK -->|Egress Export| Rec

@@ -1,11 +1,3 @@
-# Code Editor files
-.vs
-.vscode
-
-# Git/Github
-.git
-.github
-
 # Nuxt dev/build outputs
 .cache
 .data
@@ -17,12 +9,13 @@ dist
 # Node dependencies
 node_modules
 
+# Package Manager
+package.json
+bun.lock
+
 # Logs
 logs
 *.log
-
-# Test
-coverage
 
 # Misc
 .DS_Store
@@ -31,7 +24,4 @@ coverage
 
 # Env files
 .env*
-
-# Docker files
-.dockerignore
-Dockerfile
+!.env.example

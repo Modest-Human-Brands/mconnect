@@ -1,6 +1,6 @@
-import path from 'node:path'
 import { ofetch } from 'ofetch'
-import registerVueTemplate from '../../../../src/utils/template-registry-email'
+import Component from './component.vue'
+import registerTemplate from '~/server/utils/template-registry-email'
 
 export interface InternshipCompletionCertificatePayload {
   recipientName: string
@@ -28,10 +28,21 @@ export interface InternshipCompletionCertificatePayload {
   }
 }
 
-registerVueTemplate({
+registerTemplate({
   id: 'internship-completion-certificate',
   subject: (data: InternshipCompletionCertificatePayload) => `Certificate of Completion - ${data.recipientName}`,
-  componentPath: path.resolve(process.cwd(), 'templates/text/email/InternshipCompletionCertificateV1/component.vue'),
+  component: Component,
+  transformPayload: (data: InternshipCompletionCertificatePayload) => {
+    return {
+      recipientName: data.recipientName,
+      bodyContent: `This certificate acknowledges your outstanding contribution and dedication as a ${data.recipientRole} towards ${data.scopeOfWork} during ${data.startDate} - ${data.endDate}, showcasing your commitment to excellence and teamwork at ${data.organization.name}.`,
+      dataOfIssue: data.dataOfIssue,
+      signerName: data.signerName,
+      signerTitle: data.signerTitle,
+      certificateUrl: data.certificateUrl,
+      organization: data.organization,
+    }
+  },
   getAttachments: async (data: InternshipCompletionCertificatePayload) => {
     const fileBuffer = await ofetch(data.certificateUrl, {
       responseType: 'arrayBuffer',
@@ -43,16 +54,5 @@ registerVueTemplate({
         contentType: 'application/pdf',
       },
     ]
-  },
-  transformPayload: (data: InternshipCompletionCertificatePayload) => {
-    return {
-      recipientName: data.recipientName,
-      bodyContent: `This certificate acknowledges your outstanding contribution and dedication as a ${data.recipientRole} towards ${data.scopeOfWork} during ${data.startDate} - ${data.endDate}, showcasing your commitment to excellence and teamwork at ${data.organization.name}.`,
-      dataOfIssue: data.dataOfIssue,
-      signerName: data.signerName,
-      signerTitle: data.signerTitle,
-      certificateUrl: data.certificateUrl,
-      organization: data.organization,
-    }
   },
 })

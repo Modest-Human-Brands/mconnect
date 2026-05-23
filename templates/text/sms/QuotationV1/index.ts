@@ -1,4 +1,4 @@
-import registerSMSTemplate from '../../../../src/utils/template-registry-sms'
+import registerSMSTemplate from '~/server/utils/template-registry-sms'
 
 export interface QuotationSMSPayload {
   clientName: string
@@ -9,7 +9,6 @@ export interface QuotationSMSPayload {
 
 registerSMSTemplate({
   id: 'quotation',
-
   transformPayload: (data: QuotationSMSPayload) => {
     const client = data.clientName || 'Client'
     const quoteNo = data.quoteNumber || `QT-${Date.now()}`
