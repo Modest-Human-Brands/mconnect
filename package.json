@@ -20,6 +20,7 @@
     "prepare": "husky || true",
     "postinstall": "nitro prepare",
     "dev": "nitro dev",
+    "tunnel": "bunx untun tunnel http://localhost:3000",
     "detect": "gitleaks git --verbose",
     "lint": "eslint . --fix",
     "format": "prettier . --write",
@@ -38,9 +39,10 @@
     "@vue-email/render": "^0.0.9",
     "c12": "^4.0.0-beta.5",
     "imapflow": "^1.3.3",
+    "livekit-server-sdk": "^2.15.3",
     "mailparser": "^3.9.8",
     "nitro": "^3.0.260522-beta",
-    "nodemailer": "^8.0.7",
+    "nodemailer": "^8.0.8",
     "unplugin-vue": "^7.2.0",
     "vue": "^3.5.34",
     "zod": "^4.4.3"
@@ -48,7 +50,7 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
-    "@dotenvx/dotenvx": "^1.67.0",
+    "@dotenvx/dotenvx": "^1.69.1",
     "@types/bun": "^1.3.14",
     "@types/mailparser": "^3.4.6",
     "@types/nodemailer": "^8.0.0",

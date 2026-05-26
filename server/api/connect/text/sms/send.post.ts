@@ -3,7 +3,7 @@ import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import type { NotionDB } from '~/server/types'
 import notion from '~/server/utils/notion'
-import dispatchSMS from '~/server/utils/sms-providers'
+import dispatchSMS from '~/server/utils/providers-sms'
 import { templateRegistry } from '~/server/utils/template-registry-sms'
 
 import '~/templates/text/sms/InternshipCompletionCertificateV1'

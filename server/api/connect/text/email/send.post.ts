@@ -1,10 +1,10 @@
-import { defineEventHandler, readBody, getRouterParams, HTTPError } from 'nitro/h3'
+import { defineEventHandler, readBody, getRouterParams, HTTPError, readValidatedBody, getValidatedRouterParams } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import { render } from '@vue-email/render'
 
 import notion from '~/server/utils/notion'
-import dispatchEmail from '~/server/utils/email-providers'
+import dispatchEmail from '~/server/utils/providers-email'
 import { templateRegistry } from '~/server/utils/template-registry-email'
 
 import '~/templates/text/email/InternshipCompletionCertificateV1'
@@ -33,14 +33,10 @@ const bodySchema = z.union([
   basePayload.extend({ subject: z.string().optional(), displayName: z.string().optional() }).and(templatedContent),
 ])
 
-type PathParams = z.infer<typeof pathParamsSchema>
-type BodyPayload = z.infer<typeof bodySchema>
-
 export default defineEventHandler(async (event) => {
   try {
-    const pathParams = getRouterParams(event)
-    const body = (await readBody(event)) as BodyPayload
-    const { channel } = pathParams as PathParams
+    const { channel } = await getValidatedRouterParams(event, pathParamsSchema)
+    const body = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB

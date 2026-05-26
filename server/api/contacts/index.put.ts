@@ -1,4 +1,4 @@
-import { defineEventHandler, HTTPError, readBody } from 'nitro/h3'
+import { defineEventHandler, HTTPError, readBody, readValidatedBody } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import type { NotionDB } from '~/server/types'
@@ -80,7 +80,7 @@ const NOTION_PROPERTY_MAP = {
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = (await readBody(event)) as z.infer<typeof bodySchema>
+    const body = await readValidatedBody(event, bodySchema)
     const properties: Record<string, any> = {}
 
     const config = useRuntimeConfig()

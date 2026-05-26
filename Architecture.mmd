@@ -1,40 +1,26 @@
 graph TD
-    subgraph Clients
-        C[Customer Physical Phone]
-    end
+    classDef pathA stroke:#33cc33,stroke-width:2px;
+    classDef pathB stroke:#3385ff,stroke-width:2px;
+    classDef failover stroke:#ff3333,stroke-width:2px;
 
-    subgraph Telephony Gateway
-        VG[Vobiz PSTN/VoiceXML]
-    end
-
-    subgraph mconnect Backend Engine
-        API[Nitro / API Handlers]
-        DB[(Notion CRM / State)]
-    end
-
-    subgraph Real-Time Media
-        LK[LiveKit Media Server]
-        Rec[S3 Storage / Recordings]
-    end
-
-    subgraph Agents
-        AW[Agent WebRTC / Browser]
-        AP[Agent Physical Phone]
-        Sup[Supervisor Dashboard]
-    end
-
-    %% Customer Connections
-    C <-->|Standard Call| VG
-    VG <-->|Webhooks / XML| API
+    Caller[📞 Caller] -->|1. Inbound Call| Vobiz[☎️ Vobiz SIP Trunk]
+    Vobiz -->|2. HTTP POST Webhook| Express[🚀 Express Backend]
+    Express -->|3. Read Flag| JSON[🗃️ Inline JSON Config]
     
-    %% Bridging the Realms
-    VG <-->|SIP Trunking / Audio Fork| LK
+    %% Path A: Direct PSTN
+    Express -->|4a. direct_pstn| VobizDirect[Forward Command]:::pathA
+    VobizDirect -->|Direct Route| BackupPSTN[📱 Backup Mobile]:::pathA
     
-    %% Agent Connections
-    API <-->|Generates Tokens| AW
-    AW <-->|WebRTC| LK
-    VG <-->|Outbound Leg| AP
-    Sup -.->|Listen/Whisper| LK
-
-    %% Recording
-    LK -->|Egress Export| Rec
+    %% Path B: Internet First
+    Express -->|4b. internet_first| LK_SDK[Provision Rule & Start 10s Timer]:::pathB
+    LK_SDK -->|5. SIP Bridge| LiveKit[🌐 LiveKit SIP Room]:::pathB
+    LK_SDK -->|6. Trigger VoIP Push| SmartPhone[📲 User App]:::pathB
+    
+    %% Success Sub-path
+    SmartPhone -->|7a. Joins Room within 10s| LiveKit:::pathB
+    LiveKit -->|8. Webhook: Connected| Express:::pathB
+    Express -->|9. clearTimeout| CancelTimer[🛑 Cancel Timer]:::pathB
+    
+    %% Timeout/Failover Sub-path
+    LK_SDK -.->|7b. Timer Expires after 10s| VobizAPI[Vobiz REST API]:::failover
+    VobizAPI -->|10. Redirect Active Leg| BackupPSTN:::failover

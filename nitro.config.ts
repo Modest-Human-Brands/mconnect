@@ -6,6 +6,9 @@ export default defineConfig({
   rollupConfig: {
     plugins: [vue()],
   },
+  features: {
+    websocket: true,
+  },
   runtimeConfig: {
     app: {
       version: '',
@@ -13,6 +16,12 @@ export default defineConfig({
     },
     private: {
       notionDbId: '',
+    },
+  },
+  storage: {
+    fs: {
+      driver: 'fs',
+      base: './static',
     },
   },
 })

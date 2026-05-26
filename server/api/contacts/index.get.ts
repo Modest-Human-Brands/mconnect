@@ -1,4 +1,4 @@
-import { defineEventHandler, getQuery, HTTPError } from 'nitro/h3'
+import { defineEventHandler, getQuery, getValidatedQuery, HTTPError } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import type { NotionDB } from '~/server/types'
@@ -11,7 +11,7 @@ const queryParamsSchema = z.object({
 
 export default defineEventHandler(async (event) => {
   try {
-    const query = getQuery(event)
+    const query = await getValidatedQuery(event, queryParamsSchema)
 
     const limit = query.limit ? Number(query.limit) : 50
     const offset = query.offset ? Number(query.offset) : 0

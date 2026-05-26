@@ -1,15 +1,19 @@
-import { defineEventHandler, getQuery, getRouterParams, HTTPError } from 'nitro/h3'
+import { defineEventHandler, getQuery, getRouterParams, getValidatedQuery, getValidatedRouterParams, HTTPError } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import type { NotionDB } from '~/server/types'
 import notion from '~/server/utils/notion'
 
 const pathParamsSchema = z.object({ contactId: z.string() })
+const queryParamsSchema = z.object({
+  limit: z.number().optional(),
+  offset: z.number().optional(),
+})
 
 export default defineEventHandler(async (event) => {
   try {
-    const pathParams = getRouterParams(event)
-    const query = getQuery(event)
+    const pathParams = await getValidatedRouterParams(event, pathParamsSchema)
+    const query = await getValidatedQuery(event, queryParamsSchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
@@ -18,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
     const totalCountPlaceholder = 100_000
     const limit = query.limit ? Number(query.limit) : totalCountPlaceholder
-    const skip = query.skip ? Number(query.skip) : 0
+    const offset = query.offset ? Number(query.offset) : 0
 
     const allLogs = []
     let hasMore = true
@@ -49,7 +53,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const total = allLogs.length
-    const paginatedLogs = allLogs.slice(skip, skip + limit)
+    const paginatedLogs = allLogs.slice(offset, offset + limit)
 
     const results = paginatedLogs.map((page: any) => {
       const props = page.properties
@@ -69,7 +73,7 @@ export default defineEventHandler(async (event) => {
       pagination: {
         total,
         limit: query.limit ? Number(query.limit) : total,
-        skip,
+        skip: offset,
       },
     }
   } catch (error: any) {

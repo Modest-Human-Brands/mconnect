@@ -1,5 +1,5 @@
 import { useRuntimeConfig } from 'nitro/runtime-config'
-import { defineEventHandler, readBody, getRouterParams, HTTPError } from 'nitro/h3'
+import { defineEventHandler, readBody, getRouterParams, HTTPError, getValidatedRouterParams, readValidatedBody } from 'nitro/h3'
 import { z } from 'zod'
 import { ofetch } from 'ofetch'
 import notion from '~/server/utils/notion'
@@ -16,11 +16,8 @@ const bodySchema = z.object({
 
 export default defineEventHandler(async (event) => {
   try {
-    const pathParams = getRouterParams(event)
-    const body = await readBody(event)
-
-    const { channel } = pathParams as z.infer<typeof pathParamsSchema>
-    const { from, to, subject, text, html } = body as z.infer<typeof bodySchema>
+    const { channel } = await getValidatedRouterParams(event, pathParamsSchema)
+    const { from, to, subject, text, html } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
