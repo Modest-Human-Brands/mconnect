@@ -1,7 +1,7 @@
 import { useRuntimeConfig } from 'nitro/runtime-config'
-import { defineEventHandler, readBody, getRouterParams, HTTPError, getValidatedRouterParams, readValidatedBody } from 'nitro/h3'
+import { defineEventHandler, HTTPError, getValidatedRouterParams, readValidatedBody } from 'nitro/h3'
 import { z } from 'zod'
-import { ofetch } from 'ofetch'
+import { $fetch } from 'ofetch'
 import notion from '~/server/utils/notion'
 import type { NotionDB } from '~/server/types'
 
@@ -31,12 +31,15 @@ export default defineEventHandler(async (event) => {
     const fallbackName = from.split('@')[0]
     const pocPerson = nameMatch ? nameMatch[1] : fallbackName
 
-    const { contactId } = await ofetch('/api/contacts', {
+    const { contactId } = await $fetch('/api/contacts', {
+      baseURL: 'http://localhost:3000',
       method: 'PUT',
       body: {
-        email: from.toLowerCase().trim(),
         brand: 'Unknown',
         company: 'Unknown',
+        email: from.toLowerCase().trim(),
+        phone: '',
+        address: 'Unknown',
         pocPerson,
         status: 'Communicate',
       },

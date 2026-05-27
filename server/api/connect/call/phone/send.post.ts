@@ -1,7 +1,5 @@
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
-import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
-import type { NotionDB } from '~/server/types'
 import notion from '~/server/utils/notion'
 import { initializeLiveKitSipBridge } from '~/server/utils/providers-phone'
 
@@ -17,24 +15,20 @@ export default defineEventHandler(async (event) => {
   try {
     const { contactId, userId, recordCall, orgId, webCall } = await readValidatedBody(event, bodySchema)
 
-    const config = useRuntimeConfig()
-    const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
-
-    console.log(`[Voice Engine]: Initializing LiveKit room bridge sequence for Contact: ${contactId} by Agent: ${userId}`)
+    console.log(`[Voice Engine]: Initializing LiveKit room bridge sequence for Contact: ${contactId} by User: ${userId}`)
 
     const contactPage = (await notion.pages.retrieve({ page_id: contactId })) as any
     const userPage = (await notion.pages.retrieve({ page_id: userId })) as any
 
     const destinationPhone = contactPage?.properties?.Phone?.phone_number || contactPage?.properties?.Phone?.phone
-    const userName = userPage?.properties?.Name?.title[0]?.text?.content
-    const agentPhone = userPage?.properties?.Phone?.phone_number || userPage?.properties?.Phone?.phone
+    const userPhone = userPage?.properties?.Phone?.phone_number || userPage?.properties?.Phone?.phone
 
     if (!destinationPhone) {
       event.res.status = 400
       return { error: `Contact page '${contactId}' does not contain a valid phone number property.` }
     }
 
-    if (!webCall && !agentPhone) {
+    if (!webCall && !userPhone) {
       event.res.status = 400
       return { error: `User page '${userId}' does not contain a valid phone number property for SIP bridging.` }
     }
@@ -43,33 +37,9 @@ export default defineEventHandler(async (event) => {
       contactId,
       userId,
       destinationPhone,
-      agentPhone: webCall ? undefined : agentPhone,
+      userPhone: webCall ? undefined : userPhone,
       webCall: !!webCall,
       recordCall,
-    })
-
-    let loggingSummary = `[Outbound Audio Bridge Initiated via LiveKit]\n`
-    loggingSummary += `Room Tracking Identity: ${bridgeResult.roomName}\n`
-    loggingSummary += `Call Session UUID: ${bridgeResult.callUuid}\n`
-    loggingSummary += `Agent Processing Leg: ${userName}\n`
-    loggingSummary += `Agent Dial Method: ${webCall ? 'WebRTC (Browser)' : `SIP Trunk (${agentPhone})`}\n`
-    loggingSummary += `Customer Target Leg: ${destinationPhone}\n`
-    loggingSummary += `Automatic S3 Recording: ${recordCall ? 'Enabled' : 'Disabled'}`
-
-    await notion.pages.create({
-      parent: { data_source_id: notionDbId.interaction },
-      properties: {
-        'Interaction ID': { title: [{ text: { content: `voice-bridge-${bridgeResult.callUuid}` } }] },
-        Channel: { select: { name: 'voice' } },
-        Direction: { select: { name: 'outbound' } },
-        Timestamp: { date: { start: new Date().toISOString() } },
-        Summary: {
-          rich_text: [{ text: { content: loggingSummary } }],
-        },
-        Contact: { relation: [{ id: contactId }] },
-        User: { relation: [{ id: userId }] },
-        Organization: { relation: [{ id: orgId }] },
-      },
     })
 
     event.res.status = 200

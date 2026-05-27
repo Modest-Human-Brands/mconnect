@@ -1,13 +1,14 @@
-import { defineEventHandler, HTTPError, readBody, readValidatedBody } from 'nitro/h3'
+import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import type { NotionDB } from '~/server/types'
 import notion from '~/server/utils/notion'
+import notionQueryDb from '~/server/utils/notion-query-db'
 
 const CONTACT_STATUSES = ['Unverified', 'Researched', 'Verified', 'Initiate', 'Communicate', 'Converted', 'Cancelled', 'Active', 'Inactive', 'On Hold'] as const
 const COMPANY_TYPES = ['Brand', 'Product', 'Agency', 'Food', 'FMCG', 'Sweet', 'Real Estate', 'Hotel', 'Home Decor', 'Leather', 'Garment', 'Cosmetics', 'Jewellery', 'Accessories'] as const
 
-export const contactSchema = z.object({
+const contactSchema = z.object({
   id: z.string(),
   url: z.url(),
   createdTime: z.string(),
@@ -37,8 +38,6 @@ export const contactSchema = z.object({
   twitter: z.url().optional().nullable(),
   linkedIn: z.url().optional().nullable(),
 })
-
-export type Contact = z.infer<typeof contactSchema>
 
 const bodySchema = contactSchema
   .omit({
@@ -134,30 +133,28 @@ export default defineEventHandler(async (event) => {
 
     if (!targetPageId) {
       if (body.phone) {
-        const phonePages = await notion.dataSources.query({
-          data_source_id: notionDbId.contact,
+        const phonePages = await notionQueryDb<{ id: string }>(notion, notionDbId.contact, {
           filter: {
             property: 'Phone',
             phone_number: { contains: body.phone },
           },
         })
 
-        if (phonePages.results.length > 0) {
-          targetPageId = phonePages.results[0].id
+        if (phonePages.length > 0) {
+          targetPageId = phonePages[0].id
         }
       }
 
       if (!targetPageId && body.email) {
-        const emailPages = await notion.dataSources.query({
-          data_source_id: notionDbId.contact,
+        const emailPages = await notionQueryDb<{ id: string }>(notion, notionDbId.contact, {
           filter: {
             property: 'Email',
             email: { equals: body.email },
           },
         })
 
-        if (emailPages.results.length > 0) {
-          targetPageId = emailPages.results[0].id
+        if (emailPages.length > 0) {
+          targetPageId = emailPages[0].id
         }
       }
     }

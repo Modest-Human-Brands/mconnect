@@ -5,7 +5,7 @@ interface SipBridgePayload {
   contactId: string
   userId: string
   destinationPhone: string
-  agentPhone?: string
+  userPhone?: string
   webCall: boolean
   recordCall: boolean
 }
@@ -63,54 +63,49 @@ export async function initializeLiveKitSipBridge(payload: SipBridgePayload) {
     throw new Error(`[Voice Utility Error]: No active Outbound SIP Trunk mapping found for vendor string: "${targetProvider}"`)
   }
 
-  const targetRoomName = `room-${payload.contactId}`
-  const backupCallId = `call-${payload.contactId}-${Date.now()}`
+  const roomName = `outbound-call_${payload.contactId}`
 
   try {
-    // 1. Create the Room
     const roomService = new RoomServiceClient(settings.host, settings.apiKey, settings.apiSecret)
     await roomService.createRoom({
-      name: targetRoomName,
+      name: roomName,
       emptyTimeout: 300,
       maxParticipants: 5,
     })
-    console.log(`[LiveKit Media]: Centralized room instance allocated -> ${targetRoomName}`)
+    console.log(`[LiveKit Media]: Centralized room instance allocated -> ${roomName}`)
 
-    // 2. Dial the Customer
     const sipClient = new SipClient(settings.host, settings.apiKey, settings.apiSecret)
     console.log(`[SIP Dial Engine]: Launching call leg to ${payload.destinationPhone} via ${targetProvider.toUpperCase()} (Trunk: ${sipTrunkId})`)
 
-    const sipParticipant = await sipClient.createSipParticipant(sipTrunkId, payload.destinationPhone, targetRoomName, {
-      participantIdentity: `customer-${payload.contactId}`,
-      participantName: 'Customer Leg',
+    const sipParticipant = await sipClient.createSipParticipant(sipTrunkId, payload.destinationPhone, roomName, {
+      participantIdentity: `contact-${payload.contactId}`,
+      participantName: 'Contact Leg',
     })
-    console.log(`[SIP Dial Success]: Connected customer track safely to LiveKit space. Channel Reference: ${sipParticipant.sipCallId}`)
+    console.log(`[SIP Dial Success]: Connected contact track safely to LiveKit space. Channel Reference: ${sipParticipant.sipCallId}`)
 
-    // 3. Connect the Agent (WebRTC vs SIP Bridge)
-    let agentAccessToken: string | undefined
+    let userAccessToken: string | undefined
 
     if (payload.webCall) {
-      console.log(`[WebRTC Engine]: Generating Access Token for Agent browser session -> ${payload.userId}`)
+      console.log(`[WebRTC Engine]: Generating Access Token for User browser session -> ${payload.userId}`)
       const at = new AccessToken(settings.apiKey, settings.apiSecret, {
-        identity: `agent-${payload.userId}`,
-        name: 'Agent Leg',
+        identity: `user-${payload.userId}`,
+        name: 'User Leg',
       })
-      // Grant permission to join this specific room and publish audio
-      at.addGrant({ roomJoin: true, room: targetRoomName, canPublish: true, canSubscribe: true })
-      agentAccessToken = await at.toJwt()
+
+      at.addGrant({ roomJoin: true, room: roomName, canPublish: true, canSubscribe: true })
+      userAccessToken = await at.toJwt()
     } else {
-      if (!payload.agentPhone) {
-        throw new Error('[Voice Utility Error]: Agent phone number is required for a SIP-to-SIP bridge.')
+      if (!payload.userPhone) {
+        throw new Error('[Voice Utility Error]: User phone number is required for a SIP-to-SIP bridge.')
       }
-      console.log(`[SIP Dial Engine]: Launching secondary call leg to Agent ${payload.agentPhone}`)
-      await sipClient.createSipParticipant(sipTrunkId, payload.agentPhone, targetRoomName, {
-        participantIdentity: `agent-${payload.userId}`,
-        participantName: 'Agent Leg',
+      console.log(`[SIP Dial Engine]: Launching secondary call leg to User ${payload.userPhone}`)
+      await sipClient.createSipParticipant(sipTrunkId, payload.userPhone, roomName, {
+        participantIdentity: `user-${payload.userId}`,
+        participantName: 'User Leg',
       })
-      console.log(`[SIP Dial Success]: Connected agent track safely to LiveKit space.`)
+      console.log(`[SIP Dial Success]: Connected user track safely to LiveKit space.`)
     }
 
-    // 4. Start Recording (If Requested)
     if (payload.recordCall) {
       const egressClient = new EgressClient(settings.host, settings.apiKey, settings.apiSecret)
       const fileOutput = new EncodedFileOutput({
@@ -118,15 +113,14 @@ export async function initializeLiveKitSipBridge(payload: SipBridgePayload) {
         filepath: `/recordings/call-${payload.contactId}-${Date.now()}.mp4`,
       })
 
-      const egressInfo = await egressClient.startRoomCompositeEgress(targetRoomName, fileOutput, { audioOnly: true })
+      const egressInfo = await egressClient.startRoomCompositeEgress(roomName, fileOutput, { audioOnly: true })
       console.log(`[Egress Recording Engine]: Local file capture session active. Tracking Reference: ${egressInfo.egressId}`)
     }
 
-    // 5. Return payload for the Nitro endpoint
     return {
-      roomName: targetRoomName,
-      callUuid: sipParticipant.sipCallId || backupCallId,
-      accessToken: agentAccessToken, // Will be undefined if webCall is false
+      roomName: roomName,
+      callUuid: sipParticipant.sipCallId,
+      accessToken: userAccessToken,
     }
   } catch (mediaError: any) {
     console.error('❌ [Media Engine Exception]: Failed vendor-agnostic room bridge deployment sequence:', mediaError)

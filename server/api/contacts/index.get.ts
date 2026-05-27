@@ -3,6 +3,7 @@ import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import type { NotionDB } from '~/server/types'
 import notion from '~/server/utils/notion'
+import notionQueryDb from '~/server/utils/notion-query-db'
 
 const queryParamsSchema = z.object({
   limit: z.number().optional(),
@@ -21,21 +22,7 @@ export default defineEventHandler(async (event) => {
 
     console.log({ notionDbId: notionDbId.contact })
 
-    const allRecords = []
-    let hasMore = true
-    let currentCursor = undefined
-
-    while (hasMore) {
-      const response = await notion.dataSources.query({
-        data_source_id: notionDbId.contact,
-        page_size: 100,
-        start_cursor: currentCursor,
-      })
-
-      allRecords.push(...response.results)
-      hasMore = response.has_more
-      currentCursor = response.next_cursor ?? undefined
-    }
+    const allRecords = await notionQueryDb(notion, notionDbId.contact)
 
     const total = allRecords.length
     const paginatedPages = allRecords.slice(offset, offset + limit)
