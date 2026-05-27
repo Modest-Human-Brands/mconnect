@@ -1,11 +1,10 @@
 import { useRuntimeConfig } from 'nitro/runtime-config'
-import { defineEventHandler, HTTPError, getValidatedRouterParams, readValidatedBody } from 'nitro/h3'
+import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { z } from 'zod'
 import { $fetch } from 'ofetch'
 import notion from '~/server/utils/notion'
 import type { NotionDB } from '~/server/types'
 
-const pathParamsSchema = z.object({ channel: z.string() })
 const bodySchema = z.object({
   from: z.string(),
   to: z.string(),
@@ -16,16 +15,10 @@ const bodySchema = z.object({
 
 export default defineEventHandler(async (event) => {
   try {
-    const { channel } = await getValidatedRouterParams(event, pathParamsSchema)
     const { from, to, subject, text, html } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
-
-    if (channel !== 'email') {
-      event.res.status = 400
-      return { error: `Channel '${channel}' is not supported by this ingestion route.` }
-    }
 
     const nameMatch = from.match(/^"?(.*?)"?\s*<.+>$/)
     const fallbackName = from.split('@')[0]

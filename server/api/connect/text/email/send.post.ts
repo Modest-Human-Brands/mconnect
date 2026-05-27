@@ -11,7 +11,6 @@ import '~/templates/text/email/InternshipCompletionCertificateV1'
 import '~/templates/text/email/QuotationV1'
 import type { NotionDB } from '~/server/types'
 
-const pathParamsSchema = z.object({ channel: z.literal('mail') })
 const basePayload = z.object({ contactId: z.string() })
 
 const rawContent = z.object({
@@ -35,7 +34,6 @@ const bodySchema = z.union([
 
 export default defineEventHandler(async (event) => {
   try {
-    const { channel } = await getValidatedRouterParams(event, pathParamsSchema)
     const body = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()

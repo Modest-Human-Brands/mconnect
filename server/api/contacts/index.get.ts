@@ -6,8 +6,8 @@ import notion from '~/server/utils/notion'
 import notionQueryDb from '~/server/utils/notion-query-db'
 
 const queryParamsSchema = z.object({
-  limit: z.number().optional(),
-  offset: z.number().optional(),
+  limit: z.string().optional(),
+  offset: z.string().optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -19,8 +19,6 @@ export default defineEventHandler(async (event) => {
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
-
-    console.log({ notionDbId: notionDbId.contact })
 
     const allRecords = await notionQueryDb(notion, notionDbId.contact)
 

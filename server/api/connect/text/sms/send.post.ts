@@ -1,4 +1,4 @@
-import { defineEventHandler, readBody, getRouterParams, HTTPError } from 'nitro/h3'
+import { defineEventHandler, readBody, getRouterParams, HTTPError, readValidatedBody } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import type { NotionDB } from '~/server/types'
@@ -9,7 +9,6 @@ import { templateRegistry } from '~/server/utils/template-registry-sms'
 import '~/templates/text/sms/InternshipCompletionCertificateV1'
 import '~/templates/text/sms/QuotationV1'
 
-const pathParamsSchema = z.object({ channel: z.literal('sms') })
 const basePayload = z.object({ contactId: z.string() })
 
 const rawContent = z.object({
@@ -26,14 +25,9 @@ const templatedContent = z.object({
 
 const bodySchema = z.union([basePayload.and(rawContent), basePayload.and(templatedContent)])
 
-type PathParams = z.infer<typeof pathParamsSchema>
-type BodyPayload = z.infer<typeof bodySchema>
-
 export default defineEventHandler(async (event) => {
   try {
-    const pathParams = getRouterParams(event)
-    const body = (await readBody(event)) as BodyPayload
-    const { channel } = pathParams as PathParams
+    const body = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB

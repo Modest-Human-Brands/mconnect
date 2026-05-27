@@ -1,4 +1,4 @@
-import { defineEventHandler, getQuery, getRouterParams, getValidatedQuery, getValidatedRouterParams, HTTPError } from 'nitro/h3'
+import { defineEventHandler, getValidatedQuery, getValidatedRouterParams, HTTPError } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import type { NotionDB } from '~/server/types'
@@ -7,8 +7,8 @@ import notionQueryDb from '~/server/utils/notion-query-db'
 
 const pathParamsSchema = z.object({ contactId: z.string() })
 const queryParamsSchema = z.object({
-  limit: z.number().optional(),
-  offset: z.number().optional(),
+  limit: z.string().optional(),
+  offset: z.string().optional(),
 })
 
 export default defineEventHandler(async (event) => {
