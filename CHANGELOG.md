@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.3.0
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.2.6...v0.3.0)
+
+### 🚀 Enhancements
+
+- Refactor email and sms templates, add new imap polling job ([e445511](https://github.com/Modest-Human-Brands/mconnect/commit/e445511))
+- Add voice call handling steps and integrate with Notion CRM ([93cb8d8](https://github.com/Modest-Human-Brands/mconnect/commit/93cb8d8))
+- ⚠️ Migrated from motia to nitro ([5918878](https://github.com/Modest-Human-Brands/mconnect/commit/5918878))
+- ⚠️ Sip trunking added ([92b1038](https://github.com/Modest-Human-Brands/mconnect/commit/92b1038))
+- Refactor phone call handling, and add status webhook ([15141f5](https://github.com/Modest-Human-Brands/mconnect/commit/15141f5))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️ Migrated from motia to nitro ([5918878](https://github.com/Modest-Human-Brands/mconnect/commit/5918878))
+- ⚠️ Sip trunking added ([92b1038](https://github.com/Modest-Human-Brands/mconnect/commit/92b1038))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.2.6
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.2.5...v0.2.6)
