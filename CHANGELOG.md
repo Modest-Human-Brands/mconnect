@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.1
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.3.0...v0.3.1)
+
+### 🩹 Fixes
+
+- Streamline email and SMS handling by removing unused 'channel', and remove false zod validation ([d277d00](https://github.com/Modest-Human-Brands/mconnect/commit/d277d00))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.3.0
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.2.6...v0.3.0)
