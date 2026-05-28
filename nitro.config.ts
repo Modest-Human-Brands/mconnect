@@ -4,12 +4,7 @@ import vue from 'unplugin-vue/rollup'
 export default defineConfig({
   serverDir: './server',
   rollupConfig: {
-    plugins: [
-      vue({
-        isProduction: true,
-        compilerOptions: { ssr: true },
-      }),
-    ],
+    plugins: [vue()],
   },
   // imports: {},
   features: {

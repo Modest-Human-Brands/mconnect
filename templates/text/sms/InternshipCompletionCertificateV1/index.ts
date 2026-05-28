@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import registerSMSTemplate from '~/server/utils/template-registry-sms'
 
-export const internshipCompletionSMSSchema = z.object({
+export const internshipCompletionCertificateSchema = z.object({
   recipientName: z.string(),
   recipientRole: z.string(),
   certificateUrl: z.string(),
@@ -12,9 +12,9 @@ export const internshipCompletionSMSSchema = z.object({
     .optional(),
 })
 
-export type InternshipCompletionSMSPayload = z.infer<typeof internshipCompletionSMSSchema>
+export type InternshipCompletionCertificatePayload = z.infer<typeof internshipCompletionCertificateSchema>
 
-const placeholders: InternshipCompletionSMSPayload = {
+const placeholders: InternshipCompletionCertificatePayload = {
   recipientName: 'Alex Mercer',
   recipientRole: 'Senior Marketing Intern',
   certificateUrl: 'https://modesthumanbrands.com/cert/12345',
@@ -25,10 +25,9 @@ const placeholders: InternshipCompletionSMSPayload = {
 
 registerSMSTemplate({
   id: 'internship-completion-certificate',
-  schema: internshipCompletionSMSSchema,
+  schema: internshipCompletionCertificateSchema,
   placeholders,
-
-  transformPayload: (data: any) => {
+  transformPayload: (data: InternshipCompletionCertificatePayload) => {
     const p = placeholders
     const orgName = data?.organization?.name || p.organization?.name
     const recipient = data?.recipientName || p.recipientName

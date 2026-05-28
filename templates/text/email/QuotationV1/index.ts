@@ -59,13 +59,12 @@ registerTemplate({
   id: 'quotation',
   schema: quotationSchema,
   placeholders,
-  subject: (data: any) => {
+  subject: (data: QuotationPayload) => {
     const qNum = data?.quoteNumber || placeholders.quoteNumber
     const orgName = data?.organization?.name || placeholders.organization.name
     return `Project Quotation Estimate #${qNum} - ${orgName}`
   },
   component: Component,
-  componentPath: 'templates/text/email/QuotationV1/component.vue',
   transformPayload: (data: any) => {
     const p = placeholders
     const org = data?.organization || {}

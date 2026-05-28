@@ -62,8 +62,7 @@ registerTemplate({
   placeholders,
   subject: (data: InternshipCompletionCertificatePayload) => `Certificate of Completion - ${data?.recipientName || placeholders.recipientName}`,
   component: Component,
-  componentPath: 'templates/text/email/InternshipCompletionCertificateV1/component.vue',
-  transformPayload: (data: any) => {
+  transformPayload: (data: InternshipCompletionCertificatePayload) => {
     const p = placeholders
     const orgName = data?.organization?.name || p.organization.name
 

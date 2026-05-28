@@ -5,7 +5,6 @@ export interface EmailTemplateDefinition {
   id: string
   subject: string | ((data: any) => string)
   component: Component
-  componentPath: string
   schema: z.ZodObject<any, any>
   placeholders: Record<string, any>
   transformPayload: (rawData: any) => Record<string, any>

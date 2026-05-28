@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import registerWhatsAppTemplate from '~/server/utils/template-registry-whatsapp'
 
-export const quotationWhatsAppSchema = z.object({
+export const quotationSchema = z.object({
   clientName: z.string(),
   quoteNumber: z.string(),
   totalAmount: z.union([z.string(), z.number()]),
@@ -13,9 +13,9 @@ export const quotationWhatsAppSchema = z.object({
     .optional(),
 })
 
-export type QuotationWhatsAppPayload = z.infer<typeof quotationWhatsAppSchema>
+export type QuotationPayload = z.infer<typeof quotationSchema>
 
-const placeholders: QuotationWhatsAppPayload = {
+const placeholders: QuotationPayload = {
   clientName: 'Wayne Enterprises',
   quoteNumber: 'QT-2026-089',
   totalAmount: '13,500.00',
@@ -27,9 +27,9 @@ const placeholders: QuotationWhatsAppPayload = {
 
 registerWhatsAppTemplate({
   id: 'quotation',
-  schema: quotationWhatsAppSchema,
+  schema: quotationSchema,
   placeholders,
-  transformPayload: (data: any) => {
+  transformPayload: (data: QuotationPayload) => {
     const p = placeholders
     const client = data?.clientName || p.clientName
     const quoteNo = data?.quoteNumber || p.quoteNumber
