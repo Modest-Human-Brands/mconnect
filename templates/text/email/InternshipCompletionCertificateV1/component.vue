@@ -8,33 +8,24 @@ defineProps<{
   signerName: string
   signerTitle: string
   certificateUrl: string
-  organization: {
-    id: string
-    name: string
-    website: string
-    branding: {
-      logo: string
-      color: {
-        primary: string
-        accent: string
-      }
-      font: string
-    }
-    socials?: Record<string, any>
-  }
+  organizationName: string
+  organizationLogo: string
+  organizationColorPrimary: string
+  organizationColorAccent: string
+  organizationFont: string
 }>()
 </script>
 
 <template>
   <Html>
     <Head />
-    <Tailwind :config="{ theme: { extend: { colors: { primary: organization.branding.color.primary } } } }">
-      <Body :style="{ fontFamily: `'${organization.branding.font}', system-ui, sans-serif` }" class="m-0 p-0">
-        <Section :style="{ backgroundColor: organization.branding.color.primary }">
+    <Tailwind :config="{ theme: { extend: { colors: { primary: organizationColorPrimary } } } }">
+      <Body :style="{ fontFamily: `'${organizationFont}', system-ui, sans-serif` }" class="m-0 p-0">
+        <Section :style="{ backgroundColor: organizationColorPrimary }">
           <Container class="mx-auto w-full max-w-[600px]">
             <Section class="px-6 py-12">
-              <Section class="p-10 text-center shadow-2xl border-t-4" :style="{ backgroundColor: '#ffffff', borderColor: organization.branding.color.accent || '#1a1a1a' }">
-                <Img :src="organization.branding.logo" :alt="organization.name" width="120" class="mx-auto mb-6" />
+              <Section class="p-10 text-center shadow-2xl border-t-4" :style="{ backgroundColor: '#ffffff', borderColor: organizationColorAccent || '#1a1a1a' }">
+                <Img :src="organizationLogo" :alt="organizationName" width="120" class="mx-auto mb-6" />
 
                 <Text class="m-0 mb-2 text-sm font-bold tracking-widest uppercase text-gray-500"> Certificate of Completion </Text>
 
@@ -49,7 +40,7 @@ defineProps<{
                 </Section>
 
                 <Section class="text-center my-6">
-                  <Button class="text-white font-bold text-sm px-6 py-3 rounded-md no-underline inline-block" :style="{ backgroundColor: organization.branding.color.primary }" :href="certificateUrl">
+                  <Button class="text-white font-bold text-sm px-6 py-3 rounded-md no-underline inline-block" :style="{ backgroundColor: organizationColorPrimary }" :href="certificateUrl">
                     Download Certificate PDF
                   </Button>
                 </Section>
@@ -58,7 +49,7 @@ defineProps<{
                   <Text class="m-0 font-bold text-gray-800 leading-none mb-1">
                     {{ signerName }}
                   </Text>
-                  <Text class="m-0 text-xs text-gray-400 uppercase tracking-wider"> {{ signerTitle }}, {{ organization.name }} </Text>
+                  <Text class="m-0 text-xs text-gray-400 uppercase tracking-wider"> {{ signerTitle }}, {{ organizationName }} </Text>
                 </Section>
               </Section>
             </Section>

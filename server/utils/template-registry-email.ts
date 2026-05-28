@@ -1,9 +1,13 @@
 import type { Component } from 'vue'
+import type { z } from 'zod'
 
 export interface EmailTemplateDefinition {
   id: string
   subject: string | ((data: any) => string)
   component: Component
+  componentPath: string
+  schema: z.ZodObject<any, any>
+  placeholders: Record<string, any>
   transformPayload: (rawData: any) => Record<string, any>
   getAttachments?: (rawData: any) => Promise<any[]>
 }

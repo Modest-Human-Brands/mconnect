@@ -1,4 +1,4 @@
-import { defineEventHandler, readBody, getRouterParams, HTTPError, readValidatedBody, getValidatedRouterParams } from 'nitro/h3'
+import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import { render } from '@vue-email/render'
@@ -6,10 +6,9 @@ import { render } from '@vue-email/render'
 import notion from '~/server/utils/notion'
 import dispatchEmail from '~/server/utils/providers-email'
 import { templateRegistry } from '~/server/utils/template-registry-email'
-
-import '~/templates/text/email/InternshipCompletionCertificateV1'
-import '~/templates/text/email/QuotationV1'
 import type { NotionDB } from '~/server/types'
+
+import '~/templates/text/email'
 
 const basePayload = z.object({ contactId: z.string() })
 

@@ -806,10 +806,10 @@
 | **4**  | `PUT /api/contacts`                               | 1. Unified Directory      | **Medium**: Smart upsert involving duplicate matching phone/email logic and strict read-only property filtering.                                                                                                             | ✅ **Done**    |
 | **5**  | `POST /api/connect/text/email/send`               | 4.1 Email Gateway         | **High**: Compiles type-safe Vue single-file component templates dynamically, processes attachment streams, and maps delivery logs to the CRM timeline.                                                                      | ✅ **Done**    |
 | **6**  | `POST /api/connect/text/email/receive`            | 2. Ingest Controllers     | **High**: Webhook or IMAP background poller target that ingests inbound multi-part mime mail blocks, extracts metadata, and maps records to the contact page timeline.                                                       | ✅ **Done**    |
-| **7**  | `GET /api/connect/text/email/template`            | 4.3 Templates             | **Low**: Exposes active, pre-compiled Vue-Email layout definitions and expected variable schema objects to the client UI dropdowns.                                                                                          | ⏳ **Pending** |
+| **7**  | `GET /api/connect/text/email/template`            | 4.3 Templates             | **Low**: Exposes active, pre-compiled Vue-Email layout definitions and expected variable schema objects to the client UI dropdowns.                                                                                          | ✅ **Done**    |
 | **8**  | `POST /api/connect/text/sms/send`                 | 4.2 SMS Gateway           | **Medium**: Dynamic variable text substitution and payload routing mapped across decoupled vendor strategies (Vobiz/Fast2SMS).                                                                                               | ✅ **Done**    |
 | **9**  | `POST /api/connect/text/sms/receive`              | 2. Ingest Controllers     | **Medium**: Standardizes incoming mobile network SMS text replies, maps originating numbers back to contact profiles, and appends rows to the tracking ledger.                                                               | ⏳ **Pending** |
-| **10** | `GET /api/connect/text/sms/template`              | 4.3 Templates             | **Low**: Returns the system catalog of plain text SMS compilation keys and variable strings.                                                                                                                                 | ⏳ **Pending** |
+| **10** | `GET /api/connect/text/sms/template`              | 4.3 Templates             | **Low**: Returns the system catalog of plain text SMS compilation keys and variable strings.                                                                                                                                 | ✅ **Done**    |
 | **11** | `POST /api/connect/text/whatsapp/send`            | 4.4 WhatsApp Layer        | **Medium**: Connects to the Meta Cloud API to dispatch high-volume notifications, rich media documents, interactive buttons, or official template matrices.                                                                  | ⏳ **Pending** |
 | **12** | `POST /api/connect/text/whatsapp/receive`         | 2. Ingest Controllers     | **Medium**: Core Meta webhook listener tracking real-time user message replies, read/delivery receipt flags, location sharing data, and incoming media uploads.                                                              | ⏳ **Pending** |
 | **13** | `GET /api/connect/text/whatsapp/template`         | 4.3 Templates             | **Low**: Communicates with the Meta Graph API to synchronize and pull business-approved WhatsApp templates down to local layout pickers.                                                                                     | ⏳ **Pending** |
@@ -829,7 +829,7 @@
 
 ---
 
-Progress = 9/26 = 36%
+Progress = 11/26 = 42%
 
 ## License
 

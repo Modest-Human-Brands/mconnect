@@ -3,10 +3,11 @@ import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import type { NotionDB } from '~/server/types'
 import notion from '~/server/utils/notion'
-import dispatchSMS from '~/server/utils/providers-sms'
-import { templateRegistry } from '~/server/utils/template-registry-sms'
 
-import '~/templates/text/sms'
+import dispatchWhatsApp from '~/server/utils/providers-whatsapp'
+import { templateRegistry } from '~/server/utils/template-registry-whatsapp'
+
+import '~/templates/text/whatsapp'
 
 const basePayload = z.object({ contactId: z.string() })
 
@@ -35,50 +36,55 @@ export default defineEventHandler(async (event) => {
     const recipientPhone = contactPage.properties?.Phone?.phone_number
 
     if (!recipientPhone) {
-      event.res.status = 400
-      return { error: `Contact page '${body.contactId}' does not contain a valid Phone number.` }
+      throw new HTTPError({ statusCode: 400, statusMessage: `Contact page '${body.contactId}' does not contain a valid Phone number.` })
     }
 
-    let finalizedText = body.text || ''
+    const finalizedPayload: any = { to: recipientPhone }
+    let summaryText = ''
 
-    if (body.template !== 'none') {
+    if (body.template === 'none') {
+      finalizedPayload.type = 'text'
+      finalizedPayload.text = body.text
+      summaryText = body.text || ''
+    } else {
       const templateDef = templateRegistry[body.template]
       if (!templateDef) {
-        event.res.status = 400
-        return { error: `SMS template layout '${body.template}' is not registered.` }
+        throw new HTTPError({ statusCode: 400, statusMessage: `WhatsApp template '${body.template}' is not registered.` })
       }
 
       const variables = 'variables' in body ? body.variables : {}
-      const transformedProps = templateDef.transformPayload(variables)
-      finalizedText = transformedProps.text || body.text || `Template compiled for: ${body.template}`
+
+      const templateData = templateDef.transformPayload(variables)
+      finalizedPayload.type = 'template'
+      Object.assign(finalizedPayload, templateData) // Ensure transformPayload maps to templateId, templateLanguage, etc.
+
+      summaryText = templateData.text || templateData.templateId || `Template compiled for: ${body.template}`
     }
 
-    const dispatchResult = await dispatchSMS(recipientPhone, finalizedText)
+    console.log({ finalizedPayload })
+    const dispatchResult = await dispatchWhatsApp(finalizedPayload)
 
     const interactionPage = await notion.pages.create({
       parent: { data_source_id: notionDbId.interaction },
       properties: {
-        'Interaction ID': { title: [{ text: { content: `outbound-sms-${Date.now()}` } }] },
-        Channel: { select: { name: 'sms' } },
+        'Interaction ID': { title: [{ text: { content: `outbound-whatsapp-${Date.now()}` } }] },
+        Channel: { select: { name: 'whatsapp' } },
         Direction: { select: { name: 'outbound' } },
         Timestamp: { date: { start: new Date().toISOString() } },
         Summary: {
-          rich_text: [{ text: { content: `[Gateway: ${dispatchResult.activeProviderName.toUpperCase()}] ${finalizedText}` } }],
+          rich_text: [{ text: { content: `[Gateway: ${dispatchResult.activeProviderName?.toUpperCase() || 'WABA'}] ${summaryText}` } }],
         },
         Contact: { relation: [{ id: body.contactId }] },
       },
     })
 
-    event.res.status = 200
     return {
       success: true,
       interactionId: interactionPage.id,
       dispatchId: dispatchResult.providerMessageId,
     }
   } catch (error: any) {
-    console.error('API connect/text/sms/send POST', error)
-
-    const { code: errorCode } = error as { code?: string }
+    console.error('API connect/text/whatsapp/send POST', error)
 
     if (error instanceof Error && 'statusCode' in error) {
       throw error
@@ -86,7 +92,7 @@ export default defineEventHandler(async (event) => {
 
     throw new HTTPError({
       statusCode: 500,
-      statusMessage: 'Some Unknown Error Found',
+      statusMessage: 'Failed to dispatch WhatsApp message.',
     })
   }
 })

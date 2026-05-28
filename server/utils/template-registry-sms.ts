@@ -1,5 +1,9 @@
+import type { z } from 'zod'
+
 export interface SMSTemplateDefinition {
   id: string
+  schema: z.ZodObject<any, any>
+  placeholders: Record<string, any>
   transformPayload: (rawData: any) => Record<string, any>
 }
 
@@ -11,5 +15,5 @@ export default function (definition: SMSTemplateDefinition) {
   }
 
   templateRegistry[definition.id] = definition
-  console.log(`📧[SMS Registry Engine]: Loaded tracking metrics for channel template: "${definition.id}"`)
+  console.log(`💬 [SMS Registry]: Successfully registered template -> ${definition.id}`)
 }
