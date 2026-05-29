@@ -16,6 +16,7 @@ export const internshipCompletionCertificateSchema = z.object({
   organization: z.object({
     id: z.string(),
     name: z.string(),
+    address: z.string(),
     website: z.string(),
     branding: z.object({
       logo: z.string(),
@@ -44,6 +45,7 @@ const placeholders: InternshipCompletionCertificatePayload = {
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
+    address: 'Abc Road, Near DEF, UIO - 1890',
     website: 'https://modesthumanbrands.com',
     branding: {
       logo: 'https://modesthumanbrands.com/logo.svg',
@@ -51,7 +53,7 @@ const placeholders: InternshipCompletionCertificatePayload = {
         primary: '#2B2B2B',
         accent: '#4A85FF',
       },
-      font: 'sans-serif',
+      font: 'Exo2',
     },
   },
 }

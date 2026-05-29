@@ -25,7 +25,7 @@ interface DispatchEmailPayload {
   text: string
   html: string
   displayName?: string
-  attachments?: any[]
+  attachments?: { filename: string; content: Buffer<ArrayBuffer>; contentType: string }[]
 }
 
 const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { settings: any; defaults: any }) => Promise<{ messageId: string }>> = {

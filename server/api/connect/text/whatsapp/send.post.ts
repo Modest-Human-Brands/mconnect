@@ -4,7 +4,7 @@ import { z } from 'zod'
 import type { NotionDB } from '~/server/types'
 import notion from '~/server/utils/notion'
 
-import dispatchWhatsApp from '~/server/utils/providers-whatsapp'
+import dispatchWhatsApp, { type WhatsAppPayload } from '~/server/utils/providers-whatsapp'
 import { templateRegistry } from '~/server/utils/template-registry-whatsapp'
 
 import '~/templates/text/whatsapp'
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
       throw new HTTPError({ statusCode: 400, statusMessage: `Contact page '${body.contactId}' does not contain a valid Phone number.` })
     }
 
-    const finalizedPayload: any = { to: recipientPhone }
+    const finalizedPayload: Omit<WhatsAppPayload, 'settings'> = { to: recipientPhone }
     let summaryText = ''
 
     if (body.template === 'none') {
@@ -56,9 +56,9 @@ export default defineEventHandler(async (event) => {
 
       const templateData = templateDef.transformPayload(variables)
       finalizedPayload.type = 'template'
-      Object.assign(finalizedPayload, templateData) // Ensure transformPayload maps to templateId, templateLanguage, etc.
+      Object.assign(finalizedPayload, templateData)
 
-      summaryText = templateData.text || templateData.templateId || `Template compiled for: ${body.template}`
+      summaryText = `Template compiled for: ${body.template}`
     }
 
     console.log({ finalizedPayload })

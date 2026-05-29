@@ -78,7 +78,7 @@ export default defineEventHandler((event) => {
 
       <div class="w-1/3 h-full bg-white flex flex-col">
         <div class="p-4 bg-gray-50 border-b border-gray-200 font-semibold text-gray-700 shadow-sm z-10">
-           Live Variables Editor (Nested Schema)
+           Live Variables Editor
         </div>
         <div class="flex-1 overflow-y-auto p-6 space-y-6 bg-white">
            

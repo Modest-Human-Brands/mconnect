@@ -69,3 +69,63 @@ export interface NotionUser {
     }
   }
 }
+
+export interface NotionContact {
+  id: string
+  created_time: string
+  last_edited_time: string
+  cover: NotionImage
+  icon: NotionImage
+  properties: {
+    Name: {
+      type: 'title'
+      title: { plain_text: string }[]
+    }
+    Organization: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+  }
+}
+
+export interface NotionInteraction {
+  id: string
+  created_time: string
+  last_edited_time: string
+  cover: NotionImage
+  icon: NotionImage
+  properties: {
+    Name: {
+      type: 'title'
+      title: { plain_text: string }[]
+    }
+    'Interaction ID': {
+      type: 'id'
+      title: { text: { content: string } }[]
+    }
+    Channel: {
+      type: 'select'
+      select: { name: string }
+    }
+    Direction: {
+      type: 'select'
+      select: { name: string }
+    }
+    Timestamp: {
+      type: 'date'
+      date: { start: string }
+    }
+    Summary: {
+      type: 'text'
+      rich_text: { text: { content: string } }[]
+    }
+    'Recording URL': {
+      type: 'url'
+      url: string
+    }
+    Organization: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+  }
+}

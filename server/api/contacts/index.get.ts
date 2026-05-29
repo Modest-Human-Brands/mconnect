@@ -1,7 +1,7 @@
-import { defineEventHandler, getQuery, getValidatedQuery, HTTPError } from 'nitro/h3'
+import { defineEventHandler, getValidatedQuery, HTTPError } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
-import type { NotionDB } from '~/server/types'
+import type { NotionContact, NotionDB } from '~/server/types'
 import notion from '~/server/utils/notion'
 import notionQueryDb from '~/server/utils/notion-query-db'
 
@@ -20,12 +20,12 @@ export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
 
-    const allRecords = await notionQueryDb(notion, notionDbId.contact)
+    const contacts = await notionQueryDb<NotionContact>(notion, notionDbId.contact)
 
-    const total = allRecords.length
-    const paginatedPages = allRecords.slice(offset, offset + limit)
+    const total = contacts.length
+    const paginatedContent = contacts.slice(offset, offset + limit)
 
-    const results = paginatedPages.map((page: any) => {
+    const results = paginatedContent.map((page) => {
       const props = page.properties
       return {
         id: page.id,
@@ -39,7 +39,6 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-    event.res.status = 200
     return {
       results,
       pagination: {

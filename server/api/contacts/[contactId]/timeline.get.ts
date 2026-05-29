@@ -1,7 +1,7 @@
 import { defineEventHandler, getValidatedQuery, getValidatedRouterParams, HTTPError } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
-import type { NotionDB } from '~/server/types'
+import type { NotionDB, NotionInteraction } from '~/server/types'
 import notion from '~/server/utils/notion'
 import notionQueryDb from '~/server/utils/notion-query-db'
 
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     const limit = query.limit ? Number(query.limit) : totalCountPlaceholder
     const offset = query.offset ? Number(query.offset) : 0
 
-    const allLogs = await notionQueryDb(notion, notionDbId.interaction, {
+    const allLogs = await notionQueryDb<NotionInteraction>(notion, notionDbId.interaction, {
       filter: {
         property: 'Contact',
         relation: {
@@ -43,19 +43,17 @@ export default defineEventHandler(async (event) => {
     const total = allLogs.length
     const paginatedLogs = allLogs.slice(offset, offset + limit)
 
-    const results = paginatedLogs.map((page: any) => {
-      const props = page.properties
+    const results = paginatedLogs.map(({ id, properties, created_time }) => {
       return {
-        interactionId: props['Interaction ID']?.title?.[0]?.text?.content || page.id,
-        channel: props['Channel']?.select?.name || 'unknown',
-        direction: props['Direction']?.select?.name || 'unknown',
-        timestamp: props['Timestamp']?.date?.start || page.created_time,
-        summary: props['Summary']?.rich_text?.[0]?.text?.content || '',
-        recordingUrl: props['Recording URL']?.url || null,
+        interactionId: properties['Interaction ID']?.title?.[0]?.text?.content || id,
+        channel: properties['Channel']?.select?.name,
+        direction: properties['Direction']?.select?.name,
+        timestamp: properties['Timestamp']?.date?.start || created_time,
+        summary: properties['Summary']?.rich_text?.[0]?.text?.content || '',
+        recordingUrl: properties['Recording URL']?.url || null,
       }
     })
 
-    event.res.status = 200
     return {
       results,
       pagination: {

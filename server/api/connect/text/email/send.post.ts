@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
     let finalizedText = body.text || ''
     let finalizedHtml = body.html || ''
     let activeSubject = 'subject' in body ? body.subject || '' : ''
-    let attachments: any[] | undefined = undefined
+    let attachments: { filename: string; content: Buffer<ArrayBuffer>; contentType: string }[] | undefined = undefined
 
     if (body.template !== 'none') {
       const templateDef = templateRegistry[body.template]
