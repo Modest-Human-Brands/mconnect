@@ -10,8 +10,6 @@
 
 # Specs
 
-# Specs
-
 ## 0. Health Layer
 
 ### `GET /api/health`
@@ -240,31 +238,6 @@
 }
 ```
 
-### `POST /api/connect/call/phone/bridge-callback`
-
-**Description:** Generates unified structural variables, secure endpoint routing hashes, and config matrix states used to securely hook persistent real-time telecommunication channels into internal media proxy application layers.
-
-**Input (JSON):**
-
-```json
-{
-  "contactId": "36bee3b0289a8030a6f9c0eea0708f12",
-  "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
-  "recordCall": true,
-  "template": "standard-call"
-}
-```
-
-**Output (JSON - 201 Created):**
-
-```json
-{
-  "success": true,
-  "bridgeSessionId": "bridge_sess_99211",
-  "routingPayloadUrl": "https://api.mconnect.com/api/connect/call/phone/stream"
-}
-```
-
 ### `POST /api/connect/call/phone/status`
 
 **Description:** Centralized LiveKit room webhook status server endpoint. Monitors active participants, catches disconnect or network hangup event frames, extracts precise stream call duration metrics, and automates AWS S3 media file archival recording links right back to the contact interaction ledger.
@@ -465,7 +438,7 @@
     "scopeOfWork": "Backend Core Systems Development",
     "startDate": "2026-01-01",
     "endDate": "2026-05-01",
-    "dataOfIssue": "2026-05-22",
+    "dateOfIssue": "2026-05-22",
     "signerName": "John Doe",
     "signerTitle": "Managing Director",
     "certificateUrl": "https://document.modesthumanbrands.com/api/document/...",
@@ -815,21 +788,20 @@
 | **13** | `GET /api/connect/text/whatsapp/template`         | 4.3 Templates             | **Low**: Communicates with the Meta Graph API to synchronize and pull business-approved WhatsApp templates down to local layout pickers.                                                                                     | ⏳ **Pending** |
 | **14** | `POST /api/connect/text/instagram/send`           | 4.5 Instagram Layer       | **Medium**: Utilizes Messenger API endpoints to dispatch automated direct messages, interactive replies, and image/video nodes to consumer profiles.                                                                         | ⏳ **Pending** |
 | **15** | `POST /api/connect/text/instagram/receive`        | 2. Ingest Controllers     | **Medium**: Ingests real-time webhooks notifying mconnect of incoming Instagram DMs, comment mentions, story replies, or profile tags to log into the database.                                                              | ⏳ **Pending** |
-| **16** | `GET /api/connect/text/whatsapp/template`         | 4.3 Templates             | **Low**: Communicates with the Meta Graph API to synchronize and pull business-approved WhatsApp templates down to local layout pickers.                                                                                     | ⏳ **Pending** |
-| **17** | `POST /api/connect/call/phone/send`               | 3. Voice Control Layer    | **Advanced**: Spins up a centralized LiveKit Media Room, creates an internal participant session, and fires an asynchronous SIP Outbound Trunk invite to bridge the external customer leg seamlessly.                        | ✅ **Done**    |
-| **18** | `POST /api/connect/call/phone/status`             | 3. Voice Control Layer    | **High**: Centralized LiveKit room webhook server endpoint. Listens for disconnect/hangup signals, calculates precise connection duration metrics, and automates AWS S3 media file recording syncs back to the CRM timeline. | ✅ **Done**    |
-| **19** | `POST /api/connect/call/phone/conference`         | 3. Voice Control Layer    | **Advanced**: Unified room model endpoint. Dynamically invites additional SIP trunks or WebRTC participants into an active LiveKit room instance to execute multi-party conferencing.                                        | ⏳ **Pending** |
-| **20** | `POST /api/connect/call/phone/supervisor/monitor` | 3. Voice Control Layer    | **High**: Controls track subscription rules inside a LiveKit call space. Allows managers to join rooms silently (`Silent`), unmute exclusively to the agent (`Whisper`), or publish to all legs (`Barge`).                   | ⏳ **Pending** |
-| **21** | `POST /api/connect/call/phone/webrtc/token`       | 3. Voice Control Layer    | **Medium**: Generates signed, cryptographically secure LiveKit JWT tokens containing exact room names and metadata permissions to authenticate browser dashboard phone instances.                                            | ⏳ **Pending** |
-| **22** | `POST /api/connect/call/phone/queue`              | 3. Voice Control Layer    | **Medium**: Holds incoming SIP trunk connections in a synchronized virtual room queue, playing continuous audio hold music until a matching agent token joins the space.                                                     | ⏳ **Pending** |
-| **23** | `POST /api/connect/call/phone/ivr`                | 3. Voice Control Layer    | **Medium**: Ingests real-time DTMF tone inputs captured by LiveKit SIP participants, evaluating digit keyboard strokes to dynamically execute programmatic menu branching rules.                                             | ⏳ **Pending** |
-| **24** | `POST /api/connect/schedule/google-meet/create`   | 4.6 External Integrations | **Medium**: Authenticates securely via Google Workspace OAuth nodes to programmatically spin up Google Meet calendar spaces and link them directly to Notion contact calendars.                                              | ⏳ **Pending** |
-| **25** | `POST /api/campaigns/enroll`                      | 5. Automated Campaigns    | **Medium**: Registers specific contact identifiers to automated, multi-channel marketing or nurture flow schemas.                                                                                                            | ⏳ **Pending** |
-| **26** | `POST /api/campaigns/trigger-action`              | 5. Automated Campaigns    | **Critical**: Time-boundary cron engine processing pending queue boundaries, determining multi-channel execution windows, and dispatching subsequent campaign actions.                                                       | ⏳ **Pending** |
+| **16** | `POST /api/connect/call/phone/send`               | 3. Voice Control Layer    | **Advanced**: Spins up a centralized LiveKit Media Room, creates an internal participant session, and fires an asynchronous SIP Outbound Trunk invite to bridge the external customer leg seamlessly.                        | ✅ **Done**    |
+| **17** | `POST /api/connect/call/phone/status`             | 3. Voice Control Layer    | **High**: Centralized LiveKit room webhook server endpoint. Listens for disconnect/hangup signals, calculates precise connection duration metrics, and automates AWS S3 media file recording syncs back to the CRM timeline. | ✅ **Done**    |
+| **18** | `POST /api/connect/call/phone/conference`         | 3. Voice Control Layer    | **Advanced**: Unified room model endpoint. Dynamically invites additional SIP trunks or WebRTC participants into an active LiveKit room instance to execute multi-party conferencing.                                        | ⏳ **Pending** |
+| **19** | `POST /api/connect/call/phone/supervisor/monitor` | 3. Voice Control Layer    | **High**: Controls track subscription rules inside a LiveKit call space. Allows managers to join rooms silently (`Silent`), unmute exclusively to the agent (`Whisper`), or publish to all legs (`Barge`).                   | ⏳ **Pending** |
+| **20** | `POST /api/connect/call/phone/webrtc/token`       | 3. Voice Control Layer    | **Medium**: Generates signed, cryptographically secure LiveKit JWT tokens containing exact room names and metadata permissions to authenticate browser dashboard phone instances.                                            | ⏳ **Pending** |
+| **21** | `POST /api/connect/call/phone/queue`              | 3. Voice Control Layer    | **Medium**: Holds incoming SIP trunk connections in a synchronized virtual room queue, playing continuous audio hold music until a matching agent token joins the space.                                                     | ⏳ **Pending** |
+| **22** | `POST /api/connect/call/phone/ivr`                | 3. Voice Control Layer    | **Medium**: Ingests real-time DTMF tone inputs captured by LiveKit SIP participants, evaluating digit keyboard strokes to dynamically execute programmatic menu branching rules.                                             | ⏳ **Pending** |
+| **23** | `POST /api/connect/schedule/google-meet/create`   | 4.6 External Integrations | **Medium**: Authenticates securely via Google Workspace OAuth nodes to programmatically spin up Google Meet calendar spaces and link them directly to Notion contact calendars.                                              | ⏳ **Pending** |
+| **24** | `POST /api/campaigns/enroll`                      | 5. Automated Campaigns    | **Medium**: Registers specific contact identifiers to automated, multi-channel marketing or nurture flow schemas.                                                                                                            | ⏳ **Pending** |
+| **25** | `POST /api/campaigns/trigger-action`              | 5. Automated Campaigns    | **Critical**: Time-boundary cron engine processing pending queue boundaries, determining multi-channel execution windows, and dispatching subsequent campaign actions.                                                       | ⏳ **Pending** |
 
 ---
 
-Progress = 11/26 = 42%
+Progress = 11/25 = 44%
 
 ## License
 

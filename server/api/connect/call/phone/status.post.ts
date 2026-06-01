@@ -125,7 +125,7 @@ export default defineEventHandler(async (event) => {
           await notion.pages.create({
             parent: { data_source_id: notionDbId.interaction },
             properties: {
-              'Interaction ID': { title: [{ text: { content: `voice-bridge-${livekitEvent.room?.sid || roomName}` } }] },
+              Id: { title: [{ text: { content: `voice-bridge-${livekitEvent.room?.sid || roomName}` } }] },
               Channel: { select: { name: 'voice' } },
               Direction: { select: { name: direction.split('-')[0] } },
               Timestamp: { date: { start: new Date().toISOString() } },

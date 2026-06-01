@@ -99,7 +99,7 @@ export interface NotionInteraction {
       type: 'title'
       title: { plain_text: string }[]
     }
-    'Interaction ID': {
+    Id: {
       type: 'id'
       title: { text: { content: string } }[]
     }

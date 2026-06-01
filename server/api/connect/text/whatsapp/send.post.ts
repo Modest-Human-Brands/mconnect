@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
     const interactionPage = await notion.pages.create({
       parent: { data_source_id: notionDbId.interaction },
       properties: {
-        'Interaction ID': { title: [{ text: { content: `outbound-whatsapp-${Date.now()}` } }] },
+        Id: { title: [{ text: { content: `outbound-whatsapp-${Date.now()}` } }] },
         Channel: { select: { name: 'whatsapp' } },
         Direction: { select: { name: 'outbound' } },
         Timestamp: { date: { start: new Date().toISOString() } },

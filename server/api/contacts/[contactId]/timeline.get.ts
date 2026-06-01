@@ -13,13 +13,11 @@ const queryParamsSchema = z.object({
 
 export default defineEventHandler(async (event) => {
   try {
-    const pathParams = await getValidatedRouterParams(event, pathParamsSchema)
+    const { contactId } = await getValidatedRouterParams(event, pathParamsSchema)
     const query = await getValidatedQuery(event, queryParamsSchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
-
-    const { contactId } = pathParams as z.infer<typeof pathParamsSchema>
 
     const totalCountPlaceholder = 100_000
     const limit = query.limit ? Number(query.limit) : totalCountPlaceholder
@@ -45,7 +43,7 @@ export default defineEventHandler(async (event) => {
 
     const results = paginatedLogs.map(({ id, properties, created_time }) => {
       return {
-        interactionId: properties['Interaction ID']?.title?.[0]?.text?.content || id,
+        interactionId: properties[Id]?.title?.[0]?.text?.content || id,
         channel: properties['Channel']?.select?.name,
         direction: properties['Direction']?.select?.name,
         timestamp: properties['Timestamp']?.date?.start || created_time,

@@ -90,7 +90,7 @@ export default defineEventHandler(async (event) => {
     await notion.pages.create({
       parent: { data_source_id: notionDbId.interaction },
       properties: {
-        'Interaction ID': { title: [{ text: { content: `outbound-email-${Date.now()}` } }] },
+        Id: { title: [{ text: { content: `outbound-email-${Date.now()}` } }] },
         Channel: { select: { name: 'email' } },
         Direction: { select: { name: 'outbound' } },
         Timestamp: { date: { start: new Date().toISOString() } },

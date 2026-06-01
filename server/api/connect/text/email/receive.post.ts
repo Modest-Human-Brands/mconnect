@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
     const interactionPage = await notion.pages.create({
       parent: { data_source_id: notionDbId.interaction },
       properties: {
-        'Interaction ID': {
+        Id: {
           title: [{ text: { content: `email-${Date.now()}` } }],
         },
         Channel: {
