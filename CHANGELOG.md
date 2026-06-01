@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.4.0
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.3.1...v0.4.0)
+
+### 🚀 Enhancements
+
+- ⚠️ Add WhatsApp template registration with Zod schema validation ([a68cbbb](https://github.com/Modest-Human-Brands/mconnect/commit/a68cbbb))
+- Add Project Delivery email template and refactor interaction ID properties ([5d9fbe2](https://github.com/Modest-Human-Brands/mconnect/commit/5d9fbe2))
+
+### 💅 Refactors
+
+- Simplify template registration by removing unused properties and updating schemas ([8d76c47](https://github.com/Modest-Human-Brands/mconnect/commit/8d76c47))
+
+### 🏡 Chore
+
+- Update dependencies and enhance type definitions for email and WhatsApp handlers ([4cecf7a](https://github.com/Modest-Human-Brands/mconnect/commit/4cecf7a))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️ Add WhatsApp template registration with Zod schema validation ([a68cbbb](https://github.com/Modest-Human-Brands/mconnect/commit/a68cbbb))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.3.1
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.3.0...v0.3.1)
