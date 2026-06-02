@@ -2,19 +2,10 @@ import Component from './component.vue'
 import registerTemplate from '~/server/utils/template-registry-email'
 import { z } from 'zod'
 
-const quotationItemSchema = z.object({
-  description: z.string(),
-  quantity: z.number(),
-  amount: z.union([z.string(), z.number()]),
-})
-
-export const quotationSchema = z.object({
-  clientName: z.string(),
-  quoteNumber: z.string(),
-  validUntil: z.string(),
-  items: z.array(quotationItemSchema),
-  totalAmount: z.union([z.string(), z.number()]),
-  quotationUrl: z.string(),
+export const otpSchema = z.object({
+  recipientEmail: z.string().email(),
+  otpCode: z.string(),
+  expiresIn: z.string().default('10 minutes'),
   organization: z.object({
     id: z.string(),
     name: z.string(),
@@ -32,18 +23,12 @@ export const quotationSchema = z.object({
   }),
 })
 
-export type QuotationPayload = z.infer<typeof quotationSchema>
+export type OtpPayload = z.infer<typeof otpSchema>
 
-const placeholders: QuotationPayload = {
-  clientName: 'Wayne Enterprises',
-  quoteNumber: 'QT-2026-089',
-  validUntil: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-  items: [
-    { description: 'Premium Brand Strategy', quantity: 1, amount: '5,000.00' },
-    { description: 'UI/UX Design System', quantity: 1, amount: '8,500.00' },
-  ],
-  totalAmount: '13,500.00',
-  quotationUrl: '#',
+const placeholders: OtpPayload = {
+  recipientEmail: 'alex.mercer@example.com',
+  otpCode: '2p9T6y',
+  expiresIn: '10 minutes',
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
@@ -61,28 +46,23 @@ const placeholders: QuotationPayload = {
 }
 
 registerTemplate({
-  id: 'quotation',
-  schema: quotationSchema,
+  id: 'otp',
+  schema: otpSchema,
   placeholders,
-  subject: (data: QuotationPayload) => {
-    const qNum = data?.quoteNumber || placeholders.quoteNumber
+  subject: (data: any) => {
+    const code = data?.otpCode || placeholders.otpCode
     const orgName = data?.organization?.name || placeholders.organization.name
-    return `Project Quotation Estimate #${qNum} - ${orgName}`
+    return `${code} is your ${orgName} login code`
   },
   component: Component,
-  transformPayload: (data) => {
+  transformPayload: (data: any) => {
     const p = placeholders
     const org = data?.organization || {}
 
     return {
-      clientName: data?.clientName || p.clientName,
-      quoteNumber: data?.quoteNumber || p.quoteNumber,
-      validUntil: data?.validUntil || p.validUntil,
-
-      items: Array.isArray(data?.items) && data.items.length > 0 ? data.items : p.items,
-
-      totalAmount: data?.totalAmount || p.totalAmount,
-      quotationUrl: data?.quotationUrl || p.quotationUrl,
+      recipientEmail: data?.recipientEmail || p.recipientEmail,
+      otpCode: data?.otpCode || p.otpCode,
+      expiresIn: data?.expiresIn || p.expiresIn,
 
       organizationName: org?.name || p.organization.name,
       organizationWebsite: org?.website || p.organization.website,

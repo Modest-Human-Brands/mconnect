@@ -6,11 +6,11 @@ import { render } from '@vue-email/render'
 import notion from '~/server/utils/notion'
 import dispatchEmail from '~/server/utils/providers-email'
 import { templateRegistry } from '~/server/utils/template-registry-email'
-import type { NotionDB } from '~/server/types'
+import type { NotionContact, NotionDB } from '~/server/types'
 
 import '~/templates/text/email'
 
-const basePayload = z.object({ contactId: z.string() })
+const basePayload = z.object({ contactId: z.string().optional(), recipientEmail: z.email().optional() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -33,33 +33,32 @@ const bodySchema = z.union([
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readValidatedBody(event, bodySchema)
+    const { contactId, recipientEmail: bodyEmail, text, html, subject, template, variables, displayName } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
 
-    const contactPage = (await notion.pages.retrieve({ page_id: body.contactId })) as any
-    const recipientEmail = contactPage.properties?.Email?.email
-
-    if (!recipientEmail) {
-      event.res.status = 400
-      return { error: `Contact page '${body.contactId}' does not contain a valid Email address.` }
+    let recipientEmail = bodyEmail
+    if (!recipientEmail && contactId) {
+      const contactPage = (await notion.pages.retrieve({ page_id: contactId })) as unknown as NotionContact
+      recipientEmail = contactPage.properties?.Email?.email
     }
 
-    let finalizedText = body.text || ''
-    let finalizedHtml = body.html || ''
-    let activeSubject = 'subject' in body ? body.subject || '' : ''
+    if (!recipientEmail) throw new HTTPError({ statusCode: 400, statusMessage: 'Valid recipientEmail or contactId is required.' })
+
+    let finalizedText = text || ''
+    let finalizedHtml = html || ''
+    let activeSubject = subject || ''
     let attachments: { filename: string; content: Buffer<ArrayBuffer>; contentType: string }[] | undefined = undefined
 
-    if (body.template !== 'none') {
-      const templateDef = templateRegistry[body.template]
+    if (template !== 'none') {
+      const templateDef = templateRegistry[template]
       if (!templateDef) {
         event.res.status = 400
-        return { error: `Email template layout '${body.template}' is not registered.` }
+        return { error: `Email template layout '${template}' is not registered.` }
       }
 
-      const variables = 'variables' in body ? body.variables : {}
-      const transformedProps = templateDef.transformPayload(variables)
+      const transformedProps = templateDef.transformPayload(variables ?? {})
 
       finalizedHtml = await render(templateDef.component, transformedProps, {
         pretty: false,
@@ -83,7 +82,7 @@ export default defineEventHandler(async (event) => {
       subject: activeSubject,
       text: finalizedText,
       html: finalizedHtml,
-      displayName: body.displayName,
+      displayName: displayName,
       attachments,
     })
 
@@ -97,7 +96,7 @@ export default defineEventHandler(async (event) => {
         Summary: {
           rich_text: [{ text: { content: `[Driver: ${dispatchResult.activeProviderName.toUpperCase()}] Subject: ${activeSubject}\n\n${finalizedText}` } }],
         },
-        Contact: { relation: [{ id: body.contactId }] },
+        ...(contactId ? { Contact: { relation: [{ id: contactId }] } } : {}),
       },
     })
 

@@ -81,6 +81,7 @@ export interface NotionContact {
       type: 'title'
       title: { plain_text: string }[]
     }
+    Email: { type: 'email'; email: string }
     Organization: {
       type: 'relation'
       relation: { id: string }[]
