@@ -76,15 +76,28 @@ export interface NotionContact {
   last_edited_time: string
   cover: NotionImage
   icon: NotionImage
+  url: string
   properties: {
     Name: {
       type: 'title'
       title: { plain_text: string }[]
     }
     Email: { type: 'email'; email: string }
+    Phone: {
+      type: 'phone_number'
+      phone_number: string
+    }
     Organization: {
       type: 'relation'
       relation: { id: string }[]
+    }
+    Company: {
+      type: 'rich_text'
+      rich_text: {
+        text: {
+          content: string
+        }
+      }[]
     }
   }
 }

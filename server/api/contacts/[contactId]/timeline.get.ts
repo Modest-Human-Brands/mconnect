@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
 
     const results = paginatedLogs.map(({ id, properties, created_time }) => {
       return {
-        interactionId: properties[Id]?.title?.[0]?.text?.content || id,
+        interactionId: properties['Id']?.title?.[0]?.text?.content || id,
         channel: properties['Channel']?.select?.name,
         direction: properties['Direction']?.select?.name,
         timestamp: properties['Timestamp']?.date?.start || created_time,

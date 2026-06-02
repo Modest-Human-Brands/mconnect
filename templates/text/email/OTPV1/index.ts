@@ -50,9 +50,8 @@ registerTemplate({
   schema: otpSchema,
   placeholders,
   subject: (data: any) => {
-    const code = data?.otpCode || placeholders.otpCode
     const orgName = data?.organization?.name || placeholders.organization.name
-    return `${code} is your ${orgName} login code`
+    return `${orgName} login code`
   },
   component: Component,
   transformPayload: (data: any) => {

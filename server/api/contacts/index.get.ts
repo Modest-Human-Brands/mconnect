@@ -4,6 +4,7 @@ import { z } from 'zod'
 import type { NotionContact, NotionDB } from '~/server/types'
 import notion from '~/server/utils/notion'
 import notionQueryDb from '~/server/utils/notion-query-db'
+import notionTextStringify from '~/server/utils/notion-text-stringify'
 
 const queryParamsSchema = z.object({
   limit: z.string().optional(),
@@ -30,12 +31,12 @@ export default defineEventHandler(async (event) => {
       return {
         id: page.id,
         url: page.url,
-        brand: props.Brand?.title?.[0]?.text?.content || '',
-        company: props.Company?.rich_text?.[0]?.text?.content || '',
-        email: props.Email?.email || '',
-        phone: props.Phone?.phone_number || '',
-        status: props.Status?.status?.name || null,
-        type: props.Type?.select?.name || null,
+        brand: notionTextStringify(props.Name.title),
+        company: notionTextStringify(props.Company.rich_text),
+        email: props.Email.email,
+        phone: props.Phone.phone_number,
+        status: props.Status?.status?.name,
+        type: props.Type?.select?.name,
       }
     })
 
