@@ -10,6 +10,12 @@ export default defineConfig({
   features: {
     websocket: true,
   },
+  experimental: {
+    tasks: true,
+  },
+  scheduledTasks: {
+    '*/1 * * * *': ['sync:resource'],
+  },
   runtimeConfig: {
     app: {
       version: '',
@@ -23,6 +29,10 @@ export default defineConfig({
     fs: {
       driver: 'fs',
       base: './static',
+    },
+    data: {
+      driver: 'fs',
+      base: './.data',
     },
   },
 })

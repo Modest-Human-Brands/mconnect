@@ -3,6 +3,7 @@ import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { z } from 'zod'
 import { $fetch } from 'ofetch'
 import notion from '~/server/utils/notion'
+import notionNormalizeId from '~/server/utils/notion-normalize-id'
 import type { NotionDB } from '~/server/types'
 
 const bodySchema = z.object({
@@ -18,59 +19,68 @@ export default defineEventHandler(async (event) => {
     const { from, to, subject, text, html } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
-    const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
+    const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
 
-    const nameMatch = from.match(/^"?(.*?)"?\s*<.+>$/)
-    const fallbackName = from.split('@')[0]
-    const pocPerson = nameMatch ? nameMatch[1] : fallbackName
+    const emailMatch = from.match(/<([^>]+)>/)
+    const rawEmail = emailMatch ? emailMatch[1] : from
+
+    const nameMatch = from.match(/^"?(.*?)"?\s*</)
+    const fallbackName = rawEmail.split('@')[0]
+    const pocPerson = nameMatch && nameMatch[1].trim() ? nameMatch[1].trim() : fallbackName
+
+    console.log(
+      JSON.stringify(
+        {
+          brand: 'Unknown',
+          company: 'Unknown',
+          email: rawEmail.toLowerCase().trim(),
+          address: 'Unknown',
+          pocPerson,
+          status: 'Active',
+        },
+        null,
+        2
+      )
+    )
 
     const { contactId } = await $fetch('/api/contacts', {
-      baseURL: 'http://localhost:3000',
+      baseURL: 'http://localhost:3001',
       method: 'PUT',
       body: {
         brand: 'Unknown',
         company: 'Unknown',
-        email: from.toLowerCase().trim(),
-        phone: '',
+        email: rawEmail.toLowerCase().trim(),
         address: 'Unknown',
         pocPerson,
-        status: 'Communicate',
+        status: 'Active',
       },
     })
 
-    const interactionPage = await notion.pages.create({
-      parent: { data_source_id: notionDbId.interaction },
+    const emailPage = await notion.pages.create({
+      parent: { data_source_id: notionDbId.email },
       properties: {
-        Id: {
-          title: [{ text: { content: `email-${Date.now()}` } }],
+        Subject: {
+          title: [{ text: { content: subject || 'No Subject' } }],
         },
-        Channel: {
-          select: { name: 'email' },
+        'Body Snippet': {
+          rich_text: [{ text: { content: (text || 'HTML content only').slice(0, 2000) } }],
         },
-        Direction: {
-          select: { name: 'inbound' },
+        Status: {
+          select: { name: 'RECEIVE' },
         },
-        Timestamp: {
+        'Sent At': {
           date: { start: new Date().toISOString() },
         },
-        Summary: {
-          rich_text: [{ text: { content: `Subject: ${subject}\n\n${text || 'HTML content only'}` } }],
-        },
-        Contact: {
-          relation: [{ id: contactId }],
-        },
+        ...(contactId ? { Contact: { relation: [{ id: notionNormalizeId(contactId) }] } } : {}),
       },
     })
 
-    event.res.status = 200
     return {
       success: true,
-      interactionId: interactionPage.id,
+      interactionId: emailPage.id,
     }
   } catch (error: any) {
     console.error('API connect/text/email/receive POST', error)
-
-    const { code: errorCode } = error as { code?: string }
 
     if (error instanceof Error && 'statusCode' in error) {
       throw error
@@ -78,7 +88,7 @@ export default defineEventHandler(async (event) => {
 
     throw new HTTPError({
       statusCode: 500,
-      statusMessage: 'Some Unknown Error Found',
+      statusMessage: 'Failed to process incoming email.',
     })
   }
 })

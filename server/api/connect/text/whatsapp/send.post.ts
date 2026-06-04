@@ -1,7 +1,7 @@
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
-import type { NotionDB } from '~/server/types'
+import type { NotionContact, NotionDB } from '~/server/types'
 import notion from '~/server/utils/notion'
 
 import dispatchWhatsApp, { type WhatsAppPayload } from '~/server/utils/providers-whatsapp'
@@ -30,22 +30,23 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
-    const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
+    const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
 
-    const contactPage = (await notion.pages.retrieve({ page_id: body.contactId })) as any
-    const recipientPhone = contactPage.properties?.Phone?.phone_number
+    const contactPage = (await notion.pages.retrieve({ page_id: body.contactId })) as unknown as NotionContact
+    const recipientPhone = contactPage.properties?.['Phone']?.phone_number
 
     if (!recipientPhone) {
       throw new HTTPError({ statusCode: 400, statusMessage: `Contact page '${body.contactId}' does not contain a valid Phone number.` })
     }
 
     const finalizedPayload: Omit<WhatsAppPayload, 'settings'> = { to: recipientPhone }
-    let summaryText = ''
+    let contentBody = ''
+    let msgType = 'TEXT'
 
     if (body.template === 'none') {
       finalizedPayload.type = 'text'
       finalizedPayload.text = body.text
-      summaryText = body.text || ''
+      contentBody = body.text || ''
     } else {
       const templateDef = templateRegistry[body.template]
       if (!templateDef) {
@@ -54,33 +55,44 @@ export default defineEventHandler(async (event) => {
 
       const variables = 'variables' in body ? body.variables : {}
 
-      const templateData = templateDef.transformPayload(variables)
+      const templateData = templateDef.transformPayload(variables) as any
       finalizedPayload.type = 'template'
       Object.assign(finalizedPayload, templateData)
 
-      summaryText = `Template compiled for: ${body.template}`
+      contentBody = templateData.body || `Template compiled for: ${body.template}`
+      if (templateData.header?.type) msgType = templateData.header.type.toUpperCase()
     }
 
-    console.log({ finalizedPayload })
     const dispatchResult = await dispatchWhatsApp(finalizedPayload)
 
-    const interactionPage = await notion.pages.create({
-      parent: { data_source_id: notionDbId.interaction },
+    // Save outbound transaction natively into DATABASE 3: MESSAGES
+    const messagePage = await notion.pages.create({
+      parent: { data_source_id: notionDbId.message },
       properties: {
-        Id: { title: [{ text: { content: `outbound-whatsapp-${Date.now()}` } }] },
-        Channel: { select: { name: 'whatsapp' } },
-        Direction: { select: { name: 'outbound' } },
-        Timestamp: { date: { start: new Date().toISOString() } },
-        Summary: {
-          rich_text: [{ text: { content: `[Gateway: ${dispatchResult.activeProviderName?.toUpperCase() || 'WABA'}] ${summaryText}` } }],
+        'Message Summary': {
+          title: [{ text: { content: contentBody.slice(0, 50) + (contentBody.length > 50 ? '...' : '') } }],
         },
-        Contact: { relation: [{ id: body.contactId }] },
+        Content: {
+          rich_text: [{ text: { content: contentBody.slice(0, 2000) } }],
+        },
+        Type: {
+          select: { name: msgType === 'IMAGE' || msgType === 'VIDEO' || msgType === 'AUDIO' ? msgType : 'TEXT' },
+        },
+        'Delivery Status': {
+          select: { name: 'SENT' },
+        },
+        'Sent At': {
+          date: { start: new Date().toISOString() },
+        },
+        Contact: {
+          relation: [{ id: body.contactId }],
+        },
       },
     })
 
     return {
       success: true,
-      interactionId: interactionPage.id,
+      interactionId: messagePage.id,
       dispatchId: dispatchResult.providerMessageId,
     }
   } catch (error: any) {

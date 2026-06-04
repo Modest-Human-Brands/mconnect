@@ -9,8 +9,9 @@ import { templateRegistry } from '~/server/utils/template-registry-email'
 import type { NotionContact, NotionDB } from '~/server/types'
 
 import '~/templates/text/email'
+import notionNormalizeId from '~/server/utils/notion-normalize-id'
 
-const basePayload = z.object({ contactId: z.string().optional(), recipientEmail: z.email().optional() })
+const basePayload = z.object({ userId: z.string(), contactId: z.string().optional(), recipientEmail: z.string().email().optional() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -23,7 +24,7 @@ const templatedContent = z.object({
   template: z.string().min(1),
   text: z.string().optional(),
   html: z.string().optional(),
-  variables: z.record(z.any(), z.any()),
+  variables: z.record(z.string(), z.any()),
 })
 
 const bodySchema = z.union([
@@ -33,15 +34,15 @@ const bodySchema = z.union([
 
 export default defineEventHandler(async (event) => {
   try {
-    const { contactId, recipientEmail: bodyEmail, text, html, subject, template, variables, displayName } = await readValidatedBody(event, bodySchema)
+    const { userId, contactId, recipientEmail: bodyEmail, text, html, subject, template, variables, displayName } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
-    const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
+    const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
 
     let recipientEmail = bodyEmail
     if (!recipientEmail && contactId) {
       const contactPage = (await notion.pages.retrieve({ page_id: contactId })) as unknown as NotionContact
-      recipientEmail = contactPage.properties?.Email?.email
+      recipientEmail = contactPage.properties.Email.email ?? undefined
     }
 
     if (!recipientEmail) throw new HTTPError({ statusCode: 400, statusMessage: 'Valid recipientEmail or contactId is required.' })
@@ -87,25 +88,28 @@ export default defineEventHandler(async (event) => {
     })
 
     await notion.pages.create({
-      parent: { data_source_id: notionDbId.interaction },
+      parent: { data_source_id: notionDbId.email },
       properties: {
-        Id: { title: [{ text: { content: `outbound-email-${Date.now()}` } }] },
-        Channel: { select: { name: 'email' } },
-        Direction: { select: { name: 'outbound' } },
-        Timestamp: { date: { start: new Date().toISOString() } },
-        Summary: {
-          rich_text: [{ text: { content: `[Driver: ${dispatchResult.activeProviderName.toUpperCase()}] Subject: ${activeSubject}\n\n${finalizedText}` } }],
+        Subject: {
+          title: [{ text: { content: activeSubject || 'No Subject' } }],
         },
-        ...(contactId ? { Contact: { relation: [{ id: contactId }] } } : {}),
+        'Body Snippet': {
+          rich_text: [{ text: { content: finalizedText.slice(0, 2000) } }],
+        },
+        Status: {
+          select: { name: 'SENT' },
+        },
+        'Sent At': {
+          date: { start: new Date().toISOString() },
+        },
+        ...(userId ? { User: { relation: [{ id: notionNormalizeId(userId) }] } } : {}),
+        ...(contactId ? { Contact: { relation: [{ id: notionNormalizeId(contactId) }] } } : {}),
       },
     })
 
-    event.res.status = 200
     return { success: true, dispatchId: dispatchResult.providerMessageId }
   } catch (error: any) {
-    console.error('API connect/text/email/send POST', error)
-
-    const { code: errorCode } = error as { code?: string }
+    console.error('API connect/text/email/send POST', JSON.stringify(error, null, 2))
 
     if (error instanceof Error && 'statusCode' in error) {
       throw error
@@ -113,7 +117,7 @@ export default defineEventHandler(async (event) => {
 
     throw new HTTPError({
       statusCode: 500,
-      statusMessage: 'Some Unknown Error Found',
+      statusMessage: 'Failed to dispatch and log email.',
     })
   }
 })

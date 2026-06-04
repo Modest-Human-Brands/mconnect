@@ -16,9 +16,9 @@ const contactSchema = z.object({
   index: z.number(),
   brand: z.string().min(1),
   company: z.string().min(1),
-  email: z.email(),
+  email: z.email().optional().nullable(),
+  phone: z.string().min(1).optional().nullable(),
   address: z.string().min(1),
-  phone: z.string().min(1),
   pocPerson: z.string().min(1),
   status: z.enum(CONTACT_STATUSES).optional().nullable(),
   type: z.enum(COMPANY_TYPES).optional().nullable(),
@@ -52,9 +52,12 @@ const bodySchema = contactSchema
   .extend({
     contactId: z.string().optional().nullable(),
   })
+  .refine((data) => !!data.phone || !!data.email, {
+    message: 'At least either phone or email must be present',
+  })
 
 const NOTION_PROPERTY_MAP = {
-  brand: { target: 'Brand', type: 'title' },
+  brand: { target: 'Name', type: 'title' },
   company: { target: 'Company', type: 'rich_text' },
   email: { target: 'Email', type: 'email' },
   address: { target: 'Address', type: 'rich_text' },

@@ -1,8 +1,22 @@
-export const resourceTypes = ['contact', 'interaction', 'user'] as const
+export const resourceTypes = ['contact', 'user', 'message', 'call', 'email'] as const
 
 export type ResourceType = (typeof resourceTypes)[number]
 
 export type NotionDB = { [K in ResourceType]: string }
+
+export interface ResourceRecordMap {
+  contact: NotionContact
+  user: NotionUser
+  email: NotionEmail
+  message: NotionMessage
+  call: NotionCall
+}
+
+export interface Resource<T extends ResourceType = ResourceType> {
+  type: T
+  notificationStatus: boolean
+  record: ResourceRecordMap[T]
+}
 
 type NotionImage =
   | {
@@ -67,6 +81,62 @@ export interface NotionUser {
       type: 'phone_number'
       phone_number: string
     }
+    Emails: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+  }
+}
+
+export interface NotionMessage {
+  id: string
+  created_time: string
+  last_edited_time: string
+  url: string
+  properties: {
+    'Message Summary': {
+      type: 'title'
+      title: { plain_text: string; text: { content: string } }[]
+    }
+    Content: {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+    Type: {
+      type: 'select'
+      select: { name: 'TEXT' | 'IMAGE' | 'VIDEO' | 'AUDIO' | 'POST_SHARE' | string } | null
+    }
+    'Delivery Status': {
+      type: 'select'
+      select: { name: 'SENT' | 'CARRIER_DELIVERED' | 'DELIVERED' | 'FAILED' | string } | null
+    }
+    'Sent At': {
+      type: 'date'
+      date: { start: string; end?: string | null } | null
+    }
+    'Media/Attachments': {
+      type: 'files'
+      files: {
+        name: string
+        type: 'file' | 'external'
+        file?: { url: string; expiry_time: string }
+        external?: { url: string }
+      }[]
+    }
+
+    // --- Relations (Omnichannel Linking) ---
+    'Chat Thread'?: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Sender: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    'Read By': {
+      type: 'relation'
+      relation: { id: string }[]
+    }
   }
 }
 
@@ -74,70 +144,177 @@ export interface NotionContact {
   id: string
   created_time: string
   last_edited_time: string
-  cover: NotionImage
-  icon: NotionImage
+  cover: NotionImage | null
+  icon: NotionImage | null
   url: string
   properties: {
     Name: {
       type: 'title'
-      title: { plain_text: string }[]
+      title: { plain_text: string; text: { content: string } }[]
     }
-    Email: { type: 'email'; email: string }
-    Phone: {
-      type: 'phone_number'
-      phone_number: string
-    }
-    Organization: {
-      type: 'relation'
-      relation: { id: string }[]
+    Username: {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
     }
     Company: {
       type: 'rich_text'
-      rich_text: {
-        text: {
-          content: string
-        }
-      }[]
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+    'Job Title': {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+    Email: {
+      type: 'email'
+      email: string | null
+    }
+    Phone: {
+      type: 'phone_number'
+      phone_number: string | null
+    }
+    'Platform Profile': {
+      type: 'url'
+      url: string | null
+    }
+    Status: {
+      type: 'select'
+      select: { name: 'Active' | 'Inactive' | 'External Contact' | string } | null
+    }
+
+    // --- Relations (Omnichannel Linking) ---
+    Organization: {
+      // Kept optional in case you still maintain a separate B2B DB
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Chats: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Emails: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Calls: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+
+    // --- Dynamic/Rollup fields for the UI Queue ---
+    'Last Active'?: {
+      type: 'date'
+      date: { start: string; end?: string | null } | null
+    }
+    'Last Message Snippet': {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
     }
   }
 }
 
-export interface NotionInteraction {
+export interface NotionCall {
   id: string
   created_time: string
   last_edited_time: string
-  cover: NotionImage
-  icon: NotionImage
+  url: string
   properties: {
-    Name: {
+    'Call Log ID': {
       type: 'title'
-      title: { plain_text: string }[]
+      title: { plain_text: string; text: { content: string } }[]
     }
-    Id: {
-      type: 'id'
-      title: { text: { content: string } }[]
-    }
-    Channel: {
+    Type: {
       type: 'select'
-      select: { name: string }
+      select: { name: 'AUDIO' | 'VIDEO' | string } | null
     }
-    Direction: {
+    Status: {
       type: 'select'
-      select: { name: string }
+      select: { name: 'ONGOING' | 'COMPLETED' | 'MISSED' | 'BUSY' | string } | null
     }
-    Timestamp: {
+    Network: {
+      type: 'select'
+      select: { name: 'IP' | 'CELLULAR' | string } | null
+    }
+
+    // --- Telco & Billing Data ---
+    'Duration (Seconds)': {
+      type: 'number'
+      number: number | null
+    }
+    'Cost ($)': {
+      type: 'number'
+      number: number | null
+    }
+    Timeframe: {
       type: 'date'
-      date: { start: string }
+      date: { start: string; end?: string | null } | null
     }
-    Summary: {
-      type: 'text'
-      rich_text: { text: { content: string } }[]
+
+    // --- Relations (Omnichannel Linking) ---
+    'Chat Context'?: {
+      type: 'relation'
+      relation: { id: string }[]
     }
-    'Recording URL': {
-      type: 'url'
-      url: string
+    Initiator: {
+      type: 'relation'
+      relation: { id: string }[]
     }
-    Organization: {
+    Participants: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+  }
+}
+
+export interface NotionEmail {
+  id: string
+  created_time: string
+  last_edited_time: string
+  url: string
+  properties: {
+    Subject: {
+      type: 'title'
+      title: { plain_text: string; text: { content: string } }[]
+    }
+    'Body Snippet': {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+    Status: {
+      type: 'select'
+      select: { name: 'DRAFT' | 'READY_TO_SEND' | 'SENT' | 'FAILED' | string } | null
+    }
+    'Sent At': {
+      type: 'date'
+      date: { start: string; end?: string | null } | null
+    }
+    Attachments: {
+      type: 'files'
+      files: {
+        name: string
+        type: 'file' | 'external'
+        file?: { url: string; expiry_time: string }
+        external?: { url: string }
+      }[]
+    }
+
+    // --- Relations (Omnichannel Linking) ---
+    Sender: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Contact: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Cc: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Bcc: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Labels: {
       type: 'relation'
       relation: { id: string }[]
     }

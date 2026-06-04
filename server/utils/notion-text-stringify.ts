@@ -10,5 +10,5 @@ export default function (
       }
   )[]
 ) {
-  return title.map((value) => ('plain_text' in value ? value.plain_text : value.text.content) ?? '').join('') as string
+  return title ? (title.map((value) => ('plain_text' in value ? value.plain_text : value.text.content) ?? '').join('') as string) : undefined
 }

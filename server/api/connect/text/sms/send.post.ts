@@ -1,14 +1,14 @@
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
-import type { NotionDB } from '~/server/types'
+import type { NotionContact, NotionDB } from '~/server/types'
 import notion from '~/server/utils/notion'
 import dispatchSMS from '~/server/utils/providers-sms'
 import { templateRegistry } from '~/server/utils/template-registry-sms'
 
 import '~/templates/text/sms'
 
-const basePayload = z.object({ contactId: z.string() })
+const basePayload = z.object({ userId: z.string(), contactId: z.string().optional(), recipientPhone: z.string().optional() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -29,23 +29,22 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
-    const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
+    const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
 
-    const contactPage = (await notion.pages.retrieve({ page_id: body.contactId })) as any
-    const recipientPhone = contactPage.properties?.Phone?.phone_number
-
-    if (!recipientPhone) {
-      event.res.status = 400
-      return { error: `Contact page '${body.contactId}' does not contain a valid Phone number.` }
+    let recipientPhone = body.recipientPhone
+    if (!recipientPhone && body.contactId) {
+      const contactPage = (await notion.pages.retrieve({ page_id: body.contactId })) as unknown as NotionContact
+      recipientPhone = contactPage.properties.Phone.phone_number ?? undefined
     }
+
+    if (!recipientPhone) throw new HTTPError({ statusCode: 400, statusMessage: 'Valid recipientPhone or contactId is required.' })
 
     let finalizedText = body.text || ''
 
     if (body.template !== 'none') {
       const templateDef = templateRegistry[body.template]
       if (!templateDef) {
-        event.res.status = 400
-        return { error: `SMS template layout '${body.template}' is not registered.` }
+        throw new HTTPError({ statusCode: 400, statusMessage: `SMS template layout '${body.template}' is not registered.` })
       }
 
       const variables = 'variables' in body ? body.variables : {}
@@ -55,30 +54,36 @@ export default defineEventHandler(async (event) => {
 
     const dispatchResult = await dispatchSMS(recipientPhone, finalizedText)
 
-    const interactionPage = await notion.pages.create({
-      parent: { data_source_id: notionDbId.interaction },
+    const messagePage = await notion.pages.create({
+      parent: { data_source_id: notionDbId.message },
       properties: {
-        Id: { title: [{ text: { content: `outbound-sms-${Date.now()}` } }] },
-        Channel: { select: { name: 'sms' } },
-        Direction: { select: { name: 'outbound' } },
-        Timestamp: { date: { start: new Date().toISOString() } },
-        Summary: {
-          rich_text: [{ text: { content: `[Gateway: ${dispatchResult.activeProviderName.toUpperCase()}] ${finalizedText}` } }],
+        'Message Summary': {
+          title: [{ text: { content: finalizedText.slice(0, 50) + (finalizedText.length > 50 ? '...' : '') } }],
         },
-        Contact: { relation: [{ id: body.contactId }] },
+        Content: {
+          rich_text: [{ text: { content: finalizedText.slice(0, 2000) } }],
+        },
+        Type: {
+          select: { name: 'TEXT' },
+        },
+        'Delivery Status': {
+          select: { name: 'SENT' },
+        },
+        'Sent At': {
+          date: { start: new Date().toISOString() },
+        },
+        ...(body.userId ? { User: { relation: [{ id: body.userId }] } } : {}),
+        ...(body.contactId ? { Contact: { relation: [{ id: body.contactId }] } } : {}),
       },
     })
 
-    event.res.status = 200
     return {
       success: true,
-      interactionId: interactionPage.id,
+      interactionId: messagePage.id,
       dispatchId: dispatchResult.providerMessageId,
     }
   } catch (error: any) {
     console.error('API connect/text/sms/send POST', error)
-
-    const { code: errorCode } = error as { code?: string }
 
     if (error instanceof Error && 'statusCode' in error) {
       throw error
@@ -86,7 +91,7 @@ export default defineEventHandler(async (event) => {
 
     throw new HTTPError({
       statusCode: 500,
-      statusMessage: 'Some Unknown Error Found',
+      statusMessage: 'Failed to dispatch and log SMS.',
     })
   }
 })

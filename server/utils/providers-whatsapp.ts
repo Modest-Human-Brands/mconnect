@@ -72,8 +72,8 @@ const whatsAppProviderAdapters: Record<string, (payload: WhatsAppPayload) => Pro
     const formattedFrom = payload.settings.from.startsWith('+') ? payload.settings.from : `+${payload.settings.from}`
 
     const params = new URLSearchParams()
-    params.append('To', `whatsapp:${formattedTo}`)
-    params.append('From', `whatsapp:${formattedFrom}`)
+    params.append('Contact', `whatsapp:${formattedTo}`)
+    params.append('User', `whatsapp:${formattedFrom}`)
 
     if (payload.text) {
       params.append('Body', payload.text)

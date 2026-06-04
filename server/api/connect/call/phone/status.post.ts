@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = useRuntimeConfig()
-  const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
+  const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
 
   if (!sipSettings?.apiKey || !sipSettings?.apiSecret) {
     throw new HTTPError({ statusCode: 500, statusMessage: 'LiveKit credentials missing.' })
@@ -45,7 +45,6 @@ export default defineEventHandler(async (event) => {
 
     switch (livekitEvent.event) {
       case 'room_started': {
-        // The room name format from our Dispatch Rule is "inbound-call_919330504883_XACjqZ7vDph6" or "outbound-call_dafsgfgadhgfhbgfhagffdg"
         const [direction, ...rest] = roomName.split('_')
 
         console.log(`[Routing Engine]: ${direction} call detected from ${rest[0]}. Upserting contact...`)
@@ -81,6 +80,7 @@ export default defineEventHandler(async (event) => {
         let routingSummary = `[${direction === 'outbound-call' ? 'Outbound' : 'Inbound'} Audio Bridge Initiated via LiveKit]\nRoom Tracking Identity: ${roomName}\n`
 
         if (direction === 'inbound-call') {
+          // Queries DB 1 (Users & Contacts) for internal users
           const users = await notionQueryDb<NotionUser>(notion, notionDbId.user, {
             filter: {
               and: [
@@ -97,7 +97,7 @@ export default defineEventHandler(async (event) => {
           })
 
           for (const { id: userId, properties } of users) {
-            const userPhone = properties?.Phone?.phone_number
+            const userPhone = properties['Phone'].phone_number
             if (!userPhone) continue
 
             console.log(`[Routing Engine]: Checking presence for Agent ${userId} (${userPhone})...`)
@@ -123,15 +123,30 @@ export default defineEventHandler(async (event) => {
           }
 
           await notion.pages.create({
-            parent: { data_source_id: notionDbId.interaction },
+            parent: { data_source_id: notionDbId.call },
             properties: {
-              Id: { title: [{ text: { content: `voice-bridge-${livekitEvent.room?.sid || roomName}` } }] },
-              Channel: { select: { name: 'voice' } },
-              Direction: { select: { name: direction.split('-')[0] } },
-              Timestamp: { date: { start: new Date().toISOString() } },
-              Summary: { rich_text: [{ text: { content: routingSummary } }] },
-              Contact: { relation: [{ id: contactId }] },
-              ...(routedUserId ? { User: { relation: [{ id: routedUserId }] } } : {}),
+              'Call Log ID': {
+                title: [{ text: { content: `voice-bridge-${livekitEvent.room?.sid || roomName}` } }],
+              },
+              Type: {
+                select: { name: 'AUDIO' },
+              },
+              Status: {
+                select: { name: 'ONGOING' },
+              },
+              Network: {
+                select: { name: 'CELLULAR' },
+              },
+              Timeframe: {
+                date: { start: new Date().toISOString() },
+              },
+              Initiator: {
+                relation: [{ id: direction === 'inbound-call' ? contactId : routedUserId || contactId }],
+              },
+              Participants: {
+                // Adds both the contact and the mapped agent (if available) to the call participants
+                relation: [{ id: contactId }, ...(routedUserId ? [{ id: routedUserId }] : [])],
+              },
             },
           })
           break
@@ -141,7 +156,6 @@ export default defineEventHandler(async (event) => {
       }
 
       case 'participant_joined': {
-        // 💡 Triggered when either a SIP trunk or a WebRTC agent joins
         console.log(`[Media Room]: ${livekitEvent.participant?.identity} joined.`)
         break
       }
@@ -152,30 +166,24 @@ export default defineEventHandler(async (event) => {
       }
 
       case 'room_finished': {
-        // 💡 Triggered when the call is fully hung up
-        // TODO: Calculate duration and mark Notion interaction as "Completed"
+        // TODO: Calculate duration and mark Notion interaction as "COMPLETED"
         break
       }
 
       case 'egress_ended': {
-        // 💡 Triggered when the MP4 recording is successfully saved
         const filePath = livekitEvent.egressInfo?.fileResults[0].location
         console.log(`[Recording Saved]: File located at ${filePath}`)
-        // TODO: Attach this file path/URL to the Notion Interaction record
         break
       }
 
       default: {
-        // Ignore unhandled events like 'track_published' to prevent log spam
         break
       }
     }
 
-    // Always return a 200 OK so LiveKit knows we received it successfully
     return { status: 'success' }
   } catch (error) {
-    console.error('API connect/phone/call/status POST', error)
-
+    console.error('API connect/phone/call/receive POST', error)
     throw new HTTPError({ statusCode: 401, statusMessage: 'Unauthorized LiveKit Signature' })
   }
 })

@@ -1,9 +1,7 @@
 import { defineEventHandler, getValidatedQuery, HTTPError } from 'nitro/h3'
-import { useRuntimeConfig } from 'nitro/runtime-config'
+import { useStorage } from 'nitro/storage'
 import { z } from 'zod'
-import type { NotionContact, NotionDB } from '~/server/types'
-import notion from '~/server/utils/notion'
-import notionQueryDb from '~/server/utils/notion-query-db'
+import type { Resource } from '~/server/types'
 import notionTextStringify from '~/server/utils/notion-text-stringify'
 
 const queryParamsSchema = z.object({
@@ -18,25 +16,37 @@ export default defineEventHandler(async (event) => {
     const limit = query.limit ? Number(query.limit) : 50
     const offset = query.offset ? Number(query.offset) : 0
 
-    const config = useRuntimeConfig()
-    const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
-
-    const contacts = await notionQueryDb<NotionContact>(notion, notionDbId.contact)
+    const contactStorage = useStorage<Resource<'contact'>>(`data:resource:contact`)
+    const contacts = (await contactStorage.getItems(await contactStorage.getKeys())).flatMap(({ value }) => value?.record || [])
 
     const total = contacts.length
     const paginatedContent = contacts.slice(offset, offset + limit)
 
-    const results = paginatedContent.map((page) => {
-      const props = page.properties
+    const results = paginatedContent.map(({ id, properties: props, last_edited_time }) => {
+      const email = props['Email'].email || null
+      const phone = props['Phone'].phone_number || null
+      const instagram = notionTextStringify(props['Username']?.rich_text) || null
+
+      const platforms: string[] = []
+      if (phone) platforms.push('whatsapp', 'sms', 'phone')
+      if (email) platforms.push('email')
+      if (instagram) platforms.push('instagram')
+
       return {
-        id: page.id,
-        url: page.url,
-        brand: notionTextStringify(props.Name.title),
-        company: notionTextStringify(props.Company.rich_text),
-        email: props.Email.email,
-        phone: props.Phone.phone_number,
-        status: props.Status?.status?.name,
-        type: props.Type?.select?.name,
+        id,
+        name: notionTextStringify(props['Name']?.title) || 'Unknown Contact',
+        company: notionTextStringify(props['Company']?.rich_text) || null,
+        jobTitle: notionTextStringify(props['Job Title']?.rich_text) || null,
+        email,
+        phone,
+        instagram,
+        status: props['Status']?.select?.name || 'Active',
+
+        // Assuming Rollup properties exist on DB 1 for performance, fallback to page timestamps
+        lastActive: props['Last Active']?.date?.start || last_edited_time,
+        lastMessageSnippet: notionTextStringify(props['Last Message Snippet']?.rich_text) || 'No recent messages.',
+
+        platforms: [...new Set(platforms)],
       }
     })
 
@@ -51,15 +61,13 @@ export default defineEventHandler(async (event) => {
   } catch (error: any) {
     console.error('API contacts GET', error)
 
-    const { code: errorCode } = error as { code?: string }
-
     if (error instanceof Error && 'statusCode' in error) {
       throw error
     }
 
     throw new HTTPError({
       statusCode: 500,
-      statusMessage: 'Some Unknown Error Found',
+      statusMessage: 'Failed to fetch contact queue',
     })
   }
 })

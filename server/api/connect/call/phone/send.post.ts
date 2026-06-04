@@ -1,5 +1,6 @@
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { z } from 'zod'
+import type { NotionContact, NotionUser } from '~/server/types'
 import notion from '~/server/utils/notion'
 import { initializeLiveKitSipBridge } from '~/server/utils/providers-phone'
 
@@ -17,20 +18,18 @@ export default defineEventHandler(async (event) => {
 
     console.log(`[Voice Engine]: Initializing LiveKit room bridge sequence for Contact: ${contactId} by User: ${userId}`)
 
-    const contactPage = (await notion.pages.retrieve({ page_id: contactId })) as any
-    const userPage = (await notion.pages.retrieve({ page_id: userId })) as any
+    const contactPage = (await notion.pages.retrieve({ page_id: contactId })) as unknown as NotionContact
+    const userPage = (await notion.pages.retrieve({ page_id: userId })) as unknown as NotionUser
 
-    const destinationPhone = contactPage?.properties?.Phone?.phone_number || contactPage?.properties?.Phone?.phone
-    const userPhone = userPage?.properties?.Phone?.phone_number || userPage?.properties?.Phone?.phone
+    const destinationPhone = contactPage.properties.Phone.phone_number
+    const userPhone = userPage.properties.Phone.phone_number
 
     if (!destinationPhone) {
-      event.res.status = 400
-      return { error: `Contact page '${contactId}' does not contain a valid phone number property.` }
+      throw new HTTPError({ statusCode: 400, statusMessage: `Contact page '${contactId}' does not contain a valid phone number property.` })
     }
 
     if (!webCall && !userPhone) {
-      event.res.status = 400
-      return { error: `User page '${userId}' does not contain a valid phone number property for SIP bridging.` }
+      throw new HTTPError({ statusCode: 400, statusMessage: `User page '${userId}' does not contain a valid phone number property for SIP bridging.` })
     }
 
     const bridgeResult = await initializeLiveKitSipBridge({
@@ -42,7 +41,6 @@ export default defineEventHandler(async (event) => {
       recordCall,
     })
 
-    event.res.status = 200
     return {
       status: 'bridging_initiated',
       provider: 'livekit-sip',
@@ -52,8 +50,7 @@ export default defineEventHandler(async (event) => {
     console.error('API connect/phone/call/send POST', error)
 
     if (error instanceof z.ZodError) {
-      event.res.status = 400
-      return { error: 'Invalid payload attributes supplied.', details: error.errors }
+      throw new HTTPError({ statusCode: 400, statusMessage: 'Invalid payload attributes supplied.' })
     }
 
     if (error instanceof Error && 'statusCode' in error) {
