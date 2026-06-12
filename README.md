@@ -52,12 +52,14 @@ Progress = 11/25 = 44%
 
 **Description:** Verification ping to check system readiness and isolate active compute infrastructure nodes.
 
-**Input:** _(None)_ **Output (JSON - 200 OK):**
+**Input:** _(None)_
+**Output (JSON - 200 OK):**
 
 ```json
 {
   "status": "OK",
-  "node": "Gigabyte"
+  "version": "1.0.0",
+  "node": "unknown-node"
 }
 ```
 
@@ -67,7 +69,7 @@ Progress = 11/25 = 44%
 
 ### `PUT /api/contacts`
 
-**Description:** Upserts client profiles inside the unified Notion CRM using camelCase parameters. This endpoint is backed by a single master schema definition. It strips away read-only fields (such as Notion formulas or rollups like `profit` and `projectCount`) before processing writes. If no `contactId` is supplied, it performs a fallback check querying the database for existing duplicates matching on `phone` or `email` values sequentially before creating a new page record.
+**Description:** Upserts client profiles inside the unified Notion CRM (Database 1) using camelCase parameters. It strips away read-only fields before processing writes. If no `contactId` is supplied, it performs a fallback check querying the database for existing duplicates matching on `phone` or `email` sequentially before creating a new page record.
 
 **Input (JSON):**
 
@@ -76,7 +78,7 @@ Progress = 11/25 = 44%
   "brand": "Brandwizz",
   "company": "Brandwizz Communications",
   "email": "response@brandwizz.com",
-  "address": "DLF Galleria, 14th Floor, New Town Action Area 1, Kolkata, India 700156",
+  "address": "DLF Galleria, 14th Floor, New Town Action Area 1, Kolkata, India",
   "phone": "+919717402568",
   "pocPerson": "Shreeja Sarkar",
   "status": "Active",
@@ -85,12 +87,6 @@ Progress = 11/25 = 44%
   "linkedIn": "https://linkedin.com/company/brandwizz"
 }
 ```
-
-#### Payload Parameter Rules
-
-- **Required Fields:** `brand`, `company`, `email`, `address`, `phone`, `pocPerson`
-- **Optional/Nullable Fields:** `contactId`, `status` (Strict Status Enum), `type` (Strict Company Type Enum), `tags`, `acquisitionDate`, `place`, `whatsapp`, `pocCompany`, `pocAddress`, `pocEmail`, `pocPhone`, `website`, `facebook`, `instagram`, `twitter`, `linkedIn`
-- **Ignored Fields (Read-Only):** `id`, `url`, `index`, `createdTime`, `lastEditedTime`, `profit`, `projectCount`
 
 **Output (JSON - 200 OK):**
 
@@ -103,12 +99,12 @@ Progress = 11/25 = 44%
 
 ### `GET /api/contacts`
 
-**Description:** Retrieves a paginated list of all contacts from the unified Notion CRM, safely transformed into standardized camelCase objects.
+**Description:** Retrieves a paginated list of all contacts from the unified Notion CRM. Dynamically computes the `platforms` array based on available non-null contact fields (Phone, Email, Instagram) to determine omnichannel reachability.
 
 **Query Parameters:**
 
-- `limit` (number, optional) — The maximum number of records to return. Default: `50`.
-- `offset` (number, optional) — The number of records to skip before beginning to return results. Default: `0`.
+- `limit` (number, optional) — Default: `50`.
+- `offset` (number, optional) — Default: `0`.
 
 **Output (JSON - 200 OK):**
 
@@ -117,18 +113,21 @@ Progress = 11/25 = 44%
   "pagination": {
     "limit": 50,
     "offset": 0,
-    "total": 4
+    "total": 142
   },
   "results": [
     {
-      "id": "947f4df5-cf45-4a43-aabc-7d152118c7af",
-      "url": "https://www.notion.so/Sundar-Skincare-...",
-      "brand": "Sundar Skincare",
-      "company": "Sundar",
-      "email": "partnerships@sundarskincare.example",
-      "phone": "+919900000003",
-      "status": "Researched",
-      "type": "Cosmetics"
+      "id": "189c4e20-3b1a-4c22-98a1-8d2a3c9b7e54",
+      "name": "Sarah Liu",
+      "company": "WaveLength Creative Co.",
+      "jobTitle": "Marketing Manager",
+      "email": "sarah.liu@wavelength.co",
+      "phone": "+15551234567",
+      "instagram": "sarah_creative",
+      "status": "Active",
+      "lastActive": "2023-10-27T10:33:00.000Z",
+      "lastMessageSnippet": "Sure, let's schedule a quick call.",
+      "platforms": ["whatsapp", "email", "phone", "instagram"]
     }
   ]
 }
@@ -136,35 +135,47 @@ Progress = 11/25 = 44%
 
 ### 🕒 `GET /api/contacts/:contactId/timeline`
 
-**Description:** Retrieves a chronologically descended list (newest first) of communication interaction logs linked to a specific contact page using traditional offset-based pagination.
+**Description:** Retrieves a unified, chronologically descended list (newest first) of communications by concurrently querying the Messages (DB 3), Calls (DB 4), and Emails (DB 5) databases and flattening them into a standardized OmniChannel ledger.
 
 **Path Parameters:**
 
-- 🆔 `contactId` (string, required): The unique identifier of the target contact page.
-
-**Query Parameters:**
-
-- 📊 `limit` (number, optional): The maximum number of interaction records to return. Default: `50`.
-- 🧭 `offset` (number, optional): The number of records to skip before beginning to return results. Default: `0`.
+- 🆔 `contactId` (string, required): Target contact page ID.
 
 **Output (JSON - 200 OK):**
 
 ```json
 {
+  "client_id": "189c4e20-3b1a-4c22-98a1-8d2a3c9b7e54",
   "results": [
     {
-      "interactionId": "outboundEmail1716381000000",
+      "interactionId": "msg_90123",
+      "channel": "whatsapp",
+      "direction": "inbound",
+      "timestamp": "2023-10-27T10:33:00.000Z",
+      "summary": "Sure, let's schedule a quick call.",
+      "status": "delivered",
+      "metadata": {
+        "hasAttachments": false,
+        "mediaUrl": null
+      }
+    },
+    {
+      "interactionId": "eml_88214",
       "channel": "email",
       "direction": "outbound",
-      "timestamp": "2026-05-22T14:30:00.000Z",
-      "summary": "Subject: Commercial Project Quotation Estimate\n\nTemplate payload compiled for: quotation",
-      "recordingUrl": null
+      "timestamp": "2023-10-27T09:15:00.000Z",
+      "summary": "Re: Project Requirements - I have attached the scope document.",
+      "status": "sent",
+      "metadata": {
+        "hasAttachments": true,
+        "labels": []
+      }
     }
   ],
   "pagination": {
-    "total": 1,
+    "total": 2,
     "limit": 50,
-    "offset": 0
+    "skip": 0
   }
 }
 ```
@@ -175,7 +186,7 @@ Progress = 11/25 = 44%
 
 ### 📨 `POST /api/connect/text/email/receive`
 
-**Description:** Dedicated webhook target endpoint managed by incoming IMAP email background pollers or external mail hooks. Standardizes incoming mail metadata payloads and appends them straight onto the client's CRM Timeline page.
+**Description:** Dedicated webhook target endpoint managed by incoming IMAP email background pollers. Standardizes incoming mail metadata, upserts the contact, and logs the email directly into the **Emails Database** with a `RECEIVE` status, linking the `Contact` relation.
 
 **Input Body (JSON):**
 
@@ -200,7 +211,7 @@ Progress = 11/25 = 44%
 
 ### 💬 `POST /api/connect/text/sms/receive`
 
-**Description:** Dedicated inbound hook for processing incoming mobile network transactional reply event streams. Standardizes incoming SMS bodies and links them to the Notion CRM contact timeline by cross-referencing origin caller signatures.
+**Description:** Dedicated inbound hook for processing incoming mobile network replies. Standardizes incoming SMS bodies, upserts the contact via the queue endpoint, and logs the message directly into the **Messages Database** linking the `Sender` relation.
 
 **Input Body (JSON):**
 
@@ -225,33 +236,26 @@ Progress = 11/25 = 44%
 
 ## 3. Telephony Voice & LiveKit Call Control Layer
 
-### `POST /api/connect/call/phone/receive`
+### `POST /api/connect/phone/call/receive`
 
-**Description:** Direct entry port for carrier SIP Trunk inbound `INVITE` webhooks. Evaluates the incoming caller ID against the database, provisions a virtual tracking room, and sets up parallel or sequential hunting states across available WebRTC endpoints and physical extensions.
+_(Note: Endpoint path aligns with LiveKit webhook receiver code)_
+
+**Description:** Direct entry port for LiveKit webhooks (including carrier SIP Trunk `room_started` events). Evaluates the incoming caller ID, provisions a virtual tracking room, checks agent presence via DB 1 queries, dials PSTN fallbacks, and natively logs the session into the **Calls Log Database** linking `Participants` and the `Initiator`.
 
 **Input (JSON):**
-
-```json
-{
-  "orgId": "org-123",
-  "to": "+918065480698",
-  "callUuid": "uuid-vobiz-call-789"
-}
-```
+_(LiveKit Standard Webhook Payload)_
 
 **Output (JSON - 200 OK):**
 
 ```json
 {
-  "success": true,
-  "roomName": "room-inbound-vobiz-789",
-  "action": "huntingInitiated"
+  "status": "success"
 }
 ```
 
-### `POST /api/connect/call/phone/send`
+### `POST /api/connect/phone/call/send`
 
-**Description:** Programmatically initiates a dual-leg call session by spinning up a centralized LiveKit Media Room, establishing an internal agent participant token, and launching an asynchronous SIP outbound carrier trunk hook to bridge the client destination leg cleanly.
+**Description:** Programmatically initiates a dual-leg call session by spinning up a centralized LiveKit Media Room, establishing an internal agent participant token, and launching an asynchronous SIP outbound carrier trunk hook to bridge the client destination leg cleanly using DB 1 `Phone Number` properties.
 
 **Input (JSON):**
 
@@ -260,7 +264,8 @@ Progress = 11/25 = 44%
   "contactId": "36bee3b0289a8030a6f9c0eea0708f12",
   "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
   "recordCall": true,
-  "orgId": "307ee3b0289a8116afb0f6a1795a27a0"
+  "orgId": "307ee3b0289a8116afb0f6a1795a27a0",
+  "webCall": false
 }
 ```
 
@@ -274,221 +279,32 @@ Progress = 11/25 = 44%
 }
 ```
 
-### `POST /api/connect/call/phone/status`
-
-**Description:** Centralized LiveKit room webhook status server endpoint. Monitors active participants, catches disconnect or network hangup event frames, extracts precise stream call duration metrics, and automates AWS S3 media file archival recording links right back to the contact interaction ledger.
-
-**Input (JSON):**
-
-```json
-{
-  "event": "room.finished",
-  "roomName": "room-inbound-vobiz-789",
-  "duration": 142,
-  "recordingUrl": "https://s3.amazonaws.com/mconnect-bucket/voice-records/rec-789.mp3"
-}
-```
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "success": true
-}
-```
-
-### `POST /api/connect/call/phone/fallback`
-
-**Description:** Error handling routing channel executed automatically when LiveKit room invitation sequences encounter timeout parameters or non-responsive agent endpoints. Safely fires cross-channel recovery functions like recording instant voicemails or triggering SMS drop replies.
-
-**Input (JSON):**
-
-```json
-{
-  "callUuid": "call_abcd1234efgh",
-  "reason": "noAnswer",
-  "contactId": "36bee3b0289a8030a6f9c0eea0708f12"
-}
-```
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "success": true,
-  "fallbackActionExecuted": "smsAutoResponder"
-}
-```
-
-### `POST /api/connect/call/phone/stream`
-
-**Description:** Low-latency proxy interceptor using LiveKit Egress or raw audio track routing. Sequences incoming call chunks cleanly to disk arrays while publishing frame buffers to internal pipelines for immediate consumption.
-
-**Input (JSON / Binary Stream Chunk):**
-
-```json
-{
-  "callUuid": "call_abcd1234efgh",
-  "chunk": "SGVsbG8gV29ybGQ=",
-  "sequence": 42
-}
-```
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "success": true
-}
-```
-
-### `POST /api/connect/call/phone/conference`
-
-**Description:** Dynamic room allocation controller. Invites additional active carrier trunk numbers or authenticated dashboard users directly into an active, live LiveKit session room to execute seamless multi-party call conferencing.
-
-**Input (JSON):**
-
-```json
-{
-  "roomName": "room-inbound-vobiz-789",
-  "inviteTargetPhone": "+919876543212",
-  "participantType": "externalThirdParty"
-}
-```
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "success": true,
-  "participantId": "part_9931a"
-}
-```
-
-### `POST /api/connect/call/phone/supervisor/monitor`
-
-**Description:** Implements specific track layer subscription policies inside LiveKit. Authorizes designated management nodes to enter active streams to audit calls under three operational rules: Silent (listen only), Whisper (talk exclusively to the internal agent), or Barge (publish audio to all participants).
-
-**Input (JSON):**
-
-```json
-{
-  "supervisorId": "user_manager_1",
-  "roomName": "room-inbound-vobiz-789",
-  "mode": "whisper"
-}
-```
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "success": true,
-  "activeMode": "whisper"
-}
-```
-
-### `POST /api/connect/call/phone/webrtc/token`
-
-**Description:** Signs and generates cryptographically sound LiveKit JWT access tokens containing explicit user metadata rules, device profile identities, and room clearance tokens to authenticate modern, in-browser softphone UI dashboards.
-
-**Input (JSON):**
-
-```json
-{
-  "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
-  "roomName": "room-inbound-vobiz-789"
-}
-```
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "accessToken": "..."
-}
-```
-
-### `POST /api/connect/call/phone/queue`
-
-**Description:** Holds inbound phone channels inside a virtual waiting room, looping specific wait-line audio templates sequentially while monitoring active workspace states until an available agent registers a session token to claim the caller.
-
-**Input (JSON):**
-
-```json
-{
-  "callUuid": "call_abcd1234efgh",
-  "queueId": "salesQueue"
-}
-```
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "success": true,
-  "queuePosition": 2
-}
-```
-
-### `POST /api/connect/call/phone/ivr`
-
-**Description:** Catches real-time digital keyboard frequency tones (DTMF keypad strokes) reported from LiveKit SIP connection tracking parameters, running conditional menu branching configurations to parse user choices.
-
-**Input (JSON):**
-
-```json
-{
-  "callUuid": "call_abcd1234efgh",
-  "digitsPressed": "1"
-}
-```
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "success": true,
-  "nextRouteAction": "transferToSalesQueue"
-}
-```
-
 ---
 
 ## ✉️ 4. Outbound Dispatchers & Templates
 
 ### 4.1 `POST /api/connect/text/email/send`
 
-**Description:** Compiles type-safe Vue single-file component templates dynamically, processes attachment streams, and dispatches high-performance outbound emails via mapped provider layouts.
+**Description:** Compiles type-safe Vue single-file component templates dynamically, processes attachment streams, and dispatches high-performance outbound emails. Logs the transaction natively into the **Emails Database**, associating both the `User` (sender) and `Contact` (recipient). Supports direct payload overriding via `recipientEmail`.
 
 **Request Body (JSON):**
 
 ```json
 {
+  "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
   "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
-  "channel": "email",
+  "recipientEmail": "override@example.com",
   "template": "internship-completion-certificate",
   "variables": {
-    "recipientName": "Test 1",
-    "recipientRole": "Test 2",
-    "scopeOfWork": "Backend Core Systems Development",
+    "recipientName": "Alex Mercer",
+    "recipientRole": "Intern",
+    "scopeOfWork": "Systems Development",
     "startDate": "2026-01-01",
     "endDate": "2026-05-01",
     "dateOfIssue": "2026-05-22",
     "signerName": "John Doe",
     "signerTitle": "Managing Director",
-    "certificateUrl": "https://document.modesthumanbrands.com/api/document/...",
-    "organization": {
-      "id": "red-cat-pictures",
-      "name": "RED CAT PICTURES",
-      "website": "https://redcatpictures.com",
-      "branding": {
-        "logo": "https://redcatpictures.com/logo-dark.svg",
-        "color": { "primary": "#CD2D2D", "accent": "" },
-        "font": "Exo 2"
-      },
-      "socials": {}
-    }
+    "certificateUrl": "https://document.modesthumanbrands.com/cert.pdf"
   }
 }
 ```
@@ -498,19 +314,21 @@ Progress = 11/25 = 44%
 ```json
 {
   "success": true,
-  "dispatchId": "<cb978aaa-50eb-99df-9ded-aa04750f76d0@redcatpictures.com>"
+  "dispatchId": "<cb978aaa-50eb-99df-9ded-aa04750f76d0@example.com>"
 }
 ```
 
 ### 4.2 `POST /api/connect/text/sms/send`
 
-**Description:** Dispatches text messages via localized string interpolation templates or raw messaging setups, pushing the metadata rows directly onto the client's crm timeline.
+**Description:** Dispatches text messages via localized string interpolation templates or raw messaging setups. Pushes the logs directly into the **Messages Database**, linking both `User` and `Contact`. Supports direct payload overriding via `recipientPhone`.
 
 **Request Body (JSON):**
 
 ```json
 {
+  "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
   "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
+  "recipientPhone": "+15551234567",
   "template": "none",
   "text": "Hi Alex, this is an automated message confirming your API integration is functioning."
 }
@@ -521,6 +339,7 @@ Progress = 11/25 = 44%
 ```json
 {
   "success": true,
+  "interactionId": "msg_90124",
   "dispatchId": "fast2sms-req-8832199"
 }
 ```
@@ -531,74 +350,13 @@ Progress = 11/25 = 44%
 
 **Description:** Fetches all currently active, pre-compiled Vue-Email structural template keys alongside their required validation variables.
 
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "channel": "email",
-  "templates": [
-    {
-      "templateId": "internship-completion-certificate",
-      "requiredVariables": ["recipientName", "recipientRole", "scopeOfWork"]
-    }
-  ]
-}
-```
-
 #### `GET /api/connect/text/sms/template`
 
 **Description:** Returns the baseline system configuration registry catalog for text-based transactional templates.
 
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "channel": "sms",
-  "templates": [
-    {
-      "templateId": "paymentReminderV1",
-      "requiredVariables": ["customerName", "amountDue", "dueDate"]
-    }
-  ]
-}
-```
-
-#### `GET /api/connect/call/phone/template`
-
-**Description:** Accesses the available room configuration assets, pipeline initializers, and soundscape layouts.
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "channel": "phone",
-  "templates": [
-    {
-      "templateId": "standard-call",
-      "requiredVariables": ["companName", "holdMusic", "streamUrl"]
-    }
-  ]
-}
-```
-
 #### `GET /api/connect/text/whatsapp/template`
 
 **Description:** Polls and synchronizes verified Meta Business template spaces down to native dropdown managers.
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "channel": "whatsapp",
-  "templates": [
-    {
-      "templateId": "utility_shipping_update",
-      "language": "en_US",
-      "status": "APPROVED"
-    }
-  ]
-}
-```
 
 ---
 
@@ -606,7 +364,7 @@ Progress = 11/25 = 44%
 
 ### `POST /api/connect/text/whatsapp/send`
 
-**Description:** Connects to the Meta Cloud architecture to dispatch text alerts, rich attachments, quick-reply options, or approved templates to a user's mobile device.
+**Description:** Connects to the Meta Cloud architecture to dispatch text alerts, rich attachments, quick-reply options, or approved WABA templates to a user's mobile device. Logs directly to the **Messages Database** setting `Type` and `Delivery Status` cleanly.
 
 **Request Body (JSON):**
 
@@ -626,33 +384,22 @@ Progress = 11/25 = 44%
 ```json
 {
   "success": true,
+  "interactionId": "msg_90125",
   "dispatchId": "wamid.HBgLOTE5ODc2NTQzMjEwFQIAERg2..."
 }
 ```
 
 ### `POST /api/connect/text/whatsapp/receive`
 
-**Description:** Webhook target endpoint listening for live payload receipts from Meta. Captures incoming messages, status markers (sent, delivered, read), context links, and media streams.
+**Description:** Webhook target endpoint listening for live payload receipts from Meta. Upserts the contact and natively maps the incoming payload straight to the **Messages Database** setting the `Contact` relation.
 
 **Input Body (JSON):**
 
 ```json
 {
-  "object": "whatsapp_business_account",
-  "entry": [
-    {
-      "id": "88219931",
-      "changes": [
-        {
-          "value": {
-            "messaging_product": "whatsapp",
-            "messages": [{ "from": "+919876543210", "text": { "body": "Got it, thanks!" } }]
-          },
-          "field": "messages"
-        }
-      ]
-    }
-  ]
+  "from": "+919876543210",
+  "to": "+918012345678",
+  "text": "Got it, thanks!"
 }
 ```
 
@@ -662,144 +409,6 @@ Progress = 11/25 = 44%
 {
   "success": true,
   "interactionId": "waInboundLog123"
-}
-```
-
----
-
-## 4.5 Meta Instagram Messenger Integration
-
-### `POST /api/connect/text/instagram/send`
-
-**Description:** Connects via the Meta Graph Messenger system to transmit text elements, image cards, and carousel blocks directly to user profiles.
-
-**Request Body (JSON):**
-
-```json
-{
-  "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
-  "text": "Thank you for reaching out via Instagram! Here is the link to our portfolio."
-}
-```
-
-**Response Body (JSON - 200 OK):**
-
-```json
-{
-  "success": true,
-  "dispatchId": "igmid.AgAAAV..."
-}
-```
-
-### `POST /api/connect/text/instagram/receive`
-
-**Description:** Live webhook receiver tracking consumer-initiated direct messages, story responses, comment threads, or brand mentions, updating the target contact page automatically.
-
-**Input Body (JSON):**
-
-```json
-{
-  "object": "instagram",
-  "entry": [
-    {
-      "id": "ig_account_id",
-      "messaging": [
-        {
-          "sender": { "id": "customer_ig_scoped_id" },
-          "message": { "text": "Loved your latest post!" }
-        }
-      ]
-    }
-  ]
-}
-```
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "success": true,
-  "interactionId": "igInboundLog123"
-}
-```
-
----
-
-## 4.6 Productivity Workspace Layer
-
-### `POST /api/connect/schedule/google-meet/create`
-
-**Description:** Leverages Google Workspace secure OAuth token parameters to programmatically provision dynamic Google Meet video links, mapping the created event down to the Notion CRM calendar logs.
-
-**Input Body (JSON):**
-
-```json
-{
-  "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
-  "summary": "MHB Project Discovery Alignment Session",
-  "startTime": "2026-06-01T10:00:00Z",
-  "endTime": "2026-06-01T10:45:00Z"
-}
-```
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "success": true,
-  "meetUrl": "https://meet.google.com/abc-defg-hij",
-  "eventId": "gCalEventId123"
-}
-```
-
----
-
-## 5. Automated Campaigns & Lead Generation
-
-### `POST /api/campaigns/enroll`
-
-**Description:** Attaches a `contactId` to an automated drip sequence (e.g., standard lead nurture, post-project review requests).
-
-**Input (JSON):**
-
-```json
-{
-  "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
-  "campaignId": "camp-lead-nurture-01",
-  "triggerSource": "missed_call"
-}
-```
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "status": "enrolled",
-  "nextActionAt": "2026-05-18T10:05:00Z"
-}
-```
-
-### `POST /api/campaigns/trigger-action`
-
-**Description:** Internal cron-job or webhook endpoint that forces the evaluation of active campaigns and dispatches pending actions (e.g., Day 2 Follow-up Email).
-
-**Input (JSON):**
-
-```json
-{
-  "executeTimestamp": "2026-05-18T12:00:00Z"
-}
-```
-
-**Output (JSON - 200 OK):**
-
-```json
-{
-  "processedActions": 14,
-  "dispatchedChannels": {
-    "sms": 4,
-    "email": 10
-  }
 }
 ```
 

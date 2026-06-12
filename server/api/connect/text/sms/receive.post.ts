@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
         'Sent At': {
           date: { start: new Date().toISOString() },
         },
-        Sender: {
+        Contact: {
           relation: [{ id: contactId }], // External contact sent this to us
         },
       },

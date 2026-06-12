@@ -129,7 +129,7 @@ export interface NotionMessage {
       type: 'relation'
       relation: { id: string }[]
     }
-    Sender: {
+    Contact: {
       type: 'relation'
       relation: { id: string }[]
     }
@@ -298,10 +298,6 @@ export interface NotionEmail {
     }
 
     // --- Relations (Omnichannel Linking) ---
-    Sender: {
-      type: 'relation'
-      relation: { id: string }[]
-    }
     Contact: {
       type: 'relation'
       relation: { id: string }[]

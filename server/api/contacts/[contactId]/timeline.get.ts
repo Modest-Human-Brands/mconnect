@@ -26,34 +26,23 @@ export default defineEventHandler(async (event) => {
     const [emailsRaw, messagesRaw, callsRaw] = await Promise.all([
       notionQueryDb<NotionEmail>(notion, notionDbId.email, {
         filter: {
-          or: [
-            { property: 'Sender', relation: { contains: contactId } },
-            { property: 'Contact', relation: { contains: contactId } },
-            { property: 'Cc', relation: { contains: contactId } },
-            { property: 'Bcc', relation: { contains: contactId } },
-          ],
+          or: [{ property: 'Contact', relation: { contains: contactId } }],
         },
       }),
       notionQueryDb<NotionMessage>(notion, notionDbId.message, {
         filter: {
-          or: [
-            { property: 'Sender', relation: { contains: contactId } },
-            { property: 'Read By', relation: { contains: contactId } },
-          ],
+          or: [{ property: 'Contact', relation: { contains: contactId } }],
         },
       }),
       notionQueryDb<NotionCall>(notion, notionDbId.call, {
         filter: {
-          or: [
-            { property: 'Initiator', relation: { contains: contactId } },
-            { property: 'Participants', relation: { contains: contactId } },
-          ],
+          or: [{ property: 'Contact', relation: { contains: contactId } }],
         },
       }),
     ])
 
     const mappedMessages = messagesRaw.map((p) => {
-      const isSender = p.properties['Sender']?.relation?.some((r: any) => r.id === contactId)
+      const isSender = p.properties.Contact.relation.some((r: any) => r.id === contactId)
       return {
         interactionId: p.id,
         channel: 'whatsapp', // Assumes default channel for DB3 is WhatsApp (or parse from DB2)
@@ -86,7 +75,7 @@ export default defineEventHandler(async (event) => {
     })
 
     const mappedEmails = emailsRaw.map((p) => {
-      const isSender = p.properties['Sender']?.relation?.some((r: any) => r.id === contactId)
+      const isSender = p.properties.Contact.relation.some((r: any) => r.id === contactId)
       const subject = p.properties['Subject']?.title?.[0]?.plain_text || 'No Subject'
       const snippet = p.properties['Body Snippet']?.rich_text?.[0]?.plain_text || ''
       return {
