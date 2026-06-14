@@ -1,12 +1,12 @@
-export const resourceTypes = ['contact', 'user', 'message', 'call', 'email'] as const
+export const resourceTypes = ['user', 'contact', 'message', 'call', 'email'] as const
 
 export type ResourceType = (typeof resourceTypes)[number]
 
 export type NotionDB = { [K in ResourceType]: string }
 
 export interface ResourceRecordMap {
-  contact: NotionContact
   user: NotionUser
+  contact: NotionContact
   email: NotionEmail
   message: NotionMessage
   call: NotionCall
@@ -88,6 +88,201 @@ export interface NotionUser {
   }
 }
 
+export interface NotionContact {
+  id: string
+  created_time: string
+  last_edited_time: string
+  cover: NotionImage | null
+  icon: NotionImage | null
+  url: string
+  properties: {
+    Name: {
+      type: 'title'
+      title: { plain_text: string; text: { content: string } }[]
+    }
+    Index: {
+      type: 'number'
+      number: number | null
+    }
+    Status: {
+      type: 'select'
+      select: { name: 'Researched' | 'Active' | 'Inactive' | 'External Contact' | string } | null
+    }
+    Company: {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+    Type: {
+      type: 'select'
+      select: { name: string } | null
+    }
+    Address: {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+    Place: {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+    Email: {
+      type: 'email'
+      email: string | null
+    }
+    Whatsapp: {
+      type: 'phone_number'
+      phone_number: string | null
+    }
+    Phone: {
+      type: 'phone_number'
+      phone_number: string | null
+    }
+    Website: {
+      type: 'url'
+      url: string | null
+    }
+    Facebook: {
+      type: 'url'
+      url: string | null
+    }
+    Instagram: {
+      type: 'url'
+      url: string | null
+    }
+    Twitter: {
+      type: 'url'
+      url: string | null
+    }
+    LinkedIn: {
+      type: 'url'
+      url: string | null
+    }
+    'Platform Profile': {
+      type: 'url'
+      url: string | null
+    }
+    Username: {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+    Tags: {
+      type: 'multi_select'
+      multi_select: { name: string }[]
+    }
+
+    // --- Point of Contact Details ---
+    'PoC Person': {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+    'PoC Company': {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+    'PoC Address': {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+    'PoC Email': {
+      type: 'email'
+      email: string | null
+    }
+    'PoC Phone': {
+      type: 'phone_number'
+      phone_number: string | null
+    }
+
+    // --- Dates & Project ---
+    Project: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    'Acquisition Date': {
+      type: 'date'
+      date: { start: string; end?: string | null } | null
+    }
+
+    // --- Relations (Omnichannel Linking) ---
+    Organization: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Emails: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Messages: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Calls: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+
+    // --- Dynamic/Rollup fields for the UI Queue ---
+    'Last Active'?: {
+      type: 'date'
+      date: { start: string; end?: string | null } | null
+    }
+    'Last Message Snippet': {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+  }
+}
+
+export interface NotionEmail {
+  id: string
+  created_time: string
+  last_edited_time: string
+  url: string
+  properties: {
+    Subject: {
+      type: 'title'
+      title: { plain_text: string; text: { content: string } }[]
+    }
+    'Body Snippet': {
+      type: 'rich_text'
+      rich_text: { plain_text: string; text: { content: string } }[]
+    }
+    Status: {
+      type: 'select'
+      select: { name: 'DRAFT' | 'READY_TO_SEND' | 'SENT' | 'FAILED' | string } | null
+    }
+    'Sent At': {
+      type: 'date'
+      date: { start: string; end?: string | null } | null
+    }
+    Attachments: {
+      type: 'files'
+      files: {
+        name: string
+        type: 'file' | 'external'
+        file?: { url: string; expiry_time: string }
+        external?: { url: string }
+      }[]
+    }
+
+    // --- Relations (Omnichannel Linking) ---
+    Contact: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Cc: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Bcc: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Labels: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+  }
+}
+
 export interface NotionMessage {
   id: string
   created_time: string
@@ -140,78 +335,6 @@ export interface NotionMessage {
   }
 }
 
-export interface NotionContact {
-  id: string
-  created_time: string
-  last_edited_time: string
-  cover: NotionImage | null
-  icon: NotionImage | null
-  url: string
-  properties: {
-    Name: {
-      type: 'title'
-      title: { plain_text: string; text: { content: string } }[]
-    }
-    Username: {
-      type: 'rich_text'
-      rich_text: { plain_text: string; text: { content: string } }[]
-    }
-    Company: {
-      type: 'rich_text'
-      rich_text: { plain_text: string; text: { content: string } }[]
-    }
-    'Job Title': {
-      type: 'rich_text'
-      rich_text: { plain_text: string; text: { content: string } }[]
-    }
-    Email: {
-      type: 'email'
-      email: string | null
-    }
-    Phone: {
-      type: 'phone_number'
-      phone_number: string | null
-    }
-    'Platform Profile': {
-      type: 'url'
-      url: string | null
-    }
-    Status: {
-      type: 'select'
-      select: { name: 'Active' | 'Inactive' | 'External Contact' | string } | null
-    }
-
-    // --- Relations (Omnichannel Linking) ---
-    Organization: {
-      // Kept optional in case you still maintain a separate B2B DB
-      type: 'relation'
-      relation: { id: string }[]
-    }
-    Chats: {
-      type: 'relation'
-      relation: { id: string }[]
-    }
-    Emails: {
-      type: 'relation'
-      relation: { id: string }[]
-    }
-    Calls: {
-      type: 'relation'
-      relation: { id: string }[]
-    }
-
-    // --- Dynamic/Rollup fields for the UI Queue ---
-    'Last Active'?: {
-      type: 'date'
-      date: { start: string; end?: string | null } | null
-    }
-    'Last Message Snippet': {
-      type: 'rich_text'
-      rich_text: { plain_text: string; text: { content: string } }[]
-    }
-  }
-}
-
 export interface NotionCall {
   id: string
   created_time: string
@@ -259,58 +382,6 @@ export interface NotionCall {
       relation: { id: string }[]
     }
     Participants: {
-      type: 'relation'
-      relation: { id: string }[]
-    }
-  }
-}
-
-export interface NotionEmail {
-  id: string
-  created_time: string
-  last_edited_time: string
-  url: string
-  properties: {
-    Subject: {
-      type: 'title'
-      title: { plain_text: string; text: { content: string } }[]
-    }
-    'Body Snippet': {
-      type: 'rich_text'
-      rich_text: { plain_text: string; text: { content: string } }[]
-    }
-    Status: {
-      type: 'select'
-      select: { name: 'DRAFT' | 'READY_TO_SEND' | 'SENT' | 'FAILED' | string } | null
-    }
-    'Sent At': {
-      type: 'date'
-      date: { start: string; end?: string | null } | null
-    }
-    Attachments: {
-      type: 'files'
-      files: {
-        name: string
-        type: 'file' | 'external'
-        file?: { url: string; expiry_time: string }
-        external?: { url: string }
-      }[]
-    }
-
-    // --- Relations (Omnichannel Linking) ---
-    Contact: {
-      type: 'relation'
-      relation: { id: string }[]
-    }
-    Cc: {
-      type: 'relation'
-      relation: { id: string }[]
-    }
-    Bcc: {
-      type: 'relation'
-      relation: { id: string }[]
-    }
-    Labels: {
       type: 'relation'
       relation: { id: string }[]
     }

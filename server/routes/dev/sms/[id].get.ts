@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
   </head>
   <body class="bg-gray-100 overflow-hidden h-screen flex text-gray-800 font-sans">
     
-    <div id="app" class="flex w-full h-full">
+    <div id="app" class="flex size-full">
 
       <div class="w-2/3 h-full flex flex-col border-r border-gray-300 bg-white">
         <div class="p-4 bg-gray-50 border-b border-gray-200 font-semibold text-gray-700 flex justify-between items-center shadow-sm z-10">

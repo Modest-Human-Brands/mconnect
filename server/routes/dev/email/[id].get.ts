@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
   </head>
   <body class="bg-gray-100 overflow-hidden h-screen flex text-gray-800 font-sans">
     
-    <div id="app" class="flex w-full h-full">
+    <div id="app" class="flex size-full">
 
       <div class="w-2/3 h-full flex flex-col border-r border-gray-300 bg-white">
         <div class="p-4 bg-gray-50 border-b border-gray-200 font-semibold text-gray-700 flex justify-between items-center shadow-sm z-10">
@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
         <div class="flex-1 overflow-auto bg-[#e5e7eb] flex justify-center p-8">
            <div class="bg-white shadow-2xl min-h-[600px] w-full max-w-[650px] border border-gray-200 overflow-hidden relative">
               
-              <iframe :srcdoc="previewHtml" class="w-full h-full border-none"></iframe>
+              <iframe :srcdoc="previewHtml" class="size-full border-none"></iframe>
               
               <div v-if="isRendering" class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-md animate-pulse">
                 Rendering...
