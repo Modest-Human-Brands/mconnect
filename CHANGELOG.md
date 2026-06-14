@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.4.1
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.0...v0.4.1)
+
+### 🚀 Enhancements
+
+- Otp email template added ([af6fecd](https://github.com/Modest-Human-Brands/mconnect/commit/af6fecd))
+- Update README with project roadmap and progress; refactor API response handling and types ([cfd28a5](https://github.com/Modest-Human-Brands/mconnect/commit/cfd28a5))
+
+### 💅 Refactors
+
+- Db schema and api schema updated ([395e99f](https://github.com/Modest-Human-Brands/mconnect/commit/395e99f))
+- Rename 'Sender' to 'Contact' in SMS and email handling for consistency ([5ba01e0](https://github.com/Modest-Human-Brands/mconnect/commit/5ba01e0))
+
+### 🏡 Chore
+
+- Update dependencies and improve type definitions ([f1ae3c9](https://github.com/Modest-Human-Brands/mconnect/commit/f1ae3c9))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.4.0
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.3.1...v0.4.0)
