@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     config: {
       voiceConfig: { sip: sipSettings, activeProvider, providers },
     },
-  } = await loadConfig({ configFile: '../config/messaging.config.yaml' })
+  } = await loadConfig({ configFile: `../config/organization/${orgSlug}.yaml` })
 
   const sipTrunkId = providers?.[activeProvider]?.trunkId
 

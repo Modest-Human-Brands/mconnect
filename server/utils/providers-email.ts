@@ -3,11 +3,11 @@ import nodemailer from 'nodemailer'
 
 let cachedEmailConfig: any = null
 
-async function getEmailInfrastructure() {
+async function getEmailInfrastructure(orgSlug: string) {
   if (cachedEmailConfig) return cachedEmailConfig
 
   const { config } = await loadConfig({
-    configFile: '../config/messaging.config.yaml',
+    configFile: `../config/organization/${orgSlug}.yaml`,
   })
 
   const emailSettings = config?.emailConfig
@@ -122,8 +122,8 @@ const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { s
   },
 }
 
-export default async function (payload: DispatchEmailPayload) {
-  const emailConfigProfile = await getEmailInfrastructure()
+export default async function (payload: DispatchEmailPayload, orgSlug: string) {
+  const emailConfigProfile = await getEmailInfrastructure(orgSlug)
   const activeProviderName = emailConfigProfile.activeProvider
 
   const adapterRunner = emailProviderAdapters[activeProviderName]

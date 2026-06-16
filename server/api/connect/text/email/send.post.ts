@@ -6,12 +6,13 @@ import { render } from '@vue-email/render'
 import notion from '~/server/utils/notion'
 import dispatchEmail from '~/server/utils/providers-email'
 import { templateRegistry } from '~/server/utils/template-registry-email'
-import type { NotionContact, NotionDB } from '~/server/types'
+import type { NotionContact, NotionDB, NotionOrganization } from '~/server/types'
 
 import '~/templates/text/email'
 import notionNormalizeId from '~/server/utils/notion-normalize-id'
+import notionTextStringify from '~/server/utils/notion-text-stringify'
 
-const basePayload = z.object({ userId: z.string(), contactId: z.string().optional(), recipientEmail: z.string().email().optional() })
+const basePayload = z.object({ userId: z.string().optional(), contactId: z.string().optional(), recipientEmail: z.email().optional(), orgId: z.string() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -34,7 +35,7 @@ const bodySchema = z.union([
 
 export default defineEventHandler(async (event) => {
   try {
-    const { userId, contactId, recipientEmail: bodyEmail, text, html, subject, template, variables, displayName } = await readValidatedBody(event, bodySchema)
+    const { userId, contactId, recipientEmail: bodyEmail, text, html, subject, template, variables, displayName, orgId } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
@@ -46,6 +47,8 @@ export default defineEventHandler(async (event) => {
     }
 
     if (!recipientEmail) throw new HTTPError({ statusCode: 400, statusMessage: 'Valid recipientEmail or contactId is required.' })
+
+    const orgPage = (await notion.pages.retrieve({ page_id: orgId })) as unknown as NotionOrganization
 
     let finalizedText = text || ''
     let finalizedHtml = html || ''
@@ -78,14 +81,17 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const dispatchResult = await dispatchEmail({
-      to: recipientEmail,
-      subject: activeSubject,
-      text: finalizedText,
-      html: finalizedHtml,
-      displayName: displayName,
-      attachments,
-    })
+    const dispatchResult = await dispatchEmail(
+      {
+        to: recipientEmail,
+        subject: activeSubject,
+        text: finalizedText,
+        html: finalizedHtml,
+        displayName: displayName,
+        attachments,
+      },
+      notionTextStringify(orgPage.properties.Id.rich_text)!
+    )
 
     await notion.pages.create({
       parent: { data_source_id: notionDbId.email },

@@ -1,15 +1,16 @@
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
-import type { NotionContact, NotionDB } from '~/server/types'
+import type { NotionContact, NotionDB, NotionOrganization } from '~/server/types'
 import notion from '~/server/utils/notion'
+import notionTextStringify from '~/server/utils/notion-text-stringify'
 
 import dispatchWhatsApp, { type WhatsAppPayload } from '~/server/utils/providers-whatsapp'
 import { templateRegistry } from '~/server/utils/template-registry-whatsapp'
 
 import '~/templates/text/whatsapp'
 
-const basePayload = z.object({ contactId: z.string() })
+const basePayload = z.object({ userId: z.string(), contactId: z.string(), orgId: z.string() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -27,45 +28,44 @@ const bodySchema = z.union([basePayload.and(rawContent), basePayload.and(templat
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readValidatedBody(event, bodySchema)
+    const { contactId, userId, template, text, variables, orgId } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
 
-    const contactPage = (await notion.pages.retrieve({ page_id: body.contactId })) as unknown as NotionContact
+    const contactPage = (await notion.pages.retrieve({ page_id: contactId })) as unknown as NotionContact
     const recipientPhone = contactPage.properties?.['Phone']?.phone_number
 
     if (!recipientPhone) {
-      throw new HTTPError({ statusCode: 400, statusMessage: `Contact page '${body.contactId}' does not contain a valid Phone number.` })
+      throw new HTTPError({ statusCode: 400, statusMessage: `Contact page '${contactId}' does not contain a valid Phone number.` })
     }
 
     const finalizedPayload: Omit<WhatsAppPayload, 'settings'> = { to: recipientPhone }
     let contentBody = ''
     let msgType = 'TEXT'
 
-    if (body.template === 'none') {
+    if (template === 'none') {
       finalizedPayload.type = 'text'
-      finalizedPayload.text = body.text
-      contentBody = body.text || ''
+      finalizedPayload.text = text
+      contentBody = text || ''
     } else {
-      const templateDef = templateRegistry[body.template]
+      const templateDef = templateRegistry[template]
       if (!templateDef) {
-        throw new HTTPError({ statusCode: 400, statusMessage: `WhatsApp template '${body.template}' is not registered.` })
+        throw new HTTPError({ statusCode: 400, statusMessage: `WhatsApp template '${template}' is not registered.` })
       }
-
-      const variables = 'variables' in body ? body.variables : {}
 
       const templateData = templateDef.transformPayload(variables) as any
       finalizedPayload.type = 'template'
       Object.assign(finalizedPayload, templateData)
 
-      contentBody = templateData.body || `Template compiled for: ${body.template}`
+      contentBody = templateData.body || `Template compiled for: ${template}`
       if (templateData.header?.type) msgType = templateData.header.type.toUpperCase()
     }
 
-    const dispatchResult = await dispatchWhatsApp(finalizedPayload)
+    const orgPage = (await notion.pages.retrieve({ page_id: orgId })) as unknown as NotionOrganization
 
-    // Save outbound transaction natively into DATABASE 3: MESSAGES
+    const dispatchResult = await dispatchWhatsApp(finalizedPayload, notionTextStringify(orgPage.properties.Id.rich_text)!)
+
     const messagePage = await notion.pages.create({
       parent: { data_source_id: notionDbId.message },
       properties: {
@@ -84,9 +84,8 @@ export default defineEventHandler(async (event) => {
         'Sent At': {
           date: { start: new Date().toISOString() },
         },
-        Contact: {
-          relation: [{ id: body.contactId }],
-        },
+        ...(userId ? { User: { relation: [{ id: userId }] } } : {}),
+        ...(contactId ? { Contact: { relation: [{ id: contactId }] } } : {}),
       },
     })
 

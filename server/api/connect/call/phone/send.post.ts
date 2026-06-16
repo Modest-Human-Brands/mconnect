@@ -1,7 +1,8 @@
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { z } from 'zod'
-import type { NotionContact, NotionUser } from '~/server/types'
+import type { NotionContact, NotionOrganization, NotionUser } from '~/server/types'
 import notion from '~/server/utils/notion'
+import notionTextStringify from '~/server/utils/notion-text-stringify'
 import { initializeLiveKitSipBridge } from '~/server/utils/providers-phone'
 
 const bodySchema = z.object({
@@ -20,6 +21,7 @@ export default defineEventHandler(async (event) => {
 
     const contactPage = (await notion.pages.retrieve({ page_id: contactId })) as unknown as NotionContact
     const userPage = (await notion.pages.retrieve({ page_id: userId })) as unknown as NotionUser
+    const orgPage = (await notion.pages.retrieve({ page_id: orgId })) as unknown as NotionOrganization
 
     const destinationPhone = contactPage.properties.Phone.phone_number
     const userPhone = userPage.properties.Phone.phone_number
@@ -32,14 +34,17 @@ export default defineEventHandler(async (event) => {
       throw new HTTPError({ statusCode: 400, statusMessage: `User page '${userId}' does not contain a valid phone number property for SIP bridging.` })
     }
 
-    const bridgeResult = await initializeLiveKitSipBridge({
-      contactId,
-      userId,
-      destinationPhone,
-      userPhone: webCall ? undefined : userPhone,
-      webCall: !!webCall,
-      recordCall,
-    })
+    const bridgeResult = await initializeLiveKitSipBridge(
+      {
+        contactId,
+        userId,
+        destinationPhone,
+        userPhone: webCall ? undefined : userPhone,
+        webCall: !!webCall,
+        recordCall,
+      },
+      notionTextStringify(orgPage.properties.Id.rich_text)!
+    )
 
     return {
       status: 'bridging_initiated',

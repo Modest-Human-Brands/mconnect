@@ -88,6 +88,52 @@ export interface NotionUser {
   }
 }
 
+export interface NotionOrganization {
+  id: string
+  created_time: string
+  last_edited_time: string
+  cover: NotionImage
+  icon: NotionImage
+  properties: {
+    Name: {
+      type: 'title'
+      title: { plain_text: string }[]
+    }
+    Id: {
+      type: 'rich_text'
+      rich_text: {
+        text: {
+          content: string
+        }
+      }[]
+    }
+    Phone: {
+      type: 'phone_number'
+      phone_number: string
+    }
+    Whatsapp: {
+      type: 'url'
+      url: string
+    }
+    Website: {
+      type: 'url'
+      url: string
+    }
+    Branding: {
+      type: 'rich_text'
+      rich_text: {
+        text: {
+          content: string
+        }
+      }[]
+    }
+    'Founded Year': {
+      type: 'number'
+      number: number
+    }
+  }
+}
+
 export interface NotionContact {
   id: string
   created_time: string

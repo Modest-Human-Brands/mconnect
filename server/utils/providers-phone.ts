@@ -37,19 +37,19 @@ interface VoiceConfig {
 
 let cachedVoiceConfig: VoiceConfig | null = null
 
-async function getVoiceInfrastructure() {
+async function getVoiceInfrastructure(orgSlug: string) {
   if (cachedVoiceConfig) return cachedVoiceConfig
 
   const { config } = await loadConfig({
-    configFile: '../config/messaging.config.yaml',
+    configFile: `../config/organization/${orgSlug}.yaml`,
   })
 
   cachedVoiceConfig = config?.voiceConfig
   return cachedVoiceConfig
 }
 
-export async function initializeLiveKitSipBridge(payload: SipBridgePayload) {
-  const voiceConfig = await getVoiceInfrastructure()
+export async function initializeLiveKitSipBridge(payload: SipBridgePayload, orgSlug: string) {
+  const voiceConfig = await getVoiceInfrastructure(orgSlug)
   const settings = voiceConfig?.sip
 
   if (!settings?.host || !settings?.apiKey || !settings?.apiSecret || !voiceConfig?.activeProvider) {

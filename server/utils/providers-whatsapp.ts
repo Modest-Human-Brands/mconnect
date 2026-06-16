@@ -3,11 +3,11 @@ import { ofetch } from 'ofetch'
 
 let cachedWhatsAppConfig: any = null
 
-async function getWhatsAppInfrastructure() {
+async function getWhatsAppInfrastructure(orgSlug: string) {
   if (cachedWhatsAppConfig) return cachedWhatsAppConfig
 
   const { config } = await loadConfig({
-    configFile: '../config/messaging.config.yaml',
+    configFile: `../config/organization/${orgSlug}.yaml`,
   })
 
   const waSettings = config?.whatsappConfig
@@ -155,8 +155,8 @@ const whatsAppProviderAdapters: Record<string, (payload: WhatsAppPayload) => Pro
   },
 }
 
-export default async function (payload: Omit<WhatsAppPayload, 'settings'>) {
-  const waConfigProfile = await getWhatsAppInfrastructure()
+export default async function (payload: Omit<WhatsAppPayload, 'settings'>, orgSlug: string) {
+  const waConfigProfile = await getWhatsAppInfrastructure(orgSlug)
   const activeProviderName = waConfigProfile.activeProvider
 
   const adapterRunner = whatsAppProviderAdapters[activeProviderName]

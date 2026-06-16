@@ -1,14 +1,15 @@
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
-import type { NotionContact, NotionDB } from '~/server/types'
+import type { NotionContact, NotionDB, NotionOrganization } from '~/server/types'
 import notion from '~/server/utils/notion'
+import notionTextStringify from '~/server/utils/notion-text-stringify'
 import dispatchSMS from '~/server/utils/providers-sms'
 import { templateRegistry } from '~/server/utils/template-registry-sms'
 
 import '~/templates/text/sms'
 
-const basePayload = z.object({ userId: z.string(), contactId: z.string().optional(), recipientPhone: z.string().optional() })
+const basePayload = z.object({ userId: z.string(), contactId: z.string().optional(), recipientPhone: z.string().optional(), orgId: z.string() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -26,33 +27,34 @@ const bodySchema = z.union([basePayload.and(rawContent), basePayload.and(templat
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readValidatedBody(event, bodySchema)
+    const { recipientPhone, userId, contactId, text, template, variables, orgId } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
 
-    let recipientPhone = body.recipientPhone
-    if (!recipientPhone && body.contactId) {
-      const contactPage = (await notion.pages.retrieve({ page_id: body.contactId })) as unknown as NotionContact
-      recipientPhone = contactPage.properties.Phone.phone_number ?? undefined
+    let finalizedPhone = recipientPhone
+    if (!recipientPhone && contactId) {
+      const contactPage = (await notion.pages.retrieve({ page_id: contactId })) as unknown as NotionContact
+      finalizedPhone = contactPage.properties.Phone.phone_number ?? undefined
     }
 
     if (!recipientPhone) throw new HTTPError({ statusCode: 400, statusMessage: 'Valid recipientPhone or contactId is required.' })
 
-    let finalizedText = body.text || ''
+    let finalizedText = text || ''
 
-    if (body.template !== 'none') {
-      const templateDef = templateRegistry[body.template]
+    if (template !== 'none') {
+      const templateDef = templateRegistry[template]
       if (!templateDef) {
-        throw new HTTPError({ statusCode: 400, statusMessage: `SMS template layout '${body.template}' is not registered.` })
+        throw new HTTPError({ statusCode: 400, statusMessage: `SMS template layout '${template}' is not registered.` })
       }
 
-      const variables = 'variables' in body ? body.variables : {}
       const transformedProps = templateDef.transformPayload(variables)
-      finalizedText = transformedProps.text || body.text || `Template compiled for: ${body.template}`
+      finalizedText = transformedProps.text || text || `Template compiled for: ${template}`
     }
 
-    const dispatchResult = await dispatchSMS(recipientPhone, finalizedText)
+    const orgPage = (await notion.pages.retrieve({ page_id: orgId })) as unknown as NotionOrganization
+
+    const dispatchResult = await dispatchSMS(recipientPhone, finalizedText, notionTextStringify(orgPage.properties.Id.rich_text)!)
 
     const messagePage = await notion.pages.create({
       parent: { data_source_id: notionDbId.message },
@@ -72,8 +74,8 @@ export default defineEventHandler(async (event) => {
         'Sent At': {
           date: { start: new Date().toISOString() },
         },
-        ...(body.userId ? { User: { relation: [{ id: body.userId }] } } : {}),
-        ...(body.contactId ? { Contact: { relation: [{ id: body.contactId }] } } : {}),
+        ...(userId ? { User: { relation: [{ id: userId }] } } : {}),
+        ...(contactId ? { Contact: { relation: [{ id: contactId }] } } : {}),
       },
     })
 

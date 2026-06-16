@@ -3,11 +3,11 @@ import { ofetch } from 'ofetch'
 
 let cachedSMSConfig: any = null
 
-async function getSMSInfrastructure() {
+async function getSMSInfrastructure(orgSlug: string) {
   if (cachedSMSConfig) return cachedSMSConfig
 
   const { config } = await loadConfig({
-    configFile: '../config/messaging.config.yaml',
+    configFile: `../config/organization/${orgSlug}.yaml`,
   })
 
   const smsSettings = config?.smsConfig
@@ -75,8 +75,8 @@ const smsProviderAdapters: Record<string, (payload: ProviderPayload) => Promise<
   },
 }
 
-export default async function (to: string, text: string) {
-  const smsConfigProfile = await getSMSInfrastructure()
+export default async function (to: string, text: string, orgSlug: string) {
+  const smsConfigProfile = await getSMSInfrastructure(orgSlug)
   const activeProviderName = smsConfigProfile.activeProvider
 
   const adapterRunner = smsProviderAdapters[activeProviderName]
