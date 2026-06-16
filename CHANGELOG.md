@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.4.2
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.1...v0.4.2)
+
+### 🚀 Enhancements
+
+- Add NotionOrganization type and update related handlers to support organization configurations ([274db4b](https://github.com/Modest-Human-Brands/mconnect/commit/274db4b))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.4.1
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.0...v0.4.1)
