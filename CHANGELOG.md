@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.4.3
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.2...v0.4.3)
+
+### 💅 Refactors
+
+- Sms and whatsapp message handling to unify property names, improve database interactions ([aff383c](https://github.com/Modest-Human-Brands/mconnect/commit/aff383c))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.4.2
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.1...v0.4.2)
