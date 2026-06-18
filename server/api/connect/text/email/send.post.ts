@@ -12,7 +12,7 @@ import '~/templates/text/email'
 import notionNormalizeId from '~/server/utils/notion-normalize-id'
 import notionTextStringify from '~/server/utils/notion-text-stringify'
 
-const basePayload = z.object({ userId: z.string().optional(), contactId: z.string().optional(), recipientEmail: z.email().optional(), orgId: z.string() })
+const basePayload = z.object({ userId: z.string().optional(), contactId: z.string().optional(), recipientEmail: z.string().email().optional(), orgId: z.string() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -33,6 +33,10 @@ const bodySchema = z.union([
   basePayload.extend({ subject: z.string().optional(), displayName: z.string().optional() }).and(templatedContent),
 ])
 
+function isUuid(text: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(text)
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const { userId, contactId, recipientEmail: bodyEmail, text, html, subject, template, variables, displayName, orgId } = await readValidatedBody(event, bodySchema)
@@ -48,7 +52,11 @@ export default defineEventHandler(async (event) => {
 
     if (!recipientEmail) throw new HTTPError({ statusCode: 400, statusMessage: 'Valid recipientEmail or contactId is required.' })
 
-    const orgPage = (await notion.pages.retrieve({ page_id: orgId })) as unknown as NotionOrganization
+    let orgSlug = orgId
+    if (isUuid(orgId)) {
+      const orgPage = (await notion.pages.retrieve({ page_id: orgId })) as unknown as NotionOrganization
+      orgSlug = notionTextStringify(orgPage.properties.Id.rich_text) || orgId
+    }
 
     let finalizedText = text || ''
     let finalizedHtml = html || ''
@@ -90,32 +98,45 @@ export default defineEventHandler(async (event) => {
         displayName: displayName,
         attachments,
       },
-      notionTextStringify(orgPage.properties.Id.rich_text)!
+      orgSlug
     )
 
     await notion.pages.create({
       parent: { data_source_id: notionDbId.email },
       properties: {
-        Subject: {
+        Title: {
           title: [{ text: { content: activeSubject || 'No Subject' } }],
         },
-        'Body Snippet': {
+        Content: {
           rich_text: [{ text: { content: finalizedText.slice(0, 2000) } }],
         },
         Status: {
-          select: { name: 'SENT' },
+          status: { name: 'Sent' },
         },
-        'Sent At': {
+        Direction: {
+          select: { name: 'Outbound' },
+        },
+        Timestamp: {
           date: { start: new Date().toISOString() },
         },
         ...(userId ? { User: { relation: [{ id: notionNormalizeId(userId) }] } } : {}),
         ...(contactId ? { Contact: { relation: [{ id: notionNormalizeId(contactId) }] } } : {}),
       },
+      children: [
+        {
+          object: 'block',
+          type: 'code',
+          code: {
+            language: 'html',
+            rich_text: (finalizedHtml.match(/[\s\S]{1,2000}/g) || []).slice(0, 100).map((chunk) => ({ text: { content: chunk } })),
+          },
+        },
+      ],
     })
 
     return { success: true, dispatchId: dispatchResult.providerMessageId }
   } catch (error: any) {
-    console.error('API connect/text/email/send POST', JSON.stringify(error, null, 2))
+    console.error('API connect/text/email/send POST', error)
 
     if (error instanceof Error && 'statusCode' in error) {
       throw error

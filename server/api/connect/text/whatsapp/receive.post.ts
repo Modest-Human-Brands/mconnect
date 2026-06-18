@@ -18,7 +18,6 @@ export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
 
-    // Resolve or generate standard database contact layout identity frame
     const { contactId } = await $fetch('/api/contacts', {
       baseURL: 'http://localhost:3001',
       method: 'PUT',
@@ -33,11 +32,10 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    // Log the incoming session response transaction directly inside DATABASE 3: MESSAGES
     const messagePage = await notion.pages.create({
       parent: { data_source_id: notionDbId.message },
       properties: {
-        'Message Summary': {
+        Title: {
           title: [{ text: { content: text.slice(0, 50) + (text.length > 50 ? '...' : '') } }],
         },
         Content: {
@@ -46,10 +44,16 @@ export default defineEventHandler(async (event) => {
         Type: {
           select: { name: 'TEXT' },
         },
-        'Delivery Status': {
-          select: { name: 'DELIVERED' },
+        Status: {
+          status: { name: 'Delivered' },
         },
-        'Sent At': {
+        Direction: {
+          select: { name: 'Inbound' },
+        },
+        Channel: {
+          select: { name: 'WhatsApp' }, // Adjust based on your specific webhook route
+        },
+        Timestamp: {
           date: { start: new Date().toISOString() },
         },
         Contact: {
@@ -58,9 +62,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    event.res.status = 200
     return {
-      success: true,
       interactionId: messagePage.id,
     }
   } catch (error: any) {

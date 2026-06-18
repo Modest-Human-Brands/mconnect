@@ -14,12 +14,11 @@ defineProps<{
   items: QuotationItem[]
   totalAmount: string | number
   quotationUrl: string
-
-  // Flattened Organization Props (Unused fields removed)
   organizationName: string
   organizationWebsite: string
   organizationLogo: string
   organizationColorPrimary: string
+  organizationColorAccent: string
   organizationFont: string
 }>()
 </script>
@@ -81,8 +80,9 @@ defineProps<{
             <Section class="text-center my-8">
               <Button
                 class="px-6 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline"
-                :style="{ backgroundColor: organizationColorPrimary }"
+                :style="{ backgroundColor: organizationColorAccent }"
                 :href="quotationUrl">
+                {{ organizationColorAccent }}
                 Review Full Proposal & Accept Terms
               </Button>
             </Section>

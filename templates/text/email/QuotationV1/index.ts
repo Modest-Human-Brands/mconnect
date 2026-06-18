@@ -42,7 +42,7 @@ const placeholders: QuotationPayload = {
     { description: 'Premium Brand Strategy', quantity: 1, amount: '5,000.00' },
     { description: 'UI/UX Design System', quantity: 1, amount: '8,500.00' },
   ],
-  totalAmount: '13,500.00',
+  totalAmount: '13,600.00',
   quotationUrl: '#',
   organization: {
     id: 'modest-human-brands',
@@ -88,6 +88,7 @@ registerTemplate({
       organizationWebsite: org?.website || p.organization.website,
       organizationLogo: org?.branding?.logo || p.organization.branding.logo,
       organizationColorPrimary: org?.branding?.color?.primary || p.organization.branding.color.primary,
+      organizationColorAccent: org?.branding?.color?.accent || p.organization.branding.color.accent,
       organizationFont: org?.branding?.font || p.organization.branding.font,
     }
   },

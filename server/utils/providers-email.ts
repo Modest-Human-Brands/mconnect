@@ -7,7 +7,7 @@ async function getEmailInfrastructure(orgSlug: string) {
   if (cachedEmailConfig) return cachedEmailConfig
 
   const { config } = await loadConfig({
-    configFile: `../config/organization/${orgSlug}.yaml`,
+    configFile: `../config/organizations/${orgSlug}.yaml`,
   })
 
   const emailSettings = config?.emailConfig

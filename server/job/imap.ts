@@ -13,7 +13,7 @@ export default defineTask({
   async run() {
     try {
       const { config: configFile } = await loadConfig({
-        configFile: `../config/organization/${orgSlug}.yaml`,
+        configFile: `../config/organizations/${orgSlug}.yaml`,
       })
 
       const emailConfig = configFile?.emailConfig

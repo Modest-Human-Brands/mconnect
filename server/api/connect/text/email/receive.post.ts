@@ -59,16 +59,19 @@ export default defineEventHandler(async (event) => {
     const emailPage = await notion.pages.create({
       parent: { data_source_id: notionDbId.email },
       properties: {
-        Subject: {
+        Title: {
           title: [{ text: { content: subject || 'No Subject' } }],
         },
-        'Body Snippet': {
+        Content: {
           rich_text: [{ text: { content: (text || 'HTML content only').slice(0, 2000) } }],
         },
         Status: {
-          select: { name: 'RECEIVE' },
+          status: { name: 'Received' },
         },
-        'Sent At': {
+        Direction: {
+          select: { name: 'Inbound' },
+        },
+        Timestamp: {
           date: { start: new Date().toISOString() },
         },
         ...(contactId ? { Contact: { relation: [{ id: notionNormalizeId(contactId) }] } } : {}),

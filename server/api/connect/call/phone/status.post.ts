@@ -9,11 +9,13 @@ import type { NotionDB, NotionUser } from '~/server/types'
 import notionQueryDb from '~/server/utils/notion-query-db'
 
 export default defineEventHandler(async (event) => {
+  const orgSlug = 'red-cat-pictures-1'
+
   const {
     config: {
       voiceConfig: { sip: sipSettings, activeProvider, providers },
     },
-  } = await loadConfig({ configFile: `../config/organization/${orgSlug}.yaml` })
+  } = await loadConfig({ configFile: `../config/organizations/${orgSlug}.yaml` })
 
   const sipTrunkId = providers?.[activeProvider]?.trunkId
 
@@ -125,31 +127,61 @@ export default defineEventHandler(async (event) => {
           await notion.pages.create({
             parent: { data_source_id: notionDbId.call },
             properties: {
-              'Call Log ID': {
+              Title: {
                 title: [{ text: { content: `voice-bridge-${livekitEvent.room?.sid || roomName}` } }],
               },
               Type: {
                 select: { name: 'AUDIO' },
               },
               Status: {
-                select: { name: 'ONGOING' },
+                status: { name: 'Ongoing' },
+              },
+              Direction: {
+                select: { name: 'Inbound' },
               },
               Network: {
                 select: { name: 'CELLULAR' },
               },
-              Timeframe: {
+              Timestamp: {
                 date: { start: new Date().toISOString() },
               },
-              Initiator: {
-                relation: [{ id: direction === 'inbound-call' ? contactId : routedUserId || contactId }],
+              Contact: {
+                relation: [{ id: contactId }],
               },
-              Participants: {
-                // Adds both the contact and the mapped agent (if available) to the call participants
-                relation: [{ id: contactId }, ...(routedUserId ? [{ id: routedUserId }] : [])],
-              },
+              ...(routedUserId ? { User: { relation: [{ id: routedUserId }] } } : {}),
             },
           })
-          break
+        } else if (direction === 'outbound-call') {
+          console.log(`[Routing Engine]: Outbound call established. Logging to Notion...`)
+          const outboundUserId = rest[1] // Assumes room name format: outbound-call_<contactId>_<userId>
+
+          await notion.pages.create({
+            parent: { data_source_id: notionDbId.call },
+            properties: {
+              Title: {
+                title: [{ text: { content: `voice-bridge-${livekitEvent.room?.sid || roomName}` } }],
+              },
+              Type: {
+                select: { name: 'AUDIO' },
+              },
+              Status: {
+                status: { name: 'Ongoing' },
+              },
+              Direction: {
+                select: { name: 'Outbound' },
+              },
+              Network: {
+                select: { name: 'CELLULAR' },
+              },
+              Timestamp: {
+                date: { start: new Date().toISOString() },
+              },
+              Contact: {
+                relation: [{ id: contactId }],
+              },
+              ...(outboundUserId ? { User: { relation: [{ id: outboundUserId }] } } : {}),
+            },
+          })
         }
 
         break

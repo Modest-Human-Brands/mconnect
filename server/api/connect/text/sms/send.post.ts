@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
     const messagePage = await notion.pages.create({
       parent: { data_source_id: notionDbId.message },
       properties: {
-        'Message Summary': {
+        Title: {
           title: [{ text: { content: finalizedText.slice(0, 50) + (finalizedText.length > 50 ? '...' : '') } }],
         },
         Content: {
@@ -68,10 +68,16 @@ export default defineEventHandler(async (event) => {
         Type: {
           select: { name: 'TEXT' },
         },
-        'Delivery Status': {
-          select: { name: 'SENT' },
+        Status: {
+          status: { name: 'Sent' },
         },
-        'Sent At': {
+        Direction: {
+          select: { name: 'Outbound' },
+        },
+        Channel: {
+          select: { name: 'SMS' }, // Adjust based on your specific route
+        },
+        Timestamp: {
           date: { start: new Date().toISOString() },
         },
         ...(userId ? { User: { relation: [{ id: userId }] } } : {}),
@@ -80,7 +86,6 @@ export default defineEventHandler(async (event) => {
     })
 
     return {
-      success: true,
       interactionId: messagePage.id,
       dispatchId: dispatchResult.providerMessageId,
     }

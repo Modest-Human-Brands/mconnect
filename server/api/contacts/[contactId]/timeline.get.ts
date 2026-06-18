@@ -4,6 +4,7 @@ import { z } from 'zod'
 import type { NotionCall, NotionDB, NotionEmail, NotionMessage } from '~/server/types'
 import notion from '~/server/utils/notion'
 import notionQueryDb from '~/server/utils/notion-query-db'
+import notionTextStringify from '~/server/utils/notion-text-stringify'
 
 const pathParamsSchema = z.object({ contactId: z.string() })
 const queryParamsSchema = z.object({
@@ -42,52 +43,47 @@ export default defineEventHandler(async (event) => {
     ])
 
     const mappedMessages = messagesRaw.map((p) => {
-      const isSender = p.properties.Contact.relation.some((r: any) => r.id === contactId)
       return {
         interactionId: p.id,
-        channel: 'whatsapp', // Assumes default channel for DB3 is WhatsApp (or parse from DB2)
-        direction: isSender ? 'inbound' : 'outbound',
-        timestamp: p.properties['Sent At']?.date?.start || p.created_time,
-        summary: p.properties['Message Summary']?.title?.[0]?.plain_text || 'Sent an attachment',
-        status: p.properties['Delivery Status']?.select?.name?.toLowerCase() || 'delivered',
+        channel: p.properties.Channel?.select?.name?.toLowerCase() || 'whatsapp',
+        direction: p.properties.Direction?.select?.name?.toLowerCase() || 'outbound',
+        timestamp: p.properties.Timestamp?.date?.start || p.created_time,
+        summary: notionTextStringify(p.properties.Title?.title) || 'Sent an attachment',
+        status: p.properties.Status?.status?.name?.toLowerCase() || 'delivered',
         metadata: {
-          hasAttachments: (p.properties['Media/Attachments']?.files?.length || 0) > 0,
-          mediaUrl: p.properties['Media/Attachments']?.files?.[0]?.file?.url || p.properties['Media/Attachments']?.files?.[0]?.external?.url || null,
+          hasAttachments: (p.properties.Attachments?.files?.length || 0) > 0,
+          mediaUrl: p.properties.Attachments?.files?.[0]?.file?.url || p.properties.Attachments?.files?.[0]?.external?.url || null,
         },
       }
     })
 
     const mappedCalls = callsRaw.map((p) => {
-      const isInitiator = p.properties['Initiator']?.relation?.some((r: any) => r.id === contactId)
-      const type = p.properties['Type']?.select?.name || 'AUDIO'
+      const type = p.properties.Type?.select?.name || 'AUDIO'
       return {
         interactionId: p.id,
         channel: 'phone',
-        direction: isInitiator ? 'inbound' : 'outbound',
-        timestamp: p.properties['Timeframe']?.date?.start || p.created_time,
-        summary: p.properties['Call Log ID']?.title?.[0]?.plain_text || `${isInitiator ? 'Incoming' : 'Outgoing'} ${type} Call`,
-        status: p.properties['Status']?.select?.name?.toLowerCase() || 'completed',
-        metadata: {
-          durationSeconds: p.properties['Duration (Seconds)']?.number || 0,
-          cost: p.properties['Cost ($)']?.number || 0,
-        },
+        direction: p.properties.Direction?.select?.name?.toLowerCase() || 'outbound',
+        timestamp: p.properties.Timestamp?.date?.start || p.created_time,
+        summary: notionTextStringify(p.properties.Title?.title) || `${type} Call`,
+        status: p.properties.Status?.status?.name?.toLowerCase() || 'completed',
+        metadata: {},
       }
     })
 
     const mappedEmails = emailsRaw.map((p) => {
-      const isSender = p.properties.Contact.relation.some((r: any) => r.id === contactId)
-      const subject = p.properties['Subject']?.title?.[0]?.plain_text || 'No Subject'
-      const snippet = p.properties['Body Snippet']?.rich_text?.[0]?.plain_text || ''
+      const subject = notionTextStringify(p.properties.Title.title) || 'No Subject'
+      const content = notionTextStringify(p.properties.Content.rich_text) || ''
+
       return {
         interactionId: p.id,
         channel: 'email',
-        direction: isSender ? 'inbound' : 'outbound',
-        timestamp: p.properties['Sent At']?.date?.start || p.created_time,
-        summary: snippet ? `${subject} - ${snippet}` : subject,
-        status: p.properties['Status']?.select?.name?.toLowerCase() || 'sent',
+        direction: p.properties.Direction.select?.name?.toLowerCase() || 'outbound',
+        timestamp: p.properties.Timestamp.date?.start || p.created_time,
+        content: content,
+        status: p.properties.Status.status?.name?.toLowerCase() || 'sent',
         metadata: {
-          hasAttachments: (p.properties['Attachments']?.files?.length || 0) > 0,
-          labels: p.properties['Labels']?.relation?.map((r: any) => ({ id: r.id })) || [], // If you fetch DB6, you can map real names/colors here
+          subject,
+          hasAttachments: (p.properties.Attachments.files?.length || 0) > 0,
         },
       }
     })
@@ -98,6 +94,27 @@ export default defineEventHandler(async (event) => {
 
     const total = unifiedTimeline.length
     const results = unifiedTimeline.slice(offset, offset + limit)
+
+    // Extract full HTML body ONLY for the paginated emails to avoid rate limits
+    await Promise.all(
+      results.map(async (interaction) => {
+        if (interaction.channel === 'email') {
+          try {
+            const blocks = await notion.blocks.children.list({ block_id: interaction.interactionId })
+            const codeBlock = (blocks.results as any[]).find((b) => b.type === 'code' && b.code?.language === 'html')
+
+            if (codeBlock && codeBlock.code?.rich_text) {
+              const htmlContent = notionTextStringify(codeBlock.code.rich_text)
+              if (htmlContent) {
+                interaction.content = htmlContent // Overrides the fallback snippet
+              }
+            }
+          } catch {
+            // Fails silently; the interaction.content remains the fallback property snippet
+          }
+        }
+      })
+    )
 
     return {
       client_id: contactId,

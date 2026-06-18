@@ -17,7 +17,6 @@ export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as any
 
-    // Upserts the contact using your queue endpoint
     const { contactId } = await $fetch('/api/contacts', {
       baseURL: 'http://localhost:3000',
       method: 'PUT',
@@ -32,11 +31,10 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    // Log the inbound SMS into DATABASE 3: MESSAGES
     const messagePage = await notion.pages.create({
       parent: { data_source_id: notionDbId.messages },
       properties: {
-        'Message Summary': {
+        Title: {
           title: [{ text: { content: text.slice(0, 50) + (text.length > 50 ? '...' : '') } }],
         },
         Content: {
@@ -45,19 +43,24 @@ export default defineEventHandler(async (event) => {
         Type: {
           select: { name: 'TEXT' },
         },
-        'Delivery Status': {
-          select: { name: 'DELIVERED' },
+        Status: {
+          status: { name: 'Delivered' },
         },
-        'Sent At': {
+        Direction: {
+          select: { name: 'Inbound' },
+        },
+        Channel: {
+          select: { name: 'SMS' },
+        },
+        Timestamp: {
           date: { start: new Date().toISOString() },
         },
         Contact: {
-          relation: [{ id: contactId }], // External contact sent this to us
+          relation: [{ id: contactId }],
         },
       },
     })
 
-    event.res.status = 200
     return {
       success: true,
       interactionId: messagePage.id,

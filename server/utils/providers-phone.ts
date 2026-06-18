@@ -41,7 +41,7 @@ async function getVoiceInfrastructure(orgSlug: string) {
   if (cachedVoiceConfig) return cachedVoiceConfig
 
   const { config } = await loadConfig({
-    configFile: `../config/organization/${orgSlug}.yaml`,
+    configFile: `../config/organizations/${orgSlug}.yaml`,
   })
 
   cachedVoiceConfig = config?.voiceConfig

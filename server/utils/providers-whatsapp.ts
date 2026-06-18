@@ -7,7 +7,7 @@ async function getWhatsAppInfrastructure(orgSlug: string) {
   if (cachedWhatsAppConfig) return cachedWhatsAppConfig
 
   const { config } = await loadConfig({
-    configFile: `../config/organization/${orgSlug}.yaml`,
+    configFile: `../config/organizations/${orgSlug}.yaml`,
   })
 
   const waSettings = config?.whatsappConfig

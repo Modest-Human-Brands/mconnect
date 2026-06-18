@@ -7,7 +7,7 @@ async function getSMSInfrastructure(orgSlug: string) {
   if (cachedSMSConfig) return cachedSMSConfig
 
   const { config } = await loadConfig({
-    configFile: `../config/organization/${orgSlug}.yaml`,
+    configFile: `../config/organizations/${orgSlug}.yaml`,
   })
 
   const smsSettings = config?.smsConfig
