@@ -302,8 +302,7 @@ export interface NotionEmail {
       type: 'date'
       date: { start: string; end?: string | null } | null
     }
-
-    // --- Relations ---
+    'Is Read': { type: 'checkbox'; checkbox: boolean }
     User: {
       type: 'relation'
       relation: { id: string }[]
@@ -359,7 +358,7 @@ export interface NotionMessage {
       date: { start: string; end?: string | null } | null
     }
 
-    // --- Relations ---
+    'Is Read': { type: 'checkbox'; checkbox: boolean }
     User: {
       type: 'relation'
       relation: { id: string }[]
@@ -403,15 +402,15 @@ export interface NotionCall {
         name: string
         type: 'file' | 'external'
         file?: { url: string; expiry_time: string }
-        external?: { url: string } // Used for the Recording URL
+        external?: { url: string }
       }[]
     }
     Timestamp: {
       type: 'date'
-      date: { start: string; end?: string | null } | null // 'end' is used to compute call duration
+      date: { start: string; end?: string | null } | null
     }
 
-    // --- Relations ---
+    'Is Read': { type: 'checkbox'; checkbox: boolean }
     User: {
       type: 'relation'
       relation: { id: string }[]

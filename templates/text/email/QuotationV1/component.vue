@@ -82,7 +82,6 @@ defineProps<{
                 class="px-6 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline"
                 :style="{ backgroundColor: organizationColorAccent }"
                 :href="quotationUrl">
-                {{ organizationColorAccent }}
                 Review Full Proposal & Accept Terms
               </Button>
             </Section>

@@ -19,7 +19,6 @@ export default defineEventHandler(async (event) => {
     const contactStorage = useStorage<Resource<'contact'>>(`data:resource:contact`)
     const contacts = (await contactStorage.getItems(await contactStorage.getKeys())).flatMap(({ value }) => value?.record || [])
 
-    // 1. Fetch all cached Omnichannel Interactions
     const emailStorage = useStorage<Resource<'email'>>(`data:resource:email`)
     const emails = (await emailStorage.getItems(await emailStorage.getKeys())).flatMap(({ value }) => value?.record || [])
 
@@ -29,35 +28,49 @@ export default defineEventHandler(async (event) => {
     const callStorage = useStorage<Resource<'call'>>(`data:resource:call`)
     const calls = (await callStorage.getItems(await callStorage.getKeys())).flatMap(({ value }) => value?.record || [])
 
-    // 2. Index interactions by Contact ID for lightning-fast lookups
-    const interactionMap = new Map<string, { time: number; snippet: string }[]>()
+    const interactionMap = new Map<string, { interactions: { time: number; snippet: string }[]; unreadCount: number }>()
 
-    const addInteraction = (relations: { id: string }[] | undefined, time: number, snippet: string) => {
+    const addInteraction = (relations: { id: string }[] | undefined, time: number, snippet: string, direction: string, isRead: boolean) => {
       if (!relations) return
       for (const { id: contactId } of relations) {
         if (!interactionMap.has(contactId)) {
-          interactionMap.set(contactId, [])
+          interactionMap.set(contactId, { interactions: [], unreadCount: 0 })
         }
-        interactionMap.get(contactId)!.push({ time, snippet })
+
+        const contactData = interactionMap.get(contactId)!
+        contactData.interactions.push({ time, snippet })
+
+        if (direction.toLowerCase() === 'inbound' && !isRead) {
+          contactData.unreadCount++
+        }
       }
     }
 
     for (const e of emails) {
       const time = new Date(e.properties.Timestamp?.date?.start || e.created_time).getTime()
       const snippet = notionTextStringify(e.properties.Content?.rich_text) || notionTextStringify(e.properties.Title?.title) || 'Email interaction'
-      addInteraction(e.properties.Contact?.relation, time, snippet)
+      const direction = e.properties.Direction?.select?.name || 'outbound'
+      const isRead = e.properties['Is Read']?.checkbox || false
+
+      addInteraction(e.properties.Contact?.relation, time, snippet, direction, isRead)
     }
 
     for (const m of messages) {
       const time = new Date(m.properties.Timestamp?.date?.start || m.created_time).getTime()
       const snippet = notionTextStringify(m.properties.Content?.rich_text) || notionTextStringify(m.properties.Title?.title) || 'Message interaction'
-      addInteraction(m.properties.Contact?.relation, time, snippet)
+      const direction = m.properties.Direction?.select?.name || 'outbound'
+      const isRead = m.properties['Is Read']?.checkbox || false
+
+      addInteraction(m.properties.Contact?.relation, time, snippet, direction, isRead)
     }
 
     for (const c of calls) {
       const time = new Date(c.properties.Timestamp?.date?.start || c.created_time).getTime()
       const snippet = notionTextStringify(c.properties.Title?.title) || 'Call interaction'
-      addInteraction(c.properties.Contact?.relation, time, snippet)
+      const direction = c.properties.Direction?.select?.name || 'outbound'
+      const isRead = c.properties['Is Read']?.checkbox || false
+
+      addInteraction(c.properties.Contact?.relation, time, snippet, direction, isRead)
     }
 
     const total = contacts.length
@@ -75,10 +88,9 @@ export default defineEventHandler(async (event) => {
       if (instagram) platforms.push('instagram')
       if (phone) platforms.push('sms', 'phone')
 
-      // 3. Extract and compute the absolute latest interaction for this contact
-      const contactInteractions = interactionMap.get(id) || []
-      contactInteractions.sort((a, b) => b.time - a.time)
-      const latest = contactInteractions[0]
+      const contactData = interactionMap.get(id) || { interactions: [], unreadCount: 0 }
+      contactData.interactions.sort((a, b) => b.time - a.time)
+      const latest = contactData.interactions[0]
 
       return {
         id,
@@ -89,12 +101,10 @@ export default defineEventHandler(async (event) => {
         phone,
         instagram,
         status: props['Status']?.select?.name || 'Active',
-
-        // Apply dynamically computed properties
         lastActive: latest ? new Date(latest.time).toISOString() : last_edited_time,
         lastMessageSnippet: latest ? latest.snippet : 'No recent messages.',
-
         platforms: [...new Set(platforms)],
+        unreadCount: contactData.unreadCount,
       }
     })
 
