@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.4.4
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.3...v0.4.4)
+
+### 🚀 Enhancements
+
+- **email-templates:** Add ContractV1 email template and update related components ([6eb7cac](https://github.com/Modest-Human-Brands/mconnect/commit/6eb7cac))
+- Update email templates for contract, internship completion, project delivery, and quotation ([a710787](https://github.com/Modest-Human-Brands/mconnect/commit/a710787))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.4.3
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.2...v0.4.3)
