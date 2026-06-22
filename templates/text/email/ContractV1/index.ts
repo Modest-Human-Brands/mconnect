@@ -83,6 +83,7 @@ registerTemplate({
       organizationWebsite: org?.website || p.organization.website,
       organizationLogo: org?.branding?.logo || p.organization.branding.logo,
       organizationColorPrimary: org?.branding?.color?.primary || p.organization.branding.color.primary,
+      organizationColorAccent: org?.branding?.color?.accent || p.organization.branding.color.accent,
       organizationFont: org?.branding?.font || p.organization.branding.font,
     }
   },

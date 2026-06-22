@@ -12,6 +12,7 @@ defineProps<{
   organizationWebsite: string
   organizationLogo: string
   organizationColorPrimary: string
+  organizationColorAccent: string
   organizationFont: string
 }>()
 </script>
@@ -56,7 +57,15 @@ defineProps<{
                       <Text class="m-0 text-sm font-semibold text-gray-700">Shoot Dates:</Text>
                     </td>
                     <td align="left" valign="top" class="pb-3">
-                      <Text class="m-0 text-sm text-gray-900">{{ shootDates }}</Text>
+                      <Text class="m-0 text-sm text-gray-900"
+                        >{{
+                          new Date(shootDates).toLocaleDateString('en-IN', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })
+                        }}
+                      </Text>
                     </td>
                   </tr>
                   <tr>
@@ -64,7 +73,9 @@ defineProps<{
                       <Text class="m-0 text-sm font-semibold text-gray-700">Compensation:</Text>
                     </td>
                     <td align="left" valign="top">
-                      <Text class="m-0 text-sm font-bold text-gray-900" :style="{ color: organizationColorPrimary }">{{ compensationAmount }}</Text>
+                      <Text class="m-0 text-sm font-bold text-gray-900" :style="{ color: organizationColorPrimary }">
+                        {{ compensationAmount }}
+                      </Text>
                     </td>
                   </tr>
                 </tbody>
@@ -74,7 +85,7 @@ defineProps<{
             <Section class="text-center mb-8">
               <Button
                 class="px-8 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline"
-                :style="{ backgroundColor: organizationColorPrimary }"
+                :style="{ backgroundColor: organizationColorAccent }"
                 :href="contractLink">
                 Review and Sign Contract
               </Button>
