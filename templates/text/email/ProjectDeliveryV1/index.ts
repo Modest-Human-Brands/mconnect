@@ -11,7 +11,7 @@ const deliveryLinkSchema = z.object({
 export const projectDeliverySchema = z.object({
   clientName: z.string(),
   projectName: z.string(),
-  completionDate: z.string(),
+  completionDate: z.date(),
   deliveryNotes: z.string(),
   projectLinks: z.array(deliveryLinkSchema),
   organization: z.object({
@@ -36,7 +36,7 @@ export type ProjectDeliveryPayload = z.infer<typeof projectDeliverySchema>
 const placeholders: ProjectDeliveryPayload = {
   clientName: 'Sarah Jenkins',
   projectName: 'Omni-Channel Brand Refresh',
-  completionDate: new Date().toLocaleDateString(),
+  completionDate: new Date(),
   deliveryNotes:
     'We are thrilled to hand over the final assets for your brand refresh. All files have been organized into respective folders. Please review the brand guidelines before utilizing the new vector logos in production.',
   projectLinks: [

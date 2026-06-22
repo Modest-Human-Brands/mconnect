@@ -85,7 +85,7 @@ export default defineEventHandler(async (event) => {
           select: { name: 'Outbound' },
         },
         Channel: {
-          select: { name: 'WhatsApp' }, // Adjust based on your specific route
+          select: { name: 'WhatsApp' },
         },
         Timestamp: {
           date: { start: new Date().toISOString() },

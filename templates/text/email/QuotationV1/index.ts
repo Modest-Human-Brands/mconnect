@@ -2,19 +2,31 @@ import Component from './component.vue'
 import registerTemplate from '~/server/utils/template-registry-email'
 import { z } from 'zod'
 
-const quotationItemSchema = z.object({
-  description: z.string(),
-  quantity: z.number(),
-  amount: z.union([z.string(), z.number()]),
-})
-
 export const quotationSchema = z.object({
-  clientName: z.string(),
-  quoteNumber: z.string(),
-  validUntil: z.string(),
-  items: z.array(quotationItemSchema),
-  totalAmount: z.union([z.string(), z.number()]),
-  quotationUrl: z.string(),
+  contact: z.object({
+    name: z.string(),
+  }),
+  project: z.object({
+    quoteNumber: z.string(),
+    quoteExpiry: z.date(),
+  }),
+  deliverables: z.array(
+    z.object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+      points: z.array(z.string()).optional(),
+      quantity: z.number().min(1).optional(),
+      rate: z.number().min(0).optional(),
+    })
+  ),
+  financials: z
+    .object({
+      discountLabel: z.string().optional(),
+      discountValue: z.number().min(0).optional(),
+      isDiscountPercentage: z.boolean().optional(),
+    })
+    .optional(),
+  link: z.string(),
   organization: z.object({
     id: z.string(),
     name: z.string(),
@@ -34,16 +46,33 @@ export const quotationSchema = z.object({
 
 export type QuotationPayload = z.infer<typeof quotationSchema>
 
+type DeliverableInput = QuotationPayload['deliverables'][number]
+
+interface ComputedDeliverable {
+  title: string
+  points: string[]
+  amountRaw: number
+  amount: string
+}
+
 const placeholders: QuotationPayload = {
-  clientName: 'Wayne Enterprises',
-  quoteNumber: 'QT-2026-089',
-  validUntil: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-  items: [
-    { description: 'Premium Brand Strategy', quantity: 1, amount: '5,000.00' },
-    { description: 'UI/UX Design System', quantity: 1, amount: '8,500.00' },
+  contact: {
+    name: 'Wayne Enterprises',
+  },
+  project: {
+    quoteNumber: 'QT-2026-089',
+    quoteExpiry: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+  },
+  deliverables: [
+    { title: 'Premium Brand Strategy', quantity: 1, rate: 5000, points: [] },
+    { title: 'UI/UX Design System', quantity: 1, rate: 8500, points: [] },
   ],
-  totalAmount: '13,600.00',
-  quotationUrl: '#',
+  financials: {
+    discountLabel: 'Discount',
+    discountValue: 0,
+    isDiscountPercentage: false,
+  },
+  link: '#',
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
@@ -64,25 +93,50 @@ registerTemplate({
   id: 'quotation',
   schema: quotationSchema,
   placeholders,
-  subject: (data: QuotationPayload) => {
-    const qNum = data?.quoteNumber || placeholders.quoteNumber
-    const orgName = data?.organization?.name || placeholders.organization.name
+  subject: (rawData: QuotationPayload) => {
+    const qNum = rawData?.project.quoteNumber || placeholders.project.quoteNumber
+    const orgName = rawData?.organization?.name || placeholders.organization.name
     return `Project Quotation Estimate #${qNum} - ${orgName}`
   },
   component: Component,
-  transformPayload: (data) => {
+  transformPayload: (rawData: QuotationPayload) => {
     const p = placeholders
-    const org = data?.organization || {}
+    const org = rawData?.organization || {}
+
+    const computedDeliverables: ComputedDeliverable[] = (rawData.deliverables || p.deliverables).map((item: DeliverableInput) => {
+      const qty = item.quantity || 1
+      const rate = item.rate || 0
+      const rowTotal = qty * rate
+      return {
+        title: item.title || item.description || 'Service',
+        points: Array.isArray(item.points) ? item.points.filter((pt: string) => pt.trim() !== '') : [],
+        amountRaw: rowTotal,
+        amount: rowTotal.toLocaleString('en-IN'),
+      }
+    })
+
+    const subtotal = computedDeliverables.reduce((acc: number, curr: ComputedDeliverable) => acc + curr.amountRaw, 0)
+
+    let discountAmount = 0
+    const financials = rawData.financials || p.financials
+    const discountValue = financials?.discountValue || 0
+
+    if (financials?.isDiscountPercentage) {
+      discountAmount = (subtotal * discountValue) / 100
+    } else {
+      discountAmount = discountValue
+    }
+    const total = subtotal - discountAmount
 
     return {
-      clientName: data?.clientName || p.clientName,
-      quoteNumber: data?.quoteNumber || p.quoteNumber,
-      validUntil: data?.validUntil || p.validUntil,
+      clientName: rawData?.contact.name || p.contact.name,
+      quoteNumber: rawData?.project.quoteNumber || p.project.quoteNumber,
+      validUntil: rawData?.project.quoteExpiry || p.project.quoteExpiry,
 
-      items: Array.isArray(data?.items) && data.items.length > 0 ? data.items : p.items,
+      items: Array.isArray(rawData?.deliverables) && rawData.deliverables.length > 0 ? rawData.deliverables : p.deliverables,
 
-      totalAmount: data?.totalAmount || p.totalAmount,
-      quotationUrl: data?.quotationUrl || p.quotationUrl,
+      totalAmount: total,
+      quotationUrl: rawData?.link || p.link,
 
       organizationName: org?.name || p.organization.name,
       organizationWebsite: org?.website || p.organization.website,

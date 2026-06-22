@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
           select: { name: 'Outbound' },
         },
         Channel: {
-          select: { name: 'SMS' }, // Adjust based on your specific route
+          select: { name: 'SMS' },
         },
         Timestamp: {
           date: { start: new Date().toISOString() },

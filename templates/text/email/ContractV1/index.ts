@@ -3,18 +3,23 @@ import registerTemplate from '~/server/utils/template-registry-email'
 import { z } from 'zod'
 
 export const contractSchema = z.object({
-  contractorName: z.string(),
-  projectName: z.string(),
-  shootDates: z.string(),
-  compensationAmount: z.string(),
-  contractLink: z.string(),
+  contact: z.object({
+    name: z.string(),
+    title: z.string(),
+  }),
+  project: z.object({
+    title: z.string(),
+    shootDate: z.date(),
+  }),
+  totalAmount: z.number(),
+  link: z.string(),
   organization: z.object({
     id: z.string(),
     name: z.string(),
     address: z.string(),
     website: z.string(),
     branding: z.object({
-      logo: z.string(),
+      logo: z.url(),
       color: z.object({
         primary: z.string(),
         accent: z.string(),
@@ -25,14 +30,19 @@ export const contractSchema = z.object({
   }),
 })
 
-export type contractPayload = z.infer<typeof contractSchema>
+export type ContractPayload = z.infer<typeof contractSchema>
 
-const placeholders: contractPayload = {
-  contractorName: 'Alex Mercer',
-  projectName: 'Autumn Commercial Shoot',
-  shootDates: 'October 12th - October 14th',
-  compensationAmount: '₹ 45,000',
-  contractLink: '#',
+const placeholders: ContractPayload = {
+  contact: {
+    name: 'Alex Mercer',
+    title: 'Lead Cinematographer',
+  },
+  project: {
+    title: 'Photography and Videography',
+    shootDate: new Date(),
+  },
+  totalAmount: 150_000,
+  link: '#',
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
@@ -53,25 +63,22 @@ registerTemplate({
   id: 'contract',
   schema: contractSchema,
   placeholders,
-  subject: (data: any) => {
-    const pName = data?.projectName || placeholders.projectName
-    const orgName = data?.organization?.name || placeholders.organization.name
+  subject: (rawData: ContractPayload) => {
+    const pName = rawData?.project.title || placeholders.project.title
+    const orgName = rawData?.organization?.name || placeholders.organization.name
     return `Action Required: Contractor Agreement for ${pName} - ${orgName}`
   },
   component: Component,
-  transformPayload: (data: any) => {
+  transformPayload: (rawData: ContractPayload) => {
     const p = placeholders
-    const org = data?.organization || {}
+    const org = rawData?.organization || {}
 
-    // We separate the raw deep schema from the flattened computed inputs needed by the Vue component
     return {
-      contractorName: data?.contractorName || p.contractorName,
-      projectName: data?.projectName || p.projectName,
-      shootDates: data?.shootDates || p.shootDates,
-      compensationAmount: data?.compensationAmount || p.compensationAmount,
-      contractLink: data?.contractLink || p.contractLink,
-
-      // Computed Organization Variables
+      contractorName: rawData?.contact.name || p.contact.name,
+      projectName: rawData?.project.title || p.project.title,
+      shootDates: rawData?.project.shootDate || p.project.shootDate,
+      compensationAmount: rawData?.totalAmount || p.totalAmount,
+      contractLink: rawData?.link || p.link,
       organizationName: org?.name || p.organization.name,
       organizationWebsite: org?.website || p.organization.website,
       organizationLogo: org?.branding?.logo || p.organization.branding.logo,

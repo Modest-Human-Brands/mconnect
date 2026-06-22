@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
           select: { name: 'Inbound' },
         },
         Channel: {
-          select: { name: 'WhatsApp' }, // Adjust based on your specific webhook route
+          select: { name: 'WhatsApp' },
         },
         Timestamp: {
           date: { start: new Date().toISOString() },

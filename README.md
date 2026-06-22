@@ -421,3 +421,22 @@ Published under the [MIT](https://github.com/Modest-Human-Brands/mconnect/blob/m
 <a href="https://github.com/Modest-Human-Brands/mconnect/graphs/contributors">
 <img src="https://contrib.rocks/image?repo=Modest-Human-Brands/mconnect" />
 </a>
+
+### 🕵️ Auto-Discovered Shadow APIs
+
+| Route                                     | Module          | Complexity | Status       |
+| ----------------------------------------- | --------------- | ---------- | ------------ |
+| `POST /api/connect/call/phone/send`       | Shadow Pipeline | Medium     | Undocumented |
+| `POST /api/connect/call/phone/status`     | Shadow Pipeline | Medium     | Undocumented |
+| `POST /api/connect/text/email/receive`    | Shadow Pipeline | Medium     | Undocumented |
+| `POST /api/connect/text/email/send`       | Shadow Pipeline | Medium     | Undocumented |
+| `GET /api/connect/text/email/template`    | Shadow Pipeline | Medium     | Undocumented |
+| `POST /api/connect/text/sms/receive`      | Shadow Pipeline | Medium     | Undocumented |
+| `POST /api/connect/text/sms/send`         | Shadow Pipeline | Medium     | Undocumented |
+| `GET /api/connect/text/sms/template`      | Shadow Pipeline | Medium     | Undocumented |
+| `POST /api/connect/text/whatsapp/receive` | Shadow Pipeline | Medium     | Undocumented |
+| `POST /api/connect/text/whatsapp/send`    | Shadow Pipeline | Medium     | Undocumented |
+| `GET /api/connect/text/whatsapp/template` | Shadow Pipeline | Medium     | Undocumented |
+| `GET /api/contacts`                       | Shadow Pipeline | Medium     | Undocumented |
+| `PUT /api/contacts`                       | Shadow Pipeline | Medium     | Undocumented |
+| `GET /api/contacts/:contactId/timeline`   | Shadow Pipeline | Medium     | Undocumented |

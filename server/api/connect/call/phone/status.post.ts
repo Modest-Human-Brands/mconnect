@@ -82,7 +82,6 @@ export default defineEventHandler(async (event) => {
         let routingSummary = `[${direction === 'outbound-call' ? 'Outbound' : 'Inbound'} Audio Bridge Initiated via LiveKit]\nRoom Tracking Identity: ${roomName}\n`
 
         if (direction === 'inbound-call') {
-          // Queries DB 1 (Users & Contacts) for internal users
           const users = await notionQueryDb<NotionUser>(notion, notionDbId.user, {
             filter: {
               and: [
