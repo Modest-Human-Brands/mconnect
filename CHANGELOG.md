@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.4.5
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.4...v0.4.5)
+
+### 🚀 Enhancements
+
+- **email-templates:** Add organizationColorAccent to ContractV1 template ([931c9c9](https://github.com/Modest-Human-Brands/mconnect/commit/931c9c9))
+
+### 🩹 Fixes
+
+- **email-provider:** Use default fromName and fromEmail for email sending ([3024e11](https://github.com/Modest-Human-Brands/mconnect/commit/3024e11))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.4.4
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.3...v0.4.4)
