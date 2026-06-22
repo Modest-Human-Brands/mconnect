@@ -43,8 +43,8 @@ const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { s
         pass: payload.settings.auth.pass,
       },
     })
-    const fromName = payload.displayName || payload.defaults?.fromName
-    const fromEmail = payload.settings?.auth?.user || payload.defaults?.fallbackFromEmail
+    const fromName = payload.defaults?.fromName
+    const fromEmail = payload.defaults?.fromEmail
 
     const info = await transporter.sendMail({
       from: `"${fromName}" <${fromEmail}>`,
