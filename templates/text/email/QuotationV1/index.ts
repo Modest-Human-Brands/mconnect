@@ -3,12 +3,14 @@ import registerTemplate from '~/server/utils/template-registry-email'
 import { z } from 'zod'
 
 export const quotationSchema = z.object({
-  contact: z.object({
+  recipient: z.object({
     name: z.string(),
+    isContact: z.boolean(),
+    isSigned: z.boolean(),
   }),
   project: z.object({
+    title: 'Photography and Videography',
     quoteNumber: z.string(),
-    quoteExpiry: z.date(),
   }),
   deliverables: z.array(
     z.object({
@@ -26,6 +28,7 @@ export const quotationSchema = z.object({
       isDiscountPercentage: z.boolean().optional(),
     })
     .optional(),
+  expiresIn: z.date(),
   link: z.string(),
   organization: z.object({
     id: z.string(),
@@ -50,18 +53,22 @@ type DeliverableInput = QuotationPayload['deliverables'][number]
 
 interface ComputedDeliverable {
   title: string
+  description: string
   points: string[]
-  amountRaw: number
-  amount: string
+  rate: number
+  quantity: number
+  amount: number
 }
 
 const placeholders: QuotationPayload = {
-  contact: {
+  recipient: {
     name: 'Wayne Enterprises',
+    isContact: true,
+    isSigned: false,
   },
   project: {
+    title: 'Test',
     quoteNumber: 'QT-2026-089',
-    quoteExpiry: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
   },
   deliverables: [
     { title: 'Premium Brand Strategy', quantity: 1, rate: 5000, points: [] },
@@ -72,6 +79,7 @@ const placeholders: QuotationPayload = {
     discountValue: 0,
     isDiscountPercentage: false,
   },
+  expiresIn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   link: '#',
   organization: {
     id: 'modest-human-brands',
@@ -104,18 +112,21 @@ registerTemplate({
     const org = rawData?.organization || {}
 
     const computedDeliverables: ComputedDeliverable[] = (rawData.deliverables || p.deliverables).map((item: DeliverableInput) => {
-      const qty = item.quantity || 1
-      const rate = item.rate || 0
+      const qty = item.quantity ?? 1
+      const rate = item.rate ?? 0
       const rowTotal = qty * rate
+
       return {
-        title: item.title || item.description || 'Service',
+        title: item.title ?? '',
+        description: item.description ?? '',
         points: Array.isArray(item.points) ? item.points.filter((pt: string) => pt.trim() !== '') : [],
-        amountRaw: rowTotal,
-        amount: rowTotal.toLocaleString('en-IN'),
+        rate: rate,
+        quantity: qty,
+        amount: rowTotal,
       }
     })
 
-    const subtotal = computedDeliverables.reduce((acc: number, curr: ComputedDeliverable) => acc + curr.amountRaw, 0)
+    const subtotal = computedDeliverables.reduce((acc: number, curr: ComputedDeliverable) => acc + curr.amount, 0)
 
     let discountAmount = 0
     const financials = rawData.financials || p.financials
@@ -129,11 +140,14 @@ registerTemplate({
     const total = subtotal - discountAmount
 
     return {
-      clientName: rawData?.contact.name || p.contact.name,
+      recipientName: rawData?.recipient.name || p.recipient.name,
+      isRecipientContact: rawData?.recipient.isContact || p.recipient.isContact,
+      isSigned: rawData?.recipient.isSigned || p.recipient.isSigned,
+      projectName: rawData?.project.title || p.project.title,
       quoteNumber: rawData?.project.quoteNumber || p.project.quoteNumber,
-      validUntil: rawData?.project.quoteExpiry || p.project.quoteExpiry,
+      validUntil: rawData?.expiresIn || p.expiresIn,
 
-      items: Array.isArray(rawData?.deliverables) && rawData.deliverables.length > 0 ? rawData.deliverables : p.deliverables,
+      deliverables: computedDeliverables,
 
       totalAmount: total,
       quotationUrl: rawData?.link || p.link,

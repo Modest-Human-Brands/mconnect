@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { Html, Head, Body, Img, Container, Section, Text, Button, Tailwind, Hr } from '@vue-email/components'
 
-interface QuotationItem {
-  description: string
-  quantity: number
-  amount: string | number
-}
-
 defineProps<{
-  clientName: string
+  recipientName: string
+  isRecipientContact: boolean
+  isSigned: boolean
+  projectName: string
   quoteNumber: string
   validUntil: string
-  items: QuotationItem[]
+  deliverables: { title: string; description: string; points: string[]; rate: number; quantity: number; amount: number }[]
   totalAmount: string | number
   quotationUrl: string
   organizationName: string
@@ -40,21 +37,32 @@ defineProps<{
 
             <Section class="mb-6">
               <Text class="m-0 text-base text-gray-700 mb-2">
-                Hello <strong>{{ clientName }}</strong
+                Hello <strong>{{ recipientName }}</strong
                 >,
               </Text>
-              <Text class="m-0 text-sm text-gray-600 leading-relaxed">
-                Thank you for the opportunity to estimate your upcoming project goals. Below is a breakdown of our standard deliverables and commercial requirements curated for your brand.
-              </Text>
-              <Text v-if="validUntil" class="m-0 mt-3 text-xs text-red-500 font-medium"> ⚠️ This proposal pricing is valid until: {{ validUntil }} </Text>
+
+              <template v-if="!isSigned">
+                <Text v-if="isRecipientContact" class="m-0 text-sm text-gray-600 leading-relaxed">
+                  Below is a breakdown of our deliverables and commercial requirements curated for the project {{ projectName }}. Please review the proposal and accept the terms to proceed.
+                </Text>
+                <Text v-else class="m-0 text-sm text-gray-600 leading-relaxed">
+                  The commercial proposal for the project {{ projectName }} is ready for your internal review and countersignature.
+                </Text>
+              </template>
+              <template v-else>
+                <Text class="m-0 text-sm text-gray-600 leading-relaxed">
+                  Great news! The proposal for the project {{ projectName }} has been fully executed. A final, legally binding copy is now available for your records.
+                </Text>
+              </template>
+
+              <Text v-if="validUntil && !isSigned" class="m-0 mt-3 text-xs text-red-500 font-medium"> This proposal pricing is valid until: {{ validUntil }} </Text>
             </Section>
 
-            <Section v-if="items && items.length > 0" class="bg-gray-50 rounded-lg p-4 my-6">
+            <Section v-if="deliverables && deliverables.length > 0" class="bg-gray-50 rounded-lg p-4 my-6">
               <Text class="m-0 mb-3 text-xs uppercase tracking-wider font-bold text-gray-400"> Estimate Summary </Text>
 
-              <div v-for="(item, index) in items" :key="index" class="py-2 border-b border-gray-200/60 last:border-0">
+              <div v-for="(item, index) in deliverables" :key="index" class="py-2 border-b border-gray-200/60 last:border-0">
                 <table width="100%">
-                  <!-- Fix: Added tbody wrapper to satisfy Vue HTML5 specifications -->
                   <tbody>
                     <tr>
                       <td align="left">
@@ -82,7 +90,7 @@ defineProps<{
                 class="px-6 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline"
                 :style="{ backgroundColor: organizationColorAccent }"
                 :href="quotationUrl">
-                Review Full Proposal & Accept Terms
+                {{ isSigned ? 'Download Executed Proposal' : isRecipientContact ? 'Review Full Proposal & Accept Terms' : 'Review & Countersign Proposal' }}
               </Button>
             </Section>
 
