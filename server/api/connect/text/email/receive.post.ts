@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
           select: { name: 'Inbound' },
         },
         Timestamp: {
-          date: { start: new Date().toISOString() },
+          date: { start: new Date().toDateString() },
         },
         ...(contactId ? { Contact: { relation: [{ id: notionNormalizeId(contactId) }] } } : {}),
       },

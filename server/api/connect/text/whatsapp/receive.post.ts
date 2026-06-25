@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
           select: { name: 'WhatsApp' },
         },
         Timestamp: {
-          date: { start: new Date().toISOString() },
+          date: { start: new Date().toDateString() },
         },
         Contact: {
           relation: [{ id: contactId }],

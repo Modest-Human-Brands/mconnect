@@ -50,7 +50,7 @@ export default defineTask({
       console.log(`[Import Task]: Found ${messages.length} messages to process.`)
 
       for (const msg of messages) {
-        const emailDateIso = new Date(msg.date).toISOString()
+        const emailDateIso = new Date(msg.date).toDateString()
 
         // 2. Deduplication Check: See if this email is already in Notion
         const existingEntries = await notionQueryDb(notion, notionDbId.email, {

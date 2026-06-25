@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
           select: { name: 'SMS' },
         },
         Timestamp: {
-          date: { start: new Date().toISOString() },
+          date: { start: new Date().toDateString() },
         },
         ...(userId ? { User: { relation: [{ id: userId }] } } : {}),
         ...(contactId ? { Contact: { relation: [{ id: contactId }] } } : {}),

@@ -3,7 +3,7 @@ import registerTemplate from '~/server/utils/template-registry-email'
 import { z } from 'zod'
 
 export const otpSchema = z.object({
-  recipientEmail: z.string().email(),
+  recipientEmail: z.email(),
   otpCode: z.string(),
   expiresIn: z.string().default('10 minutes'),
   organization: z.object({

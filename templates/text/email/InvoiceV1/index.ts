@@ -1,17 +1,17 @@
 import Component from './component.vue'
 import registerTemplate from '~/server/utils/template-registry-email'
 import { z } from 'zod'
+import { ofetch } from 'ofetch'
 
-export const quotationSchema = z.object({
+export const invoiceEmailSchema = z.object({
   recipient: z.object({
     name: z.string(),
-    isContact: z.boolean(),
-    isSigned: z.boolean(),
   }),
   pricingModel: z.enum(['project', 'day']).optional(),
   project: z.object({
     title: z.string(),
-    quoteNumber: z.string(),
+    invoiceNumber: z.string(),
+    quotationNumber: z.string().optional(),
   }),
   deliverables: z.array(
     z.object({
@@ -29,14 +29,15 @@ export const quotationSchema = z.object({
       isDiscountPercentage: z.boolean().optional(),
       taxLabel: z.string().optional(),
       taxRate: z.number().min(0).optional(),
+      amountPaid: z.number().min(0).optional(),
     })
     .optional(),
-  expiresIn: z.date(),
-  link: z.string(),
+  dueDate: z.date(),
+  invoiceUrl: z.string().url(), // Used to fetch and attach the PDF
   organization: z.object({
     id: z.string(),
     name: z.string(),
-    address: z.string(),
+    address: z.string().optional(),
     website: z.string(),
     branding: z.object({
       logo: z.string(),
@@ -50,9 +51,9 @@ export const quotationSchema = z.object({
   }),
 })
 
-export type QuotationPayload = z.infer<typeof quotationSchema>
+export type InvoiceEmailPayload = z.infer<typeof invoiceEmailSchema>
 
-type DeliverableInput = QuotationPayload['deliverables'][number]
+type DeliverableInput = InvoiceEmailPayload['deliverables'][number]
 
 interface ComputedDeliverable {
   title: string
@@ -63,16 +64,15 @@ interface ComputedDeliverable {
   amount: number
 }
 
-const placeholders: QuotationPayload = {
+const placeholders: InvoiceEmailPayload = {
   recipient: {
     name: 'Wayne Enterprises',
-    isContact: true,
-    isSigned: false,
   },
   pricingModel: 'project',
   project: {
-    title: 'Test',
-    quoteNumber: 'QT-2026-089',
+    title: 'Photography and Videography',
+    invoiceNumber: 'RCP-I-78-2-1',
+    quotationNumber: 'RCP-Q-78-2',
   },
   deliverables: [
     { title: 'Premium Brand Strategy', quantity: 1, rate: 5000, points: [] },
@@ -84,13 +84,13 @@ const placeholders: QuotationPayload = {
     isDiscountPercentage: false,
     taxLabel: 'IGST @ 18%',
     taxRate: 18,
+    amountPaid: 0,
   },
-  expiresIn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  link: '#',
+  dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  invoiceUrl: '#',
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
-    address: 'Abc Road, Near DEF, UIO - 1890',
     website: 'https://modesthumanbrands.com',
     branding: {
       logo: 'https://modesthumanbrands.com/logo.svg',
@@ -104,20 +104,20 @@ const placeholders: QuotationPayload = {
 }
 
 registerTemplate({
-  id: 'quotation',
-  schema: quotationSchema,
+  id: 'invoice',
+  schema: invoiceEmailSchema,
   placeholders,
-  subject: (rawData: QuotationPayload) => {
-    const qNum = rawData?.project.quoteNumber || placeholders.project.quoteNumber
+  subject: (rawData: InvoiceEmailPayload) => {
+    const invNum = rawData?.project?.invoiceNumber || placeholders.project.invoiceNumber
     const orgName = rawData?.organization?.name || placeholders.organization.name
-    return `Project Quotation Estimate #${qNum} - ${orgName}`
+    return `Invoice #${invNum} from ${orgName}`
   },
   component: Component,
-  transformPayload: (rawData: QuotationPayload) => {
+  transformPayload: (rawData: InvoiceEmailPayload) => {
     const p = placeholders
-    const org = rawData?.organization || {}
+    const org = rawData?.organization || p.organization
 
-    const computedDeliverables: ComputedDeliverable[] = (rawData.deliverables || p.deliverables).map((item: DeliverableInput) => {
+    const computedDeliverables: ComputedDeliverable[] = (rawData?.deliverables || p.deliverables).map((item: DeliverableInput) => {
       const qty = item.quantity ?? 1
       const rate = item.rate ?? 0
       const rowTotal = qty * rate
@@ -135,7 +135,7 @@ registerTemplate({
     const subtotal = computedDeliverables.reduce((acc: number, curr: ComputedDeliverable) => acc + curr.amount, 0)
 
     let discountAmount = 0
-    const financials = rawData.financials || p.financials
+    const financials = rawData?.financials || p.financials
     const discountValue = financials?.discountValue || 0
 
     if (financials?.isDiscountPercentage) {
@@ -149,14 +149,23 @@ registerTemplate({
     const taxAmount = (postDiscountTotal * taxRate) / 100
     const grandTotal = postDiscountTotal + taxAmount
 
+    const amountPaid = financials?.amountPaid || 0
+    const amountDue = Math.max(0, grandTotal - amountPaid)
+
+    let paymentStatus = 'UNPAID'
+    if (amountPaid >= grandTotal) {
+      paymentStatus = 'PAID'
+    } else if (amountPaid > 0) {
+      paymentStatus = 'PARTIALLY PAID'
+    }
+
     return {
-      recipientName: rawData?.recipient.name || p.recipient.name,
-      isRecipientContact: rawData?.recipient.isContact || p.recipient.isContact,
-      isSigned: rawData?.recipient.isSigned || p.recipient.isSigned,
+      recipientName: rawData?.recipient?.name || p.recipient.name,
       pricingModel: rawData?.pricingModel || p.pricingModel,
-      projectName: rawData?.project.title || p.project.title,
-      quoteNumber: rawData?.project.quoteNumber || p.project.quoteNumber,
-      validUntil: rawData?.expiresIn || p.expiresIn.toDateString(),
+      projectName: rawData?.project?.title || p.project.title,
+      invoiceNumber: rawData?.project?.invoiceNumber || p.project.invoiceNumber,
+      quotationNumber: rawData?.project?.quotationNumber || p.project.quotationNumber,
+      dueDate: rawData?.dueDate || p.dueDate.toDateString(),
       deliverables: computedDeliverables,
 
       financialsSubtotal: subtotal,
@@ -165,14 +174,38 @@ registerTemplate({
       financialsTaxLabel: financials?.taxLabel || (taxAmount > 0 ? 'Tax' : ''),
       financialsTaxAmount: taxAmount > 0 ? taxAmount.toLocaleString('en-IN') : '',
       financialsGrandTotal: grandTotal,
+      financialsAmountPaid: amountPaid > 0 ? amountPaid.toLocaleString('en-IN') : '',
+      financialsAmountDue: amountDue,
+      paymentStatus,
 
-      quotationUrl: rawData?.link || p.link,
-      organizationName: org?.name || p.organization.name,
-      organizationWebsite: org?.website || p.organization.website,
-      organizationLogo: org?.branding?.logo || p.organization.branding.logo,
-      organizationColorPrimary: org?.branding?.color?.primary || p.organization.branding.color.primary,
-      organizationColorAccent: org?.branding?.color?.accent || p.organization.branding.color.accent,
-      organizationFont: org?.branding?.font || p.organization.branding.font,
+      organizationName: org.name,
+      organizationWebsite: org.website,
+      organizationLogo: org.branding.logo,
+      organizationColorPrimary: org.branding.color.primary,
+      organizationColorAccent: org.branding.color.accent,
+      organizationFont: org.branding.font,
+    }
+  },
+  // Automatically download the invoice from the URL and attach it to the email
+  getAttachments: async (rawData: InvoiceEmailPayload) => {
+    if (!rawData?.invoiceUrl || rawData.invoiceUrl === '#') return []
+
+    try {
+      const fileBuffer = await ofetch(rawData.invoiceUrl, {
+        responseType: 'arrayBuffer',
+      })
+
+      const invNum = rawData.project?.invoiceNumber || 'Invoice'
+      return [
+        {
+          filename: `${invNum}.pdf`,
+          content: Buffer.from(fileBuffer),
+          contentType: 'application/pdf',
+        },
+      ]
+    } catch (error) {
+      console.error('Failed to fetch invoice PDF for attachment:', error)
+      return []
     }
   },
 })

@@ -63,20 +63,20 @@ registerTemplate({
   id: 'project-delivery',
   schema: projectDeliverySchema,
   placeholders,
-  subject: (data: any) => {
+  subject: (data: ProjectDeliveryPayload) => {
     const pName = data?.projectName || placeholders.projectName
     const orgName = data?.organization?.name || placeholders.organization.name
     return `Project Delivery: ${pName} is ready! - ${orgName}`
   },
   component: Component,
-  transformPayload: (data: any) => {
+  transformPayload: (data: ProjectDeliveryPayload) => {
     const p = placeholders
     const org = data?.organization || {}
 
     return {
       clientName: data?.clientName || p.clientName,
       projectName: data?.projectName || p.projectName,
-      completionDate: data?.completionDate || p.completionDate,
+      completionDate: data?.completionDate || p.completionDate.toDateString(),
       deliveryNotes: data?.deliveryNotes || p.deliveryNotes,
       projectLinks: Array.isArray(data?.projectLinks) && data.projectLinks.length > 0 ? data.projectLinks : p.projectLinks,
       organizationName: org?.name || p.organization.name,

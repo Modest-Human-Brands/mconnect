@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { Html, Head, Body, Img, Container, Section, Text, Button, Tailwind, Hr } from '@vue-email/components'
+import { Html, Head, Body, Img, Container, Section, Text, Tailwind, Hr } from '@vue-email/components'
 
 defineProps<{
   recipientName: string
-  isRecipientContact: boolean
-  isSigned: boolean
   pricingModel: 'project' | 'day'
   projectName: string
-  quoteNumber: string
-  validUntil: string
+  invoiceNumber: string
+  quotationNumber?: string
+  dueDate: string
   deliverables: { title: string; description: string; points: string[]; rate: number; quantity: number; amount: number }[]
   financialsSubtotal: number
   financialsDiscountLabel: string
@@ -16,7 +15,9 @@ defineProps<{
   financialsTaxLabel: string
   financialsTaxAmount: string
   financialsGrandTotal: number
-  quotationUrl: string
+  financialsAmountPaid: string
+  financialsAmountDue: number
+  paymentStatus: 'PAID' | 'UNPAID' | 'PARTIALLY PAID'
   organizationName: string
   organizationWebsite: string
   organizationLogo: string
@@ -35,8 +36,8 @@ defineProps<{
           <Section class="bg-white p-10 shadow-xl border-t-4" :style="{ borderColor: organizationColorPrimary }">
             <Section class="mb-8">
               <Img :src="organizationLogo" :alt="organizationName" width="120" class="mb-4" />
-              <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semibold"> Commercial Estimate / Proposal </Text>
-              <Text class="m-0 text-xl font-bold text-gray-800"> Quote #{{ quoteNumber }} </Text>
+              <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semibold"> Tax Invoice </Text>
+              <Text class="m-0 text-xl font-bold text-gray-800"> Invoice #{{ invoiceNumber }} </Text>
             </Section>
 
             <Hr class="border-gray-100 my-4" />
@@ -47,34 +48,39 @@ defineProps<{
                 >,
               </Text>
 
-              <template v-if="!isSigned">
-                <Text v-if="isRecipientContact" class="m-0 text-sm text-gray-600 leading-relaxed">
-                  Below is a breakdown of our deliverables and commercial requirements curated for the project {{ projectName }}. Please review the proposal and accept the terms to proceed.
-                </Text>
-                <Text v-else class="m-0 text-sm text-gray-600 leading-relaxed">
-                  The commercial proposal for the project {{ projectName }} is ready for your internal review and countersignature.
-                </Text>
-              </template>
-              <template v-else>
+              <template v-if="paymentStatus === 'PAID'">
                 <Text class="m-0 text-sm text-gray-600 leading-relaxed">
-                  Great news! The proposal for the project {{ projectName }} has been fully executed. A final, legally binding copy is now available for your records.
+                  Thank you for your payment. Your invoice for <strong>{{ projectName }}</strong> has been fully settled. A copy of the receipt/invoice is attached to this email for your records.
                 </Text>
               </template>
 
-              <Text v-if="validUntil && !isSigned" class="m-0 mt-3 text-xs text-red-500 font-medium">
-                This proposal pricing is valid until:
-                {{
-                  new Date(validUntil).toLocaleDateString('en-IN', {
+              <template v-else-if="paymentStatus === 'PARTIALLY PAID'">
+                <Text class="m-0 text-sm text-gray-600 leading-relaxed">
+                  Thank you for your recent payment. We have attached the updated invoice for <strong>{{ projectName }}</strong> reflecting the remaining balance.
+                </Text>
+              </template>
+
+              <template v-else>
+                <Text class="m-0 text-sm text-gray-600 leading-relaxed">
+                  Please find attached the invoice for the deliverables regarding <strong>{{ projectName }}</strong
+                  >.
+                </Text>
+              </template>
+
+              <Text v-if="paymentStatus !== 'PAID'" class="m-0 mt-3 text-xs text-gray-500 font-medium">
+                Payment is due by:
+                <strong class="text-gray-800">{{
+                  new Date(dueDate).toLocaleDateString('en-IN', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',
                   })
-                }}
+                }}</strong>
               </Text>
             </Section>
 
             <Section v-if="deliverables && deliverables.length > 0" class="bg-gray-50 rounded-lg p-4 my-6">
-              <Text class="m-0 mb-3 text-xs uppercase tracking-wider font-bold text-gray-400"> Estimate Summary </Text>
+              <Text class="m-0 mb-3 text-xs uppercase tracking-wider font-bold text-gray-400"> Billing Summary </Text>
 
               <table width="100%" cellpadding="0" cellspacing="0" border="0" class="text-sm text-left">
                 <thead>
@@ -101,7 +107,6 @@ defineProps<{
                 </tbody>
               </table>
 
-              <!-- Financials Breakdown -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" class="text-sm mt-4">
                 <tbody>
                   <tr>
@@ -116,31 +121,37 @@ defineProps<{
                     <td class="py-1 text-right text-gray-500 w-3/4">{{ financialsTaxLabel }}:</td>
                     <td class="py-1 text-right text-gray-500">{{ financialsTaxAmount }}</td>
                   </tr>
+                  <tr>
+                    <td class="py-2 text-right text-gray-800 w-3/4 font-bold border-t border-gray-200 mt-2">Grand Total:</td>
+                    <td class="py-2 text-right text-gray-800 font-bold border-t border-gray-200 mt-2">{{ financialsGrandTotal.toLocaleString('en-IN') }}</td>
+                  </tr>
+                  <tr v-if="financialsAmountPaid">
+                    <td class="py-1 text-right text-green-600 w-3/4 font-medium">Payments Made:</td>
+                    <td class="py-1 text-right text-green-600 font-medium">- {{ financialsAmountPaid }}</td>
+                  </tr>
                 </tbody>
               </table>
             </Section>
 
             <Section class="text-right my-6 pr-2">
-              <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semibold"> Estimated Gross Total </Text>
-              <Text class="m-0 text-2xl font-black text-gray-900">
-                {{ financialsGrandTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) }}
-              </Text>
+              <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semibold mb-1"> Amount Due (INR) </Text>
+              <Text class="m-0 text-3xl font-black" :class="paymentStatus === 'PAID' ? 'text-green-500' : 'text-gray-900'"> ₹{{ financialsAmountDue.toLocaleString('en-IN') }} </Text>
             </Section>
 
-            <Section class="text-center my-8">
-              <Button
-                class="px-6 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline"
-                :style="{ backgroundColor: organizationColorAccent }"
-                :href="quotationUrl">
-                {{ isSigned ? 'Download Executed Proposal' : isRecipientContact ? 'Review Full Proposal' : 'Review & Countersign Proposal' }}
-              </Button>
+            <Section class="text-center my-8 bg-gray-50 p-4 border border-gray-100 rounded-lg">
+              <Text class="m-0 text-sm font-semibold text-gray-700">
+                <span v-if="paymentStatus === 'PAID'" class="text-green-600 mr-2">PAID</span>
+                <span v-else-if="paymentStatus === 'PARTIALLY PAID'" class="text-yellow-600 mr-2">PARTIALLY PAID</span>
+                <span v-else class="text-red-500 mr-2">UNPAID</span>
+                A PDF copy of this invoice is attached to this email.
+              </Text>
             </Section>
 
             <Hr class="border-gray-100 my-6" />
 
             <Section class="text-center">
               <Text class="m-0 text-xs text-gray-400 leading-normal">
-                If you have any questions regarding this breakdown statement, reach out to our accounts team at
+                If you have any questions regarding this invoice, please reach out to our accounts team at
                 <a :href="organizationWebsite" class="underline" :style="{ color: organizationColorPrimary }"> {{ organizationName }} </a>.
               </Text>
             </Section>

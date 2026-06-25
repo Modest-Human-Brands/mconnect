@@ -5,7 +5,7 @@ defineProps<{
   contractorName: string
   projectName: string
   shootDates: string
-  compensationAmount: string
+  compensationAmount: number
   contractLink: string
 
   organizationName: string

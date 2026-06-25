@@ -71,11 +71,10 @@ registerTemplate({
     return {
       recipientName: data?.recipientName || p.recipientName,
       bodyContent: `This certificate acknowledges your outstanding contribution and dedication as a ${data?.recipientRole || p.recipientRole} towards ${data?.scopeOfWork || p.scopeOfWork} during ${data?.startDate || p.startDate} - ${data?.endDate || p.endDate}, showcasing your commitment to excellence and teamwork at ${orgName}.`,
-      dataOfIssue: data?.dataOfIssue || p.dataOfIssue,
+      dataOfIssue: data?.dataOfIssue || p.dataOfIssue.toDateString(),
       signerName: data?.signerName || p.signerName,
       signerTitle: data?.signerTitle || p.signerTitle,
       certificateUrl: data?.certificateUrl || p.certificateUrl,
-
       organizationName: orgName,
       organizationLogo: data?.organization?.branding?.logo || p.organization.branding.logo,
       organizationColorPrimary: data?.organization?.branding?.color?.primary || p.organization.branding.color.primary,
