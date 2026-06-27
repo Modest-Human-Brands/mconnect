@@ -142,7 +142,7 @@ export default defineEventHandler(async (event) => {
                 select: { name: 'CELLULAR' },
               },
               Timestamp: {
-                date: { start: new Date().toDateString() },
+                date: { start: new Date().toISOString() },
               },
               Contact: {
                 relation: [{ id: contactId }],
@@ -173,7 +173,7 @@ export default defineEventHandler(async (event) => {
                 select: { name: 'CELLULAR' },
               },
               Timestamp: {
-                date: { start: new Date().toDateString() },
+                date: { start: new Date().toISOString() },
               },
               Contact: {
                 relation: [{ id: contactId }],

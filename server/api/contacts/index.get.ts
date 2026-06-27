@@ -101,7 +101,7 @@ export default defineEventHandler(async (event) => {
         phone,
         instagram,
         status: props['Status']?.select?.name || 'Active',
-        lastActive: latest ? new Date(latest.time).toDateString() : last_edited_time,
+        lastActive: latest ? new Date(latest.time).toISOString() : last_edited_time,
         lastMessageSnippet: latest ? latest.snippet : 'No recent messages.',
         platforms: [...new Set(platforms)],
         unreadCount: contactData.unreadCount,

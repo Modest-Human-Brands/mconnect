@@ -88,7 +88,7 @@ export default defineEventHandler(async (event) => {
           select: { name: 'WhatsApp' },
         },
         Timestamp: {
-          date: { start: new Date().toDateString() },
+          date: { start: new Date().toISOString() },
         },
         ...(userId ? { User: { relation: [{ id: userId }] } } : {}),
         ...(contactId ? { Contact: { relation: [{ id: contactId }] } } : {}),

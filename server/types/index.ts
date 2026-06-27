@@ -127,9 +127,101 @@ export interface NotionOrganization {
         }
       }[]
     }
+    'Legal Name': {
+      type: 'rich_text'
+      rich_text: {
+        text: {
+          content: string
+        }
+      }[]
+    }
+    'Entity Type': {
+      type: 'select'
+      select: { name: string } | null
+    }
+    'Trade Relationship': {
+      type: 'select'
+      select: { name: string } | null
+    }
+    GSTIN: {
+      type: 'rich_text'
+      rich_text: {
+        text: {
+          content: string
+        }
+      }[]
+    }
+    PAN: {
+      type: 'rich_text'
+      rich_text: {
+        text: {
+          content: string
+        }
+      }[]
+    }
+    Address: {
+      type: 'rich_text'
+      rich_text: {
+        text: {
+          content: string
+        }
+      }[]
+    }
+    'Account Details': {
+      type: 'rich_text'
+      rich_text: {
+        text: {
+          content: string
+        }
+      }[]
+    }
+    'Contact Email': {
+      type: 'email'
+      email: string | null
+    }
+    'Billing Email': {
+      type: 'email'
+      email: string | null
+    }
     'Founded Year': {
       type: 'number'
       number: number
+    }
+    'Social Links': {
+      type: 'rich_text'
+      rich_text: {
+        text: {
+          content: string
+        }
+      }[]
+    }
+    'Primary Contact': {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    'Organization Members': {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Contact: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Interactions: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Project: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Document: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    Asset: {
+      type: 'relation'
+      relation: { id: string }[]
     }
   }
 }

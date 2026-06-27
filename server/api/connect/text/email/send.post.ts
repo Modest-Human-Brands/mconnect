@@ -12,7 +12,7 @@ import '~/templates/text/email'
 import notionNormalizeId from '~/server/utils/notion-normalize-id'
 import notionTextStringify from '~/server/utils/notion-text-stringify'
 
-const basePayload = z.object({ userId: z.string().optional(), contactId: z.string().optional(), recipientEmail: z.string().email().optional(), orgId: z.string() })
+const basePayload = z.object({ userId: z.string().optional(), contactId: z.string().optional(), recipientEmail: z.email().optional(), orgId: z.string() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -117,7 +117,7 @@ export default defineEventHandler(async (event) => {
           select: { name: 'Outbound' },
         },
         Timestamp: {
-          date: { start: new Date().toDateString() },
+          date: { start: new Date().toISOString() },
         },
         ...(userId ? { User: { relation: [{ id: notionNormalizeId(userId) }] } } : {}),
         ...(contactId ? { Contact: { relation: [{ id: notionNormalizeId(contactId) }] } } : {}),
