@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.4.7
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.6...v0.4.7)
+
+### 🚀 Enhancements
+
+- Update email templates and schemas for contracts, invoices, and quotations ([3cd5df8](https://github.com/Modest-Human-Brands/mconnect/commit/3cd5df8))
+
+### 💅 Refactors
+
+- Update date fields to use Date objects in email templates ([9bb26ed](https://github.com/Modest-Human-Brands/mconnect/commit/9bb26ed))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.4.6
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.5...v0.4.6)
