@@ -123,7 +123,7 @@ defineProps<{
             <Section class="text-right my-6 pr-2">
               <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semibold"> Estimated Gross Total </Text>
               <Text class="m-0 text-2xl font-black text-gray-900">
-                {{ financialsGrandTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) }}
+                {{ formatCurrency(financialsGrandTotal) }}
               </Text>
             </Section>
 
@@ -141,7 +141,9 @@ defineProps<{
             <Section class="text-center">
               <Text class="m-0 text-xs text-gray-400 leading-normal">
                 If you have any questions regarding this breakdown statement, reach out to our accounts team at
-                <a :href="organizationWebsite" class="underline" :style="{ color: organizationColorPrimary }"> {{ organizationName }} </a>.
+                <a :href="organizationWebsite" class="underline" :style="{ color: organizationColorPrimary }">
+                  {{ organizationName }} </a
+                >.
               </Text>
             </Section>
           </Section>

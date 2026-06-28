@@ -134,8 +134,8 @@ defineProps<{
             </Section>
 
             <Section class="text-right my-6 pr-2">
-              <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semibold mb-1"> Amount Due (INR) </Text>
-              <Text class="m-0 text-3xl font-black" :class="paymentStatus === 'PAID' ? 'text-green-500' : 'text-gray-900'"> ₹{{ financialsAmountDue.toLocaleString('en-IN') }} </Text>
+              <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semibold mb-1"> Amount Due </Text>
+              <Text class="m-0 text-3xl font-black" :class="paymentStatus === 'PAID' ? 'text-green-500' : 'text-gray-900'"> {{ financialsAmountDue.toLocaleString('en-IN') }} </Text>
             </Section>
 
             <Section class="text-center my-8 bg-gray-50 p-4 border border-gray-100 rounded-lg">

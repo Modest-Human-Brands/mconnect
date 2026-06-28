@@ -114,7 +114,7 @@ registerTemplate({
     return {
       contractorName: rawData?.contact.name || p.contact.name,
       projectName: rawData?.project.title || p.project.title,
-      shootDates: (rawData?.project.shootDate || p.project.shootDate).toISOString(),
+      shootDates: rawData?.project.shootDate || p.project.shootDate.toISOString(),
       compensationAmount: rawData?.totalAmount || p.totalAmount,
       contractLink: rawData?.link || p.link,
       organizationName: org?.name || p.organization.name,
