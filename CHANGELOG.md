@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.4.8
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.7...v0.4.8)
+
+### 🚀 Enhancements
+
+- Add connectUrl to config and update API base URLs to use it ([e183fab](https://github.com/Modest-Human-Brands/mconnect/commit/e183fab))
+
+### 🩹 Fixes
+
+- Correct shootDate formatting and update email templates for contracts, invoices, and quotations ([96bd056](https://github.com/Modest-Human-Brands/mconnect/commit/96bd056))
+
+### 🏡 Chore
+
+- Apply code fixes [skip ci] ([73f852e](https://github.com/Modest-Human-Brands/mconnect/commit/73f852e))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+- Shba007 ([@shba007](https://github.com/shba007))
+
 ## v0.4.7
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.6...v0.4.7)
