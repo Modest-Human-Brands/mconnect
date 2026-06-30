@@ -2,7 +2,7 @@ import { HTTPError } from 'nitro/h3'
 import { defineTask } from 'nitro/task'
 import { loadConfig } from 'c12'
 import { ImapFlow } from 'imapflow'
-import { ofetch } from 'ofetch'
+import { $fetch } from 'ofetch'
 import { simpleParser } from 'mailparser'
 
 export default defineTask({
@@ -47,7 +47,7 @@ export default defineTask({
           try {
             const parsedEmail = await simpleParser(msg.source.toString('utf8'))
 
-            await ofetch('/api/connect/text/email/receive', {
+            await $fetch('/api/connect/text/email/receive', {
               method: 'POST',
               body: {
                 from: fromAddress || parsedEmail.from.text,

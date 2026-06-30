@@ -1,7 +1,7 @@
 import Component from './component.vue'
 import registerTemplate from '~/server/utils/template-registry-email'
 import { z } from 'zod'
-import { ofetch } from 'ofetch'
+import { $fetch } from 'ofetch'
 
 export const invoiceEmailSchema = z.object({
   recipient: z.object({
@@ -230,7 +230,7 @@ registerTemplate({
     if (!rawData?.invoiceUrl || rawData.invoiceUrl === '#') return []
 
     try {
-      const fileBuffer = await ofetch(rawData.invoiceUrl, {
+      const fileBuffer = await $fetch(rawData.invoiceUrl, {
         responseType: 'arrayBuffer',
       })
 

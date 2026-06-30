@@ -21,6 +21,9 @@ export default defineConfig({
       version: '',
       buildTime: '',
     },
+    public: {
+      connectUrl: '',
+    },
     private: {
       notionDbId: '',
     },

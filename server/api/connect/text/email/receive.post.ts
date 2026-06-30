@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
     )
 
     const { contactId } = await $fetch('/api/contacts', {
-      baseURL: 'http://localhost:3001',
+      baseURL: config.public.connectUrl,
       method: 'PUT',
       body: {
         brand: 'Unknown',

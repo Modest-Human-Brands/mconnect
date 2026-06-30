@@ -1,4 +1,4 @@
-import { ofetch } from 'ofetch'
+import { $fetch } from 'ofetch'
 import { z } from 'zod'
 import Component from './component.vue'
 import registerTemplate from '~/server/utils/template-registry-email'
@@ -123,7 +123,7 @@ registerTemplate({
   getAttachments: async (data: InternshipCompletionCertificatePayload) => {
     if (!data?.certificateUrl || data.certificateUrl === '#') return []
 
-    const fileBuffer = await ofetch(data.certificateUrl, {
+    const fileBuffer = await $fetch(data.certificateUrl, {
       responseType: 'arrayBuffer',
     })
     return [

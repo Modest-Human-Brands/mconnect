@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
           contactId: string
           status: string
         }>('/api/contacts', {
-          baseURL: 'http://localhost:3000',
+          baseURL: config.public.connectUrl,
           method: 'PUT',
           body:
             direction === 'inbound-call'

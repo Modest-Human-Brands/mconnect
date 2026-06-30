@@ -1,5 +1,5 @@
 import { loadConfig } from 'c12'
-import { ofetch } from 'ofetch'
+import { $fetch } from 'ofetch'
 
 let cachedSMSConfig: any = null
 
@@ -29,7 +29,7 @@ const smsProviderAdapters: Record<string, (payload: ProviderPayload) => Promise<
   fast2sms: async (payload) => {
     if (!payload.settings?.apiKey) throw new Error('Fast2SMS apiKey configuration missing.')
 
-    const response = await ofetch('https://www.fast2sms.com/dev/bulkV2', {
+    const response = await $fetch('https://www.fast2sms.com/dev/bulkV2', {
       method: 'POST',
       headers: {
         authorization: payload.settings.apiKey,
@@ -55,7 +55,7 @@ const smsProviderAdapters: Record<string, (payload: ProviderPayload) => Promise<
       throw new Error('Vobiz authentication fields are incomplete.')
     }
 
-    const response = await ofetch('/messaging/send', {
+    const response = await $fetch('/messaging/send', {
       baseURL: 'https://api.vobiz.ai/v1',
       method: 'POST',
       headers: {

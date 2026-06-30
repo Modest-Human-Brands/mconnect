@@ -1,5 +1,5 @@
 import { loadConfig } from 'c12'
-import { ofetch } from 'ofetch'
+import { $fetch } from 'ofetch'
 
 let cachedWhatsAppConfig: any = null
 
@@ -51,7 +51,7 @@ const whatsAppProviderAdapters: Record<string, (payload: WhatsAppPayload) => Pro
       }
     }
 
-    const response = await ofetch(`https://graph.facebook.com/v17.0/${payload.settings.phoneNumberId}/messages`, {
+    const response = await $fetch(`https://graph.facebook.com/v17.0/${payload.settings.phoneNumberId}/messages`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${payload.settings.accessToken}`,
@@ -81,7 +81,7 @@ const whatsAppProviderAdapters: Record<string, (payload: WhatsAppPayload) => Pro
       throw new Error('Template handling for Twilio needs to be mapped based on your specific Twilio configuration (e.g. Content API).')
     }
 
-    const response = await ofetch(`https://api.twilio.com/2010-04-01/Accounts/${payload.settings.accountSid}/Messages.json`, {
+    const response = await $fetch(`https://api.twilio.com/2010-04-01/Accounts/${payload.settings.accountSid}/Messages.json`, {
       method: 'POST',
       headers: {
         Authorization: `Basic ${encodedAuth}`,
@@ -97,7 +97,7 @@ const whatsAppProviderAdapters: Record<string, (payload: WhatsAppPayload) => Pro
       throw new Error('Vobiz authentication fields are incomplete.')
     }
 
-    const response = await ofetch('/messaging/send', {
+    const response = await $fetch('/messaging/send', {
       baseURL: 'https://api.vobiz.ai/v1',
       method: 'POST',
       headers: {
@@ -135,7 +135,7 @@ const whatsAppProviderAdapters: Record<string, (payload: WhatsAppPayload) => Pro
       throw new Error('Open-WA does not support official Meta Templates. It operates as a standard WhatsApp Web client.')
     }
 
-    const response = await ofetch('/sendText', {
+    const response = await $fetch('/sendText', {
       baseURL: payload.settings.baseUrl,
       method: 'POST',
       headers: {

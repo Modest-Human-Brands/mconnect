@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
 
     const { contactId } = await $fetch('/api/contacts', {
-      baseURL: 'http://localhost:3001',
+      baseURL: config.public.connectUrl,
       method: 'PUT',
       body: {
         brand: 'Unknown',
