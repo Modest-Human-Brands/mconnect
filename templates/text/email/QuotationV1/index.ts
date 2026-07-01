@@ -199,9 +199,9 @@ registerTemplate({
 
       financialsSubtotal: subtotal,
       financialsDiscountLabel: financials?.discountLabel || (discountAmount > 0 ? 'Discount' : ''),
-      financialsDiscountAmount: discountAmount > 0 ? `- ${discountAmount.toLocaleString('en-IN')}` : '',
+      financialsDiscountAmount: discountAmount,
       financialsTaxLabel: financials?.taxLabel || (taxAmount > 0 ? 'Tax' : ''),
-      financialsTaxAmount: taxAmount > 0 ? taxAmount.toLocaleString('en-IN') : '',
+      financialsTaxAmount: taxAmount,
       financialsGrandTotal: grandTotal,
 
       quotationUrl: rawData?.link || p.link,

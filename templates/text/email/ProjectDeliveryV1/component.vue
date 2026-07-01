@@ -20,6 +20,8 @@ defineProps<{
   organizationColorPrimary: string
   organizationFont: string
 }>()
+
+const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : '')
 </script>
 
 <template>
@@ -43,7 +45,7 @@ defineProps<{
               <Text class="m-0 text-sm text-gray-600 leading-relaxed mb-4">
                 {{ deliveryNotes }}
               </Text>
-              <Text class="m-0 text-xs text-gray-400 text-right pr-1">Officially delivered on: {{ completionDate }}</Text>
+              <Text class="m-0 text-xs text-gray-400 text-right pr-1">Officially delivered on: {{ formatDate(completionDate) }}</Text>
             </Section>
 
             <!-- Links Loop -->

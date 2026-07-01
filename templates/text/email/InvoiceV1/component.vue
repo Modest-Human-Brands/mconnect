@@ -11,11 +11,11 @@ defineProps<{
   deliverables: { title: string; description: string; points: string[]; rate: number; quantity: number; amount: number }[]
   financialsSubtotal: number
   financialsDiscountLabel: string
-  financialsDiscountAmount: string
+  financialsDiscountAmount: number
   financialsTaxLabel: string
-  financialsTaxAmount: string
+  financialsTaxAmount: number
   financialsGrandTotal: number
-  financialsAmountPaid: string
+  financialsAmountPaid: number
   financialsAmountDue: number
   paymentStatus: 'PAID' | 'UNPAID' | 'PARTIALLY PAID'
   organizationName: string
@@ -25,6 +25,9 @@ defineProps<{
   organizationColorAccent: string
   organizationFont: string
 }>()
+
+const formatCurrency = (val: number) => `${val.toLocaleString('en-IN')} Rupees`
+const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : '')
 </script>
 
 <template>
@@ -56,7 +59,7 @@ defineProps<{
 
               <template v-else-if="paymentStatus === 'PARTIALLY PAID'">
                 <Text class="m-0 text-sm text-gray-600 leading-relaxed">
-                  Thank you for your recent payment. We have attached the updated invoice for <strong>{{ projectName }}</strong> reflecting the remaining balance.
+                  Thank you for your recent payment. We have attached the updated invoice for <strong> {{ projectName }}</strong> reflecting the remaining balance.
                 </Text>
               </template>
 
@@ -69,13 +72,9 @@ defineProps<{
 
               <Text v-if="paymentStatus !== 'PAID'" class="m-0 mt-3 text-xs text-gray-500 font-medium">
                 Payment is due by:
-                <strong class="text-gray-800">{{
-                  new Date(dueDate).toLocaleDateString('en-IN', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })
-                }}</strong>
+                <strong class="text-gray-800">
+                  {{ formatDate(dueDate) }}
+                </strong>
               </Text>
             </Section>
 
@@ -86,9 +85,7 @@ defineProps<{
                 <thead>
                   <tr>
                     <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500">
-                      {{ pricingModel === 'day' ?
-                    'Role /
-                    Phase' : 'Service' }}
+                      {{ pricingModel === 'day' ? 'Role / Phase' : 'Service' }}
                     </th>
                     <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500 text-right">{{ pricingModel === 'day' ? 'Day Rate' : 'Rate' }}</th>
                     <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500 text-center">{{ pricingModel === 'day' ? 'Days' : 'Qty' }}</th>
@@ -104,9 +101,9 @@ defineProps<{
                         <div v-for="(pt, idx) in item.points" :key="idx" class="m-0 leading-snug">• {{ pt }}</div>
                       </div>
                     </td>
-                    <td class="py-3 border-b border-gray-100 align-top text-right text-gray-600">{{ item.rate.toLocaleString('en-IN') }}</td>
+                    <td class="py-3 border-b border-gray-100 align-top text-right text-gray-600">{{ formatCurrency(item.rate) }}</td>
                     <td class="py-3 border-b border-gray-100 align-top text-center text-gray-600">{{ item.quantity }}</td>
-                    <td class="py-3 border-b border-gray-100 align-top text-right font-bold text-gray-800">{{ item.amount.toLocaleString('en-IN') }}</td>
+                    <td class="py-3 border-b border-gray-100 align-top text-right font-bold text-gray-800">{{ formatCurrency(item.amount) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -115,23 +112,25 @@ defineProps<{
                 <tbody>
                   <tr>
                     <td class="py-1 text-right text-gray-600 w-3/4 font-semi-bold">Subtotal:</td>
-                    <td class="py-1 text-right text-gray-800 font-bold">{{ financialsSubtotal.toLocaleString('en-IN') }}</td>
+                    <td class="py-1 text-right text-gray-800 font-bold">{{ formatCurrency(financialsSubtotal) }}</td>
                   </tr>
                   <tr v-if="financialsDiscountAmount">
                     <td class="py-1 text-right text-gray-500 w-3/4">{{ financialsDiscountLabel }}:</td>
-                    <td class="py-1 text-right text-gray-500">{{ financialsDiscountAmount }}</td>
+                    <td class="py-1 text-right text-gray-500">{{ formatCurrency(financialsDiscountAmount) }}</td>
                   </tr>
                   <tr v-if="financialsTaxAmount">
                     <td class="py-1 text-right text-gray-500 w-3/4">{{ financialsTaxLabel }}:</td>
-                    <td class="py-1 text-right text-gray-500">{{ financialsTaxAmount }}</td>
+                    <td class="py-1 text-right text-gray-500">{{ formatCurrency(financialsTaxAmount) }}</td>
                   </tr>
                   <tr>
                     <td class="py-2 text-right text-gray-800 w-3/4 font-bold border-t border-gray-200 mt-2">Grand Total:</td>
-                    <td class="py-2 text-right text-gray-800 font-bold border-t border-gray-200 mt-2">{{ financialsGrandTotal.toLocaleString('en-IN') }}</td>
+                    <td class="py-2 text-right text-gray-800 font-bold border-t border-gray-200 mt-2">
+                      {{ formatCurrency(financialsGrandTotal) }}
+                    </td>
                   </tr>
                   <tr v-if="financialsAmountPaid">
                     <td class="py-1 text-right text-green-600 w-3/4 font-medium">Payments Made:</td>
-                    <td class="py-1 text-right text-green-600 font-medium">- {{ financialsAmountPaid }}</td>
+                    <td class="py-1 text-right text-green-600 font-medium">- {{ formatCurrency(financialsAmountPaid) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -139,7 +138,9 @@ defineProps<{
 
             <Section class="text-right my-6 pr-2">
               <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semi-bold mb-1"> Amount Due </Text>
-              <Text class="m-0 text-3xl font-black" :class="paymentStatus === 'PAID' ? 'text-green-500' : 'text-gray-900'"> {{ financialsAmountDue.toLocaleString('en-IN') }} </Text>
+              <Text class="m-0 text-3xl font-black" :class="paymentStatus === 'PAID' ? 'text-green-500' : 'text-gray-900'">
+                {{ formatCurrency(financialsAmountDue) }}
+              </Text>
             </Section>
 
             <Section class="text-center my-8 bg-gray-50 p-4 border border-gray-100 rounded-lg">
@@ -156,7 +157,9 @@ defineProps<{
             <Section class="text-center">
               <Text class="m-0 text-xs text-gray-400 leading-normal">
                 If you have any questions regarding this invoice, please reach out to our accounts team at
-                <a :href="organizationWebsite" class="underline" :style="{ color: organizationColorPrimary }"> {{ organizationName }} </a>.
+                <a :href="organizationWebsite" class="underline" :style="{ color: organizationColorPrimary }">
+                  {{ organizationName }} </a
+                >.
               </Text>
             </Section>
           </Section>

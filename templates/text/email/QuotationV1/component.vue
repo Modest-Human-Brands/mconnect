@@ -12,9 +12,9 @@ defineProps<{
   deliverables: { title: string; description: string; points: string[]; rate: number; quantity: number; amount: number }[]
   financialsSubtotal: number
   financialsDiscountLabel: string
-  financialsDiscountAmount: string
+  financialsDiscountAmount: number
   financialsTaxLabel: string
-  financialsTaxAmount: string
+  financialsTaxAmount: number
   financialsGrandTotal: number
   quotationUrl: string
   organizationName: string
@@ -24,6 +24,9 @@ defineProps<{
   organizationColorAccent: string
   organizationFont: string
 }>()
+
+const formatCurrency = (val: number) => `${val.toLocaleString('en-IN')} Rupees`
+const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : '')
 </script>
 
 <template>
@@ -63,13 +66,7 @@ defineProps<{
 
               <Text v-if="validUntil && !isSigned" class="m-0 mt-3 text-xs text-red-500 font-medium">
                 This proposal pricing is valid until:
-                {{
-                  new Date(validUntil).toLocaleDateString('en-IN', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })
-                }}
+                {{ formatDate(validUntil) }}
               </Text>
             </Section>
 
@@ -80,12 +77,14 @@ defineProps<{
                 <thead>
                   <tr>
                     <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500">
-                      {{ pricingModel === 'day' ?
-                    'Role /
-                    Phase' : 'Service' }}
+                      {{ pricingModel === 'day' ? 'Role / Phase' : 'Service' }}
                     </th>
-                    <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500 text-right">{{ pricingModel === 'day' ? 'Day Rate' : 'Rate' }}</th>
-                    <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500 text-center">{{ pricingModel === 'day' ? 'Days' : 'Qty' }}</th>
+                    <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500 text-right">
+                      {{ pricingModel === 'day' ? 'Day Rate' : 'Rate' }}
+                    </th>
+                    <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500 text-center">
+                      {{ pricingModel === 'day' ? 'Days' : 'Qty' }}
+                    </th>
                     <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500 text-right">Amount</th>
                   </tr>
                 </thead>
@@ -98,9 +97,13 @@ defineProps<{
                         <div v-for="(pt, idx) in item.points" :key="idx" class="m-0 leading-snug">• {{ pt }}</div>
                       </div>
                     </td>
-                    <td class="py-3 border-b border-gray-100 align-top text-right text-gray-600">{{ item.rate.toLocaleString('en-IN') }}</td>
+                    <td class="py-3 border-b border-gray-100 align-top text-right text-gray-600">
+                      {{ formatCurrency(item.rate) }}
+                    </td>
                     <td class="py-3 border-b border-gray-100 align-top text-center text-gray-600">{{ item.quantity }}</td>
-                    <td class="py-3 border-b border-gray-100 align-top text-right font-bold text-gray-800">{{ item.amount.toLocaleString('en-IN') }}</td>
+                    <td class="py-3 border-b border-gray-100 align-top text-right font-bold text-gray-800">
+                      {{ formatCurrency(item.amount) }}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -110,15 +113,15 @@ defineProps<{
                 <tbody>
                   <tr>
                     <td class="py-1 text-right text-gray-600 w-3/4 font-semi-bold">Subtotal:</td>
-                    <td class="py-1 text-right text-gray-800 font-bold">{{ financialsSubtotal.toLocaleString('en-IN') }}</td>
+                    <td class="py-1 text-right text-gray-800 font-bold">{{ formatCurrency(financialsSubtotal) }}</td>
                   </tr>
                   <tr v-if="financialsDiscountAmount">
                     <td class="py-1 text-right text-gray-500 w-3/4">{{ financialsDiscountLabel }}:</td>
-                    <td class="py-1 text-right text-gray-500">{{ financialsDiscountAmount }}</td>
+                    <td class="py-1 text-right text-gray-500">{{ formatCurrency(financialsDiscountAmount) }}</td>
                   </tr>
                   <tr v-if="financialsTaxAmount">
                     <td class="py-1 text-right text-gray-500 w-3/4">{{ financialsTaxLabel }}:</td>
-                    <td class="py-1 text-right text-gray-500">{{ financialsTaxAmount }}</td>
+                    <td class="py-1 text-right text-gray-500">{{ formatCurrency(financialsTaxAmount) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -136,9 +139,7 @@ defineProps<{
                 class="px-6 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline"
                 :style="{ backgroundColor: organizationColorAccent }"
                 :href="quotationUrl">
-                {{ isSigned ? 'Download Executed Proposal' : isRecipientContact ? 'Review Full Proposal' : 'Review &
-              Countersign
-              Proposal' }}
+                {{ isSigned ? 'Download Executed Proposal' : isRecipientContact ? 'Review Full Proposal' : 'Review & Countersign Proposal' }}
               </Button>
             </Section>
 
@@ -147,7 +148,9 @@ defineProps<{
             <Section class="text-center">
               <Text class="m-0 text-xs text-gray-400 leading-normal">
                 If you have any questions regarding this breakdown statement, reach out to our accounts team at
-                <a :href="organizationWebsite" class="underline" :style="{ color: organizationColorPrimary }"> {{ organizationName }} </a>.
+                <a :href="organizationWebsite" class="underline" :style="{ color: organizationColorPrimary }">
+                  {{ organizationName }} </a
+                >.
               </Text>
             </Section>
           </Section>

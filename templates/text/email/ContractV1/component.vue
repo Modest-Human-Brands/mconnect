@@ -15,6 +15,9 @@ defineProps<{
   organizationColorAccent: string
   organizationFont: string
 }>()
+
+const formatCurrency = (val: number) => `${val.toLocaleString('en-IN')} Rupees`
+const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : '')
 </script>
 
 <template>
@@ -57,14 +60,8 @@ defineProps<{
                       <Text class="m-0 text-sm font-semi-bold text-gray-700">Shoot Dates:</Text>
                     </td>
                     <td align="left" valign="top" class="pb-3">
-                      <Text class="m-0 text-sm text-gray-900"
-                        >{{
-                          new Date(shootDates).toLocaleDateString('en-IN', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          })
-                        }}
+                      <Text class="m-0 text-sm text-gray-900">
+                        {{ formatDate(shootDates) }}
                       </Text>
                     </td>
                   </tr>
@@ -74,7 +71,7 @@ defineProps<{
                     </td>
                     <td align="left" valign="top">
                       <Text class="m-0 text-sm font-bold text-gray-900" :style="{ color: organizationColorPrimary }">
-                        {{ compensationAmount }}
+                        {{ formatCurrency(compensationAmount) }}
                       </Text>
                     </td>
                   </tr>

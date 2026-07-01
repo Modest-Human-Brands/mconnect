@@ -14,6 +14,8 @@ defineProps<{
   organizationColorAccent: string
   organizationFont: string
 }>()
+
+const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : '')
 </script>
 
 <template>
@@ -36,7 +38,7 @@ defineProps<{
                 </Text>
 
                 <Section class="mx-auto text-center my-4">
-                  <Text class="m-0 text-xs text-gray-400 font-medium uppercase tracking-wider"> Issued On: {{ dataOfIssue }} </Text>
+                  <Text class="m-0 text-xs text-gray-400 font-medium uppercase tracking-wider"> Issued On: {{ formatDate(dataOfIssue) }} </Text>
                 </Section>
 
                 <Section class="text-center my-6">
