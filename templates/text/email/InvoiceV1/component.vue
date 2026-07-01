@@ -157,9 +157,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
             <Section class="text-center">
               <Text class="m-0 text-xs text-gray-400 leading-normal">
                 If you have any questions regarding this invoice, please reach out to our accounts team at
-                <a :href="organizationWebsite" class="underline" :style="{ color: organizationColorPrimary }">
-                  {{ organizationName }} </a
-                >.
+                <a :href="organizationWebsite" class="underline" :style="{ color: organizationColorPrimary }"> {{ organizationName }} </a>.
               </Text>
             </Section>
           </Section>
