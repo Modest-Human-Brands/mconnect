@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.4.9
+
+### 💅 Refactors
+
+- Email templates to improve formatting and data handling ([8d354d5](https://github.com/Modest-Human-Brands/mconnect/commit/8d354d5))
+
+### 🏡 Chore
+
+- Apply code fixes [skip ci] ([9eb4773](https://github.com/Modest-Human-Brands/mconnect/commit/9eb4773))
+
+### ❤️ Contributors
+
+- Shba007 ([@shba007](https://github.com/shba007))
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.4.8
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.7...v0.4.8)
