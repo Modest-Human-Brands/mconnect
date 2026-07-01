@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   const sipTrunkId = providers?.[activeProvider]?.trunkId
 
   if (!sipTrunkId) {
-    throw new Error(`[Voice Utility Error]: No active Outbound SIP Trunk mapping found for vendor string: "${providers?.[activeProvider]}"`)
+    throw new HTTPError({ statusCode: 400, message: `[Voice Utility Error]: No active Outbound SIP Trunk mapping found for vendor string: "${providers?.[activeProvider]}"` })
   }
 
   const config = useRuntimeConfig()

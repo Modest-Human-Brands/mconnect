@@ -46,8 +46,9 @@ defineProps<{
           <Section class="mb-6">
             <Text class="m-0 mb-2 text-sm font-medium text-gray-700 leading-normal"> Hi {{ recipientName }}, </Text>
             <Text class="m-0 text-sm font-medium text-gray-700 leading-relaxed">
-              We are <Link :href="organizationWebsite" target="_blank" class="text-gray-900 underline font-semibold">{{ organizationName }}</Link
-              >. We specialize in <strong class="capitalize">{{ categoryName }}</strong> photography and videography delivering crisp, high-resolution
+              We are <Link :href="organizationWebsite" target="_blank" class="text-gray-900 underline font-semi-bold">{{ organizationName }}</Link
+              >. We specialize in <strong class="capitalize">{{ categoryName }}</strong>
+              photography and videography delivering crisp, high-resolution
               <Link :href="`${organizationWebsite}/#featured-photos`" target="_blank" class="text-gray-900 underline"> photos</Link> and short-form
               <Link :href="`${organizationWebsite}/#video-gallery`" target="_blank" class="text-gray-900 underline">videos </Link>
               for e-commerce, social media, and advertising. Whether on-location or in-studio, our full production services ensure top-quality assets. Here is our recent work:
@@ -87,7 +88,7 @@ defineProps<{
             <Link :href="organizationWebsite" target="_blank" class="inline-block no-underline">
               <Img :src="organizationLogoSimple" :alt="organizationName" width="40" height="40" class="block w-10 h-10 mx-auto border-0" />
             </Link>
-            <Text class="m-0 mt-2 text-lg font-semibold text-gray-900">
+            <Text class="m-0 mt-2 text-lg font-semi-bold text-gray-900">
               {{ organizationName }}
             </Text>
           </Section>

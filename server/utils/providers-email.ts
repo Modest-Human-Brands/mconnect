@@ -1,4 +1,5 @@
 import { loadConfig } from 'c12'
+import { HTTPError } from 'nitro/h3'
 import nodemailer from 'nodemailer'
 
 let cachedEmailConfig: any = null
@@ -12,7 +13,7 @@ async function getEmailInfrastructure(orgSlug: string) {
 
   const emailSettings = config?.emailConfig
   if (!emailSettings?.activeProvider) {
-    throw new Error('Email configuration or activeProvider targeting rules are missing from the profile.')
+    throw new HTTPError({ statusCode: 400, message: 'Email configuration or activeProvider targeting rules are missing from the profile.' })
   }
 
   cachedEmailConfig = emailSettings
@@ -31,7 +32,7 @@ interface DispatchEmailPayload {
 const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { settings: any; defaults: any }) => Promise<{ messageId: string }>> = {
   smtp: async (payload) => {
     if (!payload.settings?.host || !payload.settings?.auth) {
-      throw new Error(`Connection parameters for email provider Hostinger are incomplete.`)
+      throw new HTTPError({ statusCode: 400, message: 'Connection parameters for email provider Hostinger are incomplete.' })
     }
 
     const transporter = nodemailer.createTransport({
@@ -59,7 +60,7 @@ const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { s
   },
   hostinger: async (payload) => {
     if (!payload.settings?.host || !payload.settings?.auth) {
-      throw new Error(`Connection parameters for email provider Hostinger are incomplete.`)
+      throw new HTTPError({ statusCode: 400, message: 'Connection parameters for email provider Hostinger are incomplete.' })
     }
 
     const transporter = nodemailer.createTransport({
@@ -88,7 +89,7 @@ const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { s
   },
   gmail: async (payload) => {
     if (!payload.settings?.host || !payload.settings?.auth) {
-      throw new Error(`Connection parameters for email provider Hostinger are incomplete.`)
+      throw new HTTPError({ statusCode: 400, message: 'Connection parameters for email provider Hostinger are incomplete.' })
     }
 
     const transporter = nodemailer.createTransport({
@@ -128,7 +129,7 @@ export default async function (payload: DispatchEmailPayload, orgSlug: string) {
 
   const adapterRunner = emailProviderAdapters[activeProviderName]
   if (!adapterRunner) {
-    throw new Error(`The target email execution adapter "${activeProviderName}" is unrecognized or unmapped.`)
+    throw new HTTPError({ statusCode: 400, message: 'The target email execution adapter "${activeProviderName}" is unrecognized or unmapped.' })
   }
 
   const providerSettings = emailConfigProfile.providers?.[activeProviderName]

@@ -35,7 +35,7 @@ defineProps<{
           <Section class="bg-white p-10 shadow-xl border-t-4" :style="{ borderColor: organizationColorPrimary }">
             <Section class="mb-8">
               <Img :src="organizationLogo" :alt="organizationName" width="120" class="mb-4" />
-              <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semibold"> Commercial Estimate / Proposal </Text>
+              <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semi-bold"> Commercial Estimate / Proposal </Text>
               <Text class="m-0 text-xl font-bold text-gray-800"> Quote #{{ quoteNumber }} </Text>
             </Section>
 
@@ -79,10 +79,14 @@ defineProps<{
               <table width="100%" cellpadding="0" cellspacing="0" border="0" class="text-sm text-left">
                 <thead>
                   <tr>
-                    <th class="pb-3 border-b border-gray-200 font-semibold text-gray-500">{{ pricingModel === 'day' ? 'Role / Phase' : 'Service' }}</th>
-                    <th class="pb-3 border-b border-gray-200 font-semibold text-gray-500 text-right">{{ pricingModel === 'day' ? 'Day Rate' : 'Rate' }}</th>
-                    <th class="pb-3 border-b border-gray-200 font-semibold text-gray-500 text-center">{{ pricingModel === 'day' ? 'Days' : 'Qty' }}</th>
-                    <th class="pb-3 border-b border-gray-200 font-semibold text-gray-500 text-right">Amount</th>
+                    <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500">
+                      {{ pricingModel === 'day' ?
+                    'Role /
+                    Phase' : 'Service' }}
+                    </th>
+                    <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500 text-right">{{ pricingModel === 'day' ? 'Day Rate' : 'Rate' }}</th>
+                    <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500 text-center">{{ pricingModel === 'day' ? 'Days' : 'Qty' }}</th>
+                    <th class="pb-3 border-b border-gray-200 font-semi-bold text-gray-500 text-right">Amount</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -105,7 +109,7 @@ defineProps<{
               <table width="100%" cellpadding="0" cellspacing="0" border="0" class="text-sm mt-4">
                 <tbody>
                   <tr>
-                    <td class="py-1 text-right text-gray-600 w-3/4 font-semibold">Subtotal:</td>
+                    <td class="py-1 text-right text-gray-600 w-3/4 font-semi-bold">Subtotal:</td>
                     <td class="py-1 text-right text-gray-800 font-bold">{{ financialsSubtotal.toLocaleString('en-IN') }}</td>
                   </tr>
                   <tr v-if="financialsDiscountAmount">
@@ -121,7 +125,7 @@ defineProps<{
             </Section>
 
             <Section class="text-right my-6 pr-2">
-              <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semibold"> Estimated Gross Total </Text>
+              <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semi-bold"> Estimated Gross Total </Text>
               <Text class="m-0 text-2xl font-black text-gray-900">
                 {{ formatCurrency(financialsGrandTotal) }}
               </Text>
@@ -132,7 +136,9 @@ defineProps<{
                 class="px-6 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline"
                 :style="{ backgroundColor: organizationColorAccent }"
                 :href="quotationUrl">
-                {{ isSigned ? 'Download Executed Proposal' : isRecipientContact ? 'Review Full Proposal' : 'Review & Countersign Proposal' }}
+                {{ isSigned ? 'Download Executed Proposal' : isRecipientContact ? 'Review Full Proposal' : 'Review &
+              Countersign
+              Proposal' }}
               </Button>
             </Section>
 

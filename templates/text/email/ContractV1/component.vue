@@ -46,7 +46,7 @@ defineProps<{
                 <tbody>
                   <tr>
                     <td align="left" valign="top" class="pb-3" width="35%">
-                      <Text class="m-0 text-sm font-semibold text-gray-700">Project:</Text>
+                      <Text class="m-0 text-sm font-semi-bold text-gray-700">Project:</Text>
                     </td>
                     <td align="left" valign="top" class="pb-3">
                       <Text class="m-0 text-sm text-gray-900">{{ projectName }}</Text>
@@ -54,7 +54,7 @@ defineProps<{
                   </tr>
                   <tr>
                     <td align="left" valign="top" class="pb-3">
-                      <Text class="m-0 text-sm font-semibold text-gray-700">Shoot Dates:</Text>
+                      <Text class="m-0 text-sm font-semi-bold text-gray-700">Shoot Dates:</Text>
                     </td>
                     <td align="left" valign="top" class="pb-3">
                       <Text class="m-0 text-sm text-gray-900"
@@ -70,7 +70,7 @@ defineProps<{
                   </tr>
                   <tr>
                     <td align="left" valign="top">
-                      <Text class="m-0 text-sm font-semibold text-gray-700">Compensation:</Text>
+                      <Text class="m-0 text-sm font-semi-bold text-gray-700">Compensation:</Text>
                     </td>
                     <td align="left" valign="top">
                       <Text class="m-0 text-sm font-bold text-gray-900" :style="{ color: organizationColorPrimary }">

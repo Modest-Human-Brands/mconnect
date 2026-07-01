@@ -1,5 +1,6 @@
 import { EgressClient, EncodedFileOutput, EncodedFileType, RoomServiceClient, SipClient, AccessToken } from 'livekit-server-sdk'
 import { loadConfig } from 'c12'
+import { HTTPError } from 'nitro/h3'
 
 interface SipBridgePayload {
   contactId: string
@@ -53,14 +54,14 @@ export async function initializeLiveKitSipBridge(payload: SipBridgePayload, orgS
   const settings = voiceConfig?.sip
 
   if (!settings?.host || !settings?.apiKey || !settings?.apiSecret || !voiceConfig?.activeProvider) {
-    throw new Error('[Voice Utility Error]: LiveKit server host infrastructure configurations are incomplete.')
+    throw new HTTPError({ statusCode: 400, message: '[Voice Utility Error]: LiveKit server host infrastructure configurations are incomplete.' })
   }
 
   const targetProvider = voiceConfig?.activeProvider
   const sipTrunkId = voiceConfig?.providers?.[targetProvider].trunkId
 
   if (!sipTrunkId) {
-    throw new Error(`[Voice Utility Error]: No active Outbound SIP Trunk mapping found for vendor string: "${targetProvider}"`)
+    throw new HTTPError({ statusCode: 400, message: '[Voice Utility Error]: No active Outbound SIP Trunk mapping found for vendor string: "${targetProvider}"' })
   }
 
   const roomName = `outbound-call_${payload.contactId}`
@@ -96,7 +97,7 @@ export async function initializeLiveKitSipBridge(payload: SipBridgePayload, orgS
       userAccessToken = await at.toJwt()
     } else {
       if (!payload.userPhone) {
-        throw new Error('[Voice Utility Error]: User phone number is required for a SIP-to-SIP bridge.')
+        throw new HTTPError({ statusCode: 400, message: '[Voice Utility Error]: User phone number is required for a SIP-to-SIP bridge.' })
       }
       console.log(`[SIP Dial Engine]: Launching secondary call leg to User ${payload.userPhone}`)
       await sipClient.createSipParticipant(sipTrunkId, payload.userPhone, roomName, {
@@ -124,6 +125,6 @@ export async function initializeLiveKitSipBridge(payload: SipBridgePayload, orgS
     }
   } catch (mediaError: any) {
     console.error('❌ [Media Engine Exception]: Failed vendor-agnostic room bridge deployment sequence:', mediaError)
-    throw new Error(`Media engine routing failure: ${mediaError.message}`)
+    throw new HTTPError({ statusCode: 400, message: 'Media engine routing failure: ${mediaError.message}' })
   }
 }

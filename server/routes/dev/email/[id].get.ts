@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
     <div id="app" class="flex size-full">
 
       <div class="w-2/3 h-full flex flex-col border-r border-gray-300 bg-white">
-        <div class="p-4 bg-gray-50 border-b border-gray-200 font-semibold text-gray-700 flex justify-between items-center shadow-sm z-10">
+        <div class="p-4 bg-gray-50 border-b border-gray-200 font-semi-bold text-gray-700 flex justify-between items-center shadow-sm z-10">
            <span>Template: <span class="text-blue-600">${templateId}</span></span>
            <span class="flex items-center gap-2">
              <span class="w-2 h-2 rounded-full" :class="socketConnected ? 'bg-green-500' : 'bg-red-500'"></span>
@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
       </div>
 
       <div class="w-1/3 h-full bg-white flex flex-col">
-        <div class="p-4 bg-gray-50 border-b border-gray-200 font-semibold text-gray-700 shadow-sm z-10">
+        <div class="p-4 bg-gray-50 border-b border-gray-200 font-semi-bold text-gray-700 shadow-sm z-10">
            Live Variables Editor
         </div>
         <div class="flex-1 overflow-y-auto p-6 space-y-6 bg-white">

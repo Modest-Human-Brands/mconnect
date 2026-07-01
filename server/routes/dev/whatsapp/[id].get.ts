@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
     <div id="app" class="flex size-full">
 
       <div class="w-2/3 h-full flex flex-col border-r border-gray-300 bg-white">
-        <div class="p-4 bg-gray-50 border-b border-gray-200 font-semibold text-gray-700 flex justify-between items-center shadow-sm z-10">
+        <div class="p-4 bg-gray-50 border-b border-gray-200 font-semi-bold text-gray-700 flex justify-between items-center shadow-sm z-10">
            <span>Template: <span class="text-[#25D366]">${templateId}</span></span>
            <span class="flex items-center gap-2">
              <span class="w-2 h-2 rounded-full" :class="socketConnected ? 'bg-[#25D366]' : 'bg-red-500'"></span>
@@ -84,7 +84,7 @@ export default defineEventHandler(async (event) => {
                    <img src="https://modesthumanbrands.com/logo.svg" onerror="this.style.display='none'" />
                 </div>
                 <div>
-                   <div class="text-[15px] font-semibold leading-tight">Business Account</div>
+                   <div class="text-[15px] font-semi-bold leading-tight">Business Account</div>
                    <div class="text-[11px] opacity-80">Official Business Account</div>
                 </div>
               </div>
@@ -128,7 +128,7 @@ export default defineEventHandler(async (event) => {
       </div>
 
       <div class="w-1/3 h-full bg-white flex flex-col">
-        <div class="p-4 bg-gray-50 border-b border-gray-200 font-semibold text-gray-700 shadow-sm z-10 flex justify-between items-center">
+        <div class="p-4 bg-gray-50 border-b border-gray-200 font-semi-bold text-gray-700 shadow-sm z-10 flex justify-between items-center">
            <span>Live Variables Editor</span>
         </div>
         <div class="flex-1 overflow-y-auto p-6 space-y-6 bg-white">

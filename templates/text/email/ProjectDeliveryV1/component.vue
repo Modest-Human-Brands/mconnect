@@ -60,7 +60,7 @@ defineProps<{
                       </td>
                       <td align="right" valign="middle" width="120">
                         <Button
-                          class="px-4 py-2 rounded text-white font-semibold text-xs tracking-wide text-center inline-block no-underline whitespace-nowrap"
+                          class="px-4 py-2 rounded text-white font-semi-bold text-xs tracking-wide text-center inline-block no-underline whitespace-nowrap"
                           :style="{ backgroundColor: organizationColorPrimary }"
                           :href="link.url">
                           Open Link &rarr;

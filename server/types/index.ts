@@ -95,6 +95,10 @@ export interface NotionOrganization {
   cover: NotionImage
   icon: NotionImage
   properties: {
+    Index: {
+      type: 'number'
+      number: number
+    }
     Name: {
       type: 'title'
       title: { plain_text: string }[]
