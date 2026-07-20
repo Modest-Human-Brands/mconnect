@@ -16,16 +16,16 @@ export default defineEventHandler(async (event) => {
     const limit = query.limit ? Number(query.limit) : 50
     const offset = query.offset ? Number(query.offset) : 0
 
-    const contactStorage = useStorage<Resource<'contact'>>(`data:resource:contact`)
+    const contactStorage = useStorage<Resource<'contact'>>('data:resource:contact')
     const contacts = (await contactStorage.getItems(await contactStorage.getKeys())).flatMap(({ value }) => value?.record || [])
 
-    const emailStorage = useStorage<Resource<'email'>>(`data:resource:email`)
+    const emailStorage = useStorage<Resource<'email'>>('data:resource:email')
     const emails = (await emailStorage.getItems(await emailStorage.getKeys())).flatMap(({ value }) => value?.record || [])
 
-    const messageStorage = useStorage<Resource<'message'>>(`data:resource:message`)
+    const messageStorage = useStorage<Resource<'message'>>('data:resource:message')
     const messages = (await messageStorage.getItems(await messageStorage.getKeys())).flatMap(({ value }) => value?.record || [])
 
-    const callStorage = useStorage<Resource<'call'>>(`data:resource:call`)
+    const callStorage = useStorage<Resource<'call'>>('data:resource:call')
     const calls = (await callStorage.getItems(await callStorage.getKeys())).flatMap(({ value }) => value?.record || [])
 
     const interactionMap = new Map<string, { interactions: { time: number; snippet: string }[]; unreadCount: number }>()

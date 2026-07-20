@@ -2,17 +2,19 @@ import Component from './component.vue'
 import registerTemplate from '~/server/utils/template-registry-email'
 import { z } from 'zod'
 
-export const contractSchema = z.object({
-  contact: z.object({
+export const contentReleaseSchema = z.object({
+  recipient: z.object({
     name: z.string(),
-    title: z.string(),
+    email: z.email(),
   }),
-  project: z.object({
+  emailSubject: z.string().default('New Content Published'),
+  content: z.object({
     title: z.string(),
-    shootDate: z.date(),
+    imageUrl: z.url(),
+    linkUrl: z.url(),
   }),
-  totalAmount: z.number(),
-  link: z.string(),
+  unsubscribeUrl: z.url(),
+  trackingPixelUrl: z.url().optional(), // Telemetry Hook
   organization: z.object({
     id: z.string(),
     name: z.string(),
@@ -50,19 +52,21 @@ export const contractSchema = z.object({
   }),
 })
 
-export type ContractPayload = z.infer<typeof contractSchema>
+export type ContentReleasePayload = z.infer<typeof contentReleaseSchema>
 
-const placeholders: ContractPayload = {
-  contact: {
-    name: 'Alex Mercer',
-    title: 'Lead Cinematographer',
+const placeholders: ContentReleasePayload = {
+  recipient: {
+    name: 'John Doe',
+    email: 'john@example.com',
   },
-  project: {
-    title: 'Photography and Videography',
-    shootDate: new Date(),
+  emailSubject: 'Our Latest Post is Live!',
+  content: {
+    title: '10 Ways to Improve Your Visual Branding',
+    imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/photo-0020-0001-002',
+    linkUrl: 'https://redcatpictures.com/blog/visual-branding',
   },
-  totalAmount: 150_000,
-  link: '#',
+  unsubscribeUrl: 'https://redcatpictures.com/newsletter/unsubscribe',
+  trackingPixelUrl: 'https://api.redcatpictures.com/track/open?e=test',
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
@@ -98,25 +102,29 @@ const placeholders: ContractPayload = {
 }
 
 registerTemplate({
-  id: 'contract',
-  schema: contractSchema,
+  id: 'content-release',
+  schema: contentReleaseSchema,
   placeholders,
-  subject: (rawData: ContractPayload) => {
-    const pName = rawData?.project.title || placeholders.project.title
-    const orgName = rawData?.organization?.name || placeholders.organization.name
-    return `Action Required: Contractor Agreement for ${pName} - ${orgName}`
-  },
+  subject: (rawData: ContentReleasePayload) => rawData?.emailSubject || placeholders.emailSubject,
   component: Component,
-  transformPayload: (rawData: ContractPayload) => {
+  transformPayload: (rawData: ContentReleasePayload) => {
     const p = placeholders
-    const org = rawData?.organization || {}
+    const org = rawData?.organization || p.organization
+
+    // Generate tracking/UTM parameters at the data layer
+    const rawUrl = rawData?.content?.linkUrl || p.content.linkUrl
+    const utmParams = '?ref=mail-content&utm_source=mconnect&utm_medium=email'
+    const wrappedLink = `${rawUrl}${utmParams}`
 
     return {
-      contractorName: rawData?.contact.name || p.contact.name,
-      projectName: rawData?.project.title || p.project.title,
-      shootDates: rawData?.project.shootDate || p.project.shootDate.toISOString(),
-      compensationAmount: rawData?.totalAmount || p.totalAmount,
-      contractLink: rawData?.link || p.link,
+      recipientName: rawData?.recipient?.name || p.recipient.name,
+      recipientEmail: rawData?.recipient?.email || p.recipient.email,
+      emailSubject: rawData?.emailSubject || p.emailSubject,
+      contentTitle: rawData?.content?.title || p.content.title,
+      contentImage: rawData?.content?.imageUrl || p.content.imageUrl,
+      contentUrl: wrappedLink,
+      unsubscribeUrl: rawData?.unsubscribeUrl || p.unsubscribeUrl,
+      trackingPixelUrl: rawData?.trackingPixelUrl || p.trackingPixelUrl,
 
       organizationName: org?.name || p.organization.name,
       organizationWebsite: org?.website || p.organization.website,
