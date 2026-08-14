@@ -17,6 +17,7 @@
         "mailparser": "^3.9.14",
         "marked": "^18.0.6",
         "nitro": "^3.0.260610-beta",
+        "nitro-mcp-toolkit": "^0.2.0",
         "nodemailer": "^9.0.3",
         "unplugin-vue": "^7.2.0",
         "vue": "^3.5.39",
@@ -143,6 +144,10 @@
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
     "@livekit/protocol": ["@livekit/protocol@1.49.0", "", { "dependencies": { "@bufbuild/protobuf": "^1.10.0" } }, "sha512-TCmihwjHBWAUdNrqvmrN/K59r7vDnPIy3OEaE3p0g4FvdcQTiLynmFC3igR25Q2fnifahhAJjnnfSCtWUK7kYg=="],
+
+    "@modelcontextprotocol/core": ["@modelcontextprotocol/core@2.0.0", "", { "dependencies": { "zod": "^4.2.0" } }, "sha512-pJCEwGG7Lfr/+PQp9ZTwKXNeO5wzbfKL7H3MYpCorM4oFBoQrdjnBgEoqG+RjhsvS1FKrDbKux+M1HhlnGWqcA=="],
+
+    "@modelcontextprotocol/server": ["@modelcontextprotocol/server@2.0.0", "", { "dependencies": { "@modelcontextprotocol/core": "2.0.0", "zod": "^4.2.0" } }, "sha512-YhHWdHfpFMQfd0prsEnxKeS3Qz3ytIGmsS0sth4KDjnacIT7hxk6hXHkJ9KysxlkvTM+WZAtQbbcUhdoP4Hvtw=="],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.6", "", { "dependencies": { "@tybys/wasm-util": "^0.10.3" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" } }, "sha512-ZLv/JdUfkvOy9eCnnBaGfiO+XimbjebAeO+MRQqD/B+FR1tnRN0tpKSJHRbE8sFfS6aqsXZ67TQjfwfsxULVbg=="],
 
@@ -771,6 +776,8 @@
     "nf3": ["nf3@0.3.19", "", {}, "sha512-tfOXX/ivQBL+4km/fzxQ0HWMmp1Ewx/YpFLbya080gXVfm26bZy0n4a5K5PPnqTLyuAHu0FobVpXXUadIiIwIQ=="],
 
     "nitro": ["nitro@3.0.260610-beta", "", { "dependencies": { "consola": "^3.4.2", "crossws": "^0.4.6", "db0": "^0.3.4", "env-runner": "^0.1.12", "h3": "2.0.1-rc.22", "hookable": "^6.1.1", "nf3": "^0.3.17", "ocache": "^0.1.5", "ofetch": "2.0.0-alpha.3", "ohash": "^2.0.11", "rolldown": "^1.1.0", "srvx": "^0.11.16", "unenv": "2.0.0-rc.24", "unstorage": "2.0.0-alpha.7" }, "peerDependencies": { "@vercel/queue": "^0.3.0", "dotenv": "*", "giget": "*", "jiti": "^2.7.0", "rollup": "^4.61.1", "vite": "^7 || ^8", "xml2js": "^0.6.2", "zephyr-agent": "^0.2.0" }, "optionalPeers": ["@vercel/queue", "dotenv", "giget", "jiti", "rollup", "vite", "xml2js", "zephyr-agent"], "bin": { "nitro": "dist/cli/index.mjs" } }, "sha512-KPb4L5yaF/Rx/xoGMpgHRJvZhbhGiqbRKOwwPLCH9jKTKTsEUHLjnJas85AeCzaswqa8Wi52eQBtRsODC4PS0Q=="],
+
+    "nitro-mcp-toolkit": ["nitro-mcp-toolkit@0.2.0", "", { "dependencies": { "@modelcontextprotocol/server": "^2.0.0", "pathe": "^2.0.3", "tinyglobby": "^0.2.17" }, "peerDependencies": { "@modelcontextprotocol/client": "^2.0.0", "h3": "^2.0.1-rc.26", "nitro": "^3.0.0" }, "optionalPeers": ["@modelcontextprotocol/client"] }, "sha512-s3M8vgaPxWDonWkHdCQ9Ef6q56ex3GztSiEXFcUN8YpiD/k0GU3uuOCcA+MTAH8mBzynzxphNt01rW8NGW26QA=="],
 
     "node-releases": ["node-releases@2.0.50", "", {}, "sha512-J6l92tKHX6w8Jy5nO1Vuc01NoIiRGi/d6qBKVxh+IQ8Cr3b6HbVNfKiF8ZpFKufTwpwxMmce2W3iQZ861ZRyTg=="],
 

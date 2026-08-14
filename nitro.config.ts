@@ -1,7 +1,9 @@
 import { defineConfig } from 'nitro'
 import vue from 'unplugin-vue/rollup'
+import mcp from 'nitro-mcp-toolkit/module'
 
 export default defineConfig({
+  modules: [mcp()],
   serverDir: './server',
   rollupConfig: {
     plugins: [vue()],

@@ -46,6 +46,7 @@
     "mailparser": "^3.9.14",
     "marked": "^18.0.6",
     "nitro": "^3.0.260610-beta",
+    "nitro-mcp-toolkit": "^0.2.0",
     "nodemailer": "^9.0.3",
     "unplugin-vue": "^7.2.0",
     "vue": "^3.5.39",
