@@ -3,6 +3,8 @@ import type { z } from 'zod'
 
 export interface EmailTemplateDefinition {
   id: string
+  label: string
+  description: string
   subject: string | ((data: any) => string)
   component: Component
   schema: z.ZodObject<any, any>

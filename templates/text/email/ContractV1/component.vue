@@ -2,18 +2,20 @@
 import { Html, Head, Body, Img, Container, Section, Text, Button, Tailwind, Hr } from '@vue-email/components'
 
 defineProps<{
-  contractorName: string
-  projectName: string
-  shootDates: string
-  compensationAmount: number
-  contractLink: string
-
   organizationName: string
-  organizationWebsite: string
+  organizationAddress: string
   organizationLogo: string
+  organizationFont: string
   organizationColorPrimary: string
   organizationColorAccent: string
-  organizationFont: string
+  organizationWebsite: string
+  contractorName: string
+  contractorRole: string
+  projectTitle: string
+  shootDate: string | Date
+  shootLocation: string
+  totalAmount: number
+  contractLink: string
 }>()
 
 const formatCurrency = (val: number) => `${val.toLocaleString('en-IN')} Rupees`
@@ -29,7 +31,6 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
           <Section class="bg-white p-10 shadow-xl border-t-4 rounded-b-md" :style="{ borderColor: organizationColorPrimary }">
             <Section class="mb-8 text-center">
               <Img :src="organizationLogo" :alt="organizationName" width="120" class="mx-auto mb-6" />
-              <Text class="m-0 text-xl font-bold tracking-widest text-gray-400 uppercase mb-2"> Action Required </Text>
               <Text class="m-0 text-2xl font-black text-gray-900 leading-tight"> Independent Contractor Agreement </Text>
             </Section>
 
@@ -38,7 +39,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
             <Section class="mb-6">
               <Text class="m-0 text-base text-gray-800 font-medium mb-3"> Hi {{ contractorName }}, </Text>
               <Text class="m-0 text-sm text-gray-600 leading-relaxed mb-4">
-                We are excited to have you on board for our upcoming project. Before we begin, please review and sign your Independent Contractor Agreement (Photography & Videography).
+                We are excited to have you on board for our upcoming project. Before we begin, please review and sign your Independent Contractor Agreement ({{ contractorRole }}).
               </Text>
             </Section>
 
@@ -52,7 +53,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
                       <Text class="m-0 text-sm font-semi-bold text-gray-700">Project:</Text>
                     </td>
                     <td align="left" valign="top" class="pb-3">
-                      <Text class="m-0 text-sm text-gray-900">{{ projectName }}</Text>
+                      <Text class="m-0 text-sm text-gray-900">{{ projectTitle }}</Text>
                     </td>
                   </tr>
                   <tr>
@@ -61,7 +62,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
                     </td>
                     <td align="left" valign="top" class="pb-3">
                       <Text class="m-0 text-sm text-gray-900">
-                        {{ formatDate(shootDates) }}
+                        {{ formatDate(shootDate) }}
                       </Text>
                     </td>
                   </tr>
@@ -71,7 +72,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
                     </td>
                     <td align="left" valign="top">
                       <Text class="m-0 text-sm font-bold text-gray-900" :style="{ color: organizationColorPrimary }">
-                        {{ formatCurrency(compensationAmount) }}
+                        {{ formatCurrency(totalAmount) }}
                       </Text>
                     </td>
                   </tr>
@@ -84,7 +85,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
                 class="px-8 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline"
                 :style="{ backgroundColor: organizationColorAccent }"
                 :href="contractLink">
-                Review and Sign Contract
+                Review and Sign
               </Button>
               <Text class="m-0 text-xs text-gray-400 mt-4 leading-relaxed px-4">
                 By clicking the button above, you will be redirected to our secure portal to review the full legal terms regarding deliverables, compensation, and copyright ownership.

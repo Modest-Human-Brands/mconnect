@@ -3,7 +3,10 @@ import { Html, Head, Body, Img, Container, Section, Text, Button, Tailwind } fro
 
 defineProps<{
   recipientName: string
-  bodyContent: string
+  recipientRole: string
+  recipientScopeOfWork: string
+  startDate: string | Date
+  endDate: string | Date
   dataOfIssue: string
   signerName: string
   signerTitle: string
@@ -23,7 +26,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
     <Head />
     <Tailwind :config="{ theme: { extend: { colors: { primary: organizationColorPrimary } } } }">
       <Body :style="{ fontFamily: `'${organizationFont}', system-ui, sans-serif` }" class="m-0 p-0">
-        <Section :style="{ backgroundColor: organizationColorPrimary }">
+        <Section>
           <Container class="mx-auto w-full max-w-[600px]">
             <Section class="px-6 py-12">
               <Section class="p-10 text-center shadow-2xl border-t-4" :style="{ backgroundColor: '#ffffff', borderColor: organizationColorAccent || '#1a1a1a' }">
@@ -34,7 +37,8 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
                 <Text class="m-0 text-2xl font-bold text-gray-800 leading-tight mb-4"> Congratulations, {{ recipientName }}! </Text>
 
                 <Text class="m-0 mb-6 text-base text-gray-600 leading-relaxed text-center">
-                  {{ bodyContent }}
+                  This certificate acknowledges your outstanding contribution and dedication as a {{ recipientRole }} towards {{ recipientScopeOfWork }} during {{ formatDate(startDate) }} -
+                  {{ formatDate(endDate) }}, showcasing your commitment to excellence and teamwork at {{ organizationName }}
                 </Text>
 
                 <Section class="mx-auto text-center my-4">

@@ -144,6 +144,8 @@ const placeholders: InvoiceEmailPayload = {
 
 registerTemplate({
   id: 'invoice',
+  label: 'Billing Invoice',
+  description: 'The official document outlining the charges, payment terms, and amount due.',
   schema: invoiceEmailSchema,
   placeholders,
   subject: (rawData: InvoiceEmailPayload) => {

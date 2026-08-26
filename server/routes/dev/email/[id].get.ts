@@ -174,7 +174,7 @@ export default defineEventHandler(async (event) => {
         methods: {
           connectWebSocket() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            this.ws = new WebSocket(protocol + '//' + window.location.host + '/api/connect/text/email/template/preview');
+            this.ws = new WebSocket(protocol + '//' + window.location.host + '/api/interaction/email/template/preview');
             
             this.ws.onopen = () => {
               this.socketConnected = true;

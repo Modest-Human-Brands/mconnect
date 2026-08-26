@@ -47,7 +47,7 @@ export default defineTask({
           try {
             const parsedEmail = await simpleParser(msg.source.toString('utf8'))
 
-            await $fetch('/api/connect/text/email/receive', {
+            await $fetch('/api/interaction/email/receive', {
               method: 'POST',
               body: {
                 from: fromAddress || parsedEmail.from.text,

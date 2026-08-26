@@ -143,6 +143,8 @@ const placeholders: QuotationPayload = {
 
 registerTemplate({
   id: 'quotation',
+  label: 'Quotation',
+  description: 'The estimated pricing, scope of work, and terms provided to the client before finalizing the agreement.',
   schema: quotationSchema,
   placeholders,
   subject: (rawData: QuotationPayload) => {

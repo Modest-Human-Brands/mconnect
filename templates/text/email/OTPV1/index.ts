@@ -85,6 +85,8 @@ const placeholders: OtpPayload = {
 
 registerTemplate({
   id: 'otp',
+  label: 'OTP',
+  description: '',
   schema: otpSchema,
   placeholders,
   subject: (data: any) => {

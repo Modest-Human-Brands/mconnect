@@ -5,11 +5,15 @@ import { z } from 'zod'
 export const contractSchema = z.object({
   contact: z.object({
     name: z.string(),
-    title: z.string(),
+    role: z.string(),
   }),
   project: z.object({
     title: z.string(),
+    quoteNumber: z.string(),
+    quoteDate: z.date(),
     shootDate: z.date(),
+    shootLocation: z.string(),
+    callTime: z.iso.time(),
   }),
   totalAmount: z.number(),
   link: z.string(),
@@ -55,11 +59,15 @@ export type ContractPayload = z.infer<typeof contractSchema>
 const placeholders: ContractPayload = {
   contact: {
     name: 'Alex Mercer',
-    title: 'Lead Cinematographer',
+    role: 'Lead Cinematographer',
   },
   project: {
     title: 'Photography and Videography',
+    quoteNumber: 'QT-2026-089',
+    quoteDate: new Date(),
     shootDate: new Date(),
+    shootLocation: 'Gotham City / Remote',
+    callTime: '08:00 AM',
   },
   totalAmount: 150_000,
   link: '#',
@@ -99,12 +107,14 @@ const placeholders: ContractPayload = {
 
 registerTemplate({
   id: 'contract',
+  label: 'Contract',
+  description: 'The formal agreement or legal document associated with this record.',
   schema: contractSchema,
   placeholders,
   subject: (rawData: ContractPayload) => {
     const pName = rawData?.project.title || placeholders.project.title
     const orgName = rawData?.organization?.name || placeholders.organization.name
-    return `Action Required: Contractor Agreement for ${pName} - ${orgName}`
+    return `Contractor Agreement for ${pName} - ${orgName}`
   },
   component: Component,
   transformPayload: (rawData: ContractPayload) => {
@@ -112,18 +122,25 @@ registerTemplate({
     const org = rawData?.organization || {}
 
     return {
-      contractorName: rawData?.contact.name || p.contact.name,
-      projectName: rawData?.project.title || p.project.title,
-      shootDates: rawData?.project.shootDate || p.project.shootDate.toISOString(),
-      compensationAmount: rawData?.totalAmount || p.totalAmount,
-      contractLink: rawData?.link || p.link,
-
       organizationName: org?.name || p.organization.name,
-      organizationWebsite: org?.website || p.organization.website,
+      organizationAddress: org?.address || p.organization!.address,
       organizationLogo: org?.branding?.logo || p.organization.branding.logo,
+      organizationFont: org?.branding?.font || p.organization.branding.font,
       organizationColorPrimary: org?.branding?.color?.primary || p.organization.branding.color.primary,
       organizationColorAccent: org?.branding?.color?.accent || p.organization.branding.color.accent,
-      organizationFont: org?.branding?.font || p.organization.branding.font,
+      organizationWebsite: org?.website || p.organization.website,
+
+      contractorName: rawData?.contact.name || p.contact.name,
+      contractorRole: rawData.contact?.role || p.contact.role,
+
+      projectTitle: rawData.project?.title || p.project.title,
+      projectQuoteNumber: rawData.project?.quoteNumber || p.project.quoteNumber,
+      shootDate: rawData.project?.shootDate || p.project.shootDate,
+      shootLocation: rawData.project?.shootLocation || p.project.shootLocation,
+      callTime: rawData.project?.callTime || p.project.callTime,
+
+      totalAmount: rawData.totalAmount || p.totalAmount,
+      contractLink: rawData?.link || p.link,
     }
   },
 })

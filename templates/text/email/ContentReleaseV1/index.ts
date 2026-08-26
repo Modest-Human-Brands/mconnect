@@ -103,6 +103,8 @@ const placeholders: ContentReleasePayload = {
 
 registerTemplate({
   id: 'content-release',
+  label: 'Content Release',
+  description: '',
   schema: contentReleaseSchema,
   placeholders,
   subject: (rawData: ContentReleasePayload) => rawData?.emailSubject || placeholders.emailSubject,

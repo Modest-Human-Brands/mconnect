@@ -186,7 +186,7 @@ export default defineEventHandler(async (event) => {
           connectWebSocket() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             // Point the socket to the SMS preview.ts endpoint
-            this.ws = new WebSocket(protocol + '//' + window.location.host + '/api/connect/text/sms/template/preview');
+            this.ws = new WebSocket(protocol + '//' + window.location.host + '/api/interaction/sms/template/preview');
             
             this.ws.onopen = () => {
               this.socketConnected = true;

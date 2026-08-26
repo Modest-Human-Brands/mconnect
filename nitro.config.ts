@@ -16,7 +16,7 @@ export default defineConfig({
     tasks: true,
   },
   scheduledTasks: {
-    '*/1 * * * *': ['sync:resource'],
+    '*/3 * * * *': ['sync:resource'],
   },
   runtimeConfig: {
     app: {

@@ -179,6 +179,8 @@ const placeholders: OutreachPayload = {
 
 registerTemplate({
   id: 'outreach',
+  label: 'Outreach',
+  description: '',
   schema: outreachSchema,
   placeholders,
   subject: (rawData: OutreachPayload) => `Elevating visual branding for ${rawData?.recipient?.name || 'your brand'}`,

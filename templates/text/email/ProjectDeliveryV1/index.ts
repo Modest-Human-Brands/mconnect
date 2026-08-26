@@ -99,6 +99,8 @@ const placeholders: ProjectDeliveryPayload = {
 
 registerTemplate({
   id: 'project-delivery',
+  label: 'Project Delivery',
+  description: '',
   schema: projectDeliverySchema,
   placeholders,
   subject: (data: ProjectDeliveryPayload) => {

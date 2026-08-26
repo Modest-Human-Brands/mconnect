@@ -98,6 +98,8 @@ const placeholders: InternshipCompletionCertificatePayload = {
 
 registerTemplate({
   id: 'internship-completion-certificate',
+  label: 'Internship Completion Certificate',
+  description: 'The formal proof of completion, including your start and end dates, role, and an authorized signature.',
   schema: internshipCompletionCertificateSchema,
   placeholders,
   subject: (data: InternshipCompletionCertificatePayload) => `Certificate of Completion - ${data?.recipientName || placeholders.recipientName}`,
@@ -108,7 +110,10 @@ registerTemplate({
 
     return {
       recipientName: data?.recipientName || p.recipientName,
-      bodyContent: `This certificate acknowledges your outstanding contribution and dedication as a ${data?.recipientRole || p.recipientRole} towards ${data?.scopeOfWork || p.scopeOfWork} during ${data?.startDate || p.startDate} - ${data?.endDate || p.endDate}, showcasing your commitment to excellence and teamwork at ${orgName}.`,
+      recipientRole: data?.recipientRole || p.recipientRole,
+      recipientScopeOfWork: data?.scopeOfWork || p.scopeOfWork,
+      startDate: data?.startDate || p.startDate.toISOString(),
+      endDate: data?.endDate || p.endDate.toISOString(),
       dataOfIssue: data?.dataOfIssue || p.dataOfIssue.toISOString(),
       signerName: data?.signerName || p.signerName,
       signerTitle: data?.signerTitle || p.signerTitle,
