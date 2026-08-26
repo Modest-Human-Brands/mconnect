@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.5.0
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.9...v0.5.0)
+
+### 🚀 Enhancements
+
+- ⚠️ Integrate nitro-mcp-toolkit and add health tool ([262b5d0](https://github.com/Modest-Human-Brands/mconnect/commit/262b5d0))
+- Add SMS and WhatsApp interaction endpoints with template support ([443c86d](https://github.com/Modest-Human-Brands/mconnect/commit/443c86d))
+
+### 🏡 Chore
+
+- Update dependencies and add new email template for content release ([695e8ca](https://github.com/Modest-Human-Brands/mconnect/commit/695e8ca))
+- Deps updated ([a362db1](https://github.com/Modest-Human-Brands/mconnect/commit/a362db1))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️ Integrate nitro-mcp-toolkit and add health tool ([262b5d0](https://github.com/Modest-Human-Brands/mconnect/commit/262b5d0))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.4.9
 
 ### 💅 Refactors
