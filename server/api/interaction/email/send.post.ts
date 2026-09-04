@@ -12,7 +12,12 @@ import '#templates/text/email/index.ts'
 import notionNormalizeId from '#server/utils/notion-normalize-id.ts'
 import notionTextStringify from '#server/utils/notion-text-stringify.ts'
 
-const basePayload = z.object({ userId: z.string().optional(), contactId: z.string().optional(), recipientEmail: z.email().optional(), orgId: z.string() })
+const basePayload = z.object({
+  userId: z.string().optional(),
+  contactId: z.string().optional(),
+  recipientEmail: z.email().optional(),
+  orgId: z.string(),
+})
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -50,7 +55,9 @@ export default defineEventHandler(async (event) => {
       recipientEmail = contactPage.properties.Email.email ?? undefined
     }
 
-    if (!recipientEmail) throw new HTTPError({ statusCode: 400, statusMessage: 'Valid recipientEmail or contactId is required.' })
+    if (!recipientEmail) {
+      throw new HTTPError({ statusCode: 400, statusMessage: 'Valid recipientEmail or contactId is required.' })
+    }
 
     let orgSlug = orgId
     if (isUuid(orgId)) {
@@ -58,61 +65,27 @@ export default defineEventHandler(async (event) => {
       orgSlug = notionTextStringify(orgPage.properties.Id.rich_text) || orgId
     }
 
-    let finalizedText = text || ''
-    let finalizedHtml = html || ''
     let activeSubject = subject || ''
-    let attachments: { filename: string; content: Buffer<ArrayBuffer>; contentType: string }[] | undefined = undefined
-
     if (template !== 'none') {
       const templateDef = templateRegistry[template]
       if (!templateDef) {
-        event.res.status = 400
-        return { error: `Email template layout '${template}' is not registered.` }
+        throw new HTTPError({ statusCode: 400, statusMessage: `Email template layout '${template}' is not registered.` })
       }
-
-      if (variables) variables.tracking.baseUrl = config.public.connectUrl
-      const transformedProps = templateDef.transformPayload(variables ?? {})
-
-      finalizedHtml = await render(templateDef.component, transformedProps, {
-        pretty: false,
-      })
-      finalizedText = await render(templateDef.component, transformedProps, {
-        plainText: true,
-      })
-
       if (!activeSubject) {
         const potentialSubject = templateDef.subject
         activeSubject = typeof potentialSubject === 'function' ? potentialSubject(variables) : potentialSubject || 'System Notification'
       }
-
-      if (templateDef.getAttachments) {
-        attachments = await templateDef.getAttachments(variables)
-      }
     }
 
-    const dispatchResult = await dispatchEmail(
-      {
-        to: recipientEmail,
-        subject: activeSubject,
-        text: finalizedText,
-        html: finalizedHtml,
-        displayName: displayName,
-        attachments,
-      },
-      orgSlug
-    )
-
-    await notion.pages.create({
+    // 1. Create Notion record upfront as Draft to acquire permanent Notion Page ID
+    const emailPage = await notion.pages.create({
       parent: { data_source_id: notionDbId.email },
       properties: {
         Title: {
-          title: [{ text: { content: activeSubject || 'No Subject' } }],
-        },
-        Content: {
-          rich_text: [{ text: { content: finalizedText.slice(0, 2000) } }],
+          title: [{ text: { content: activeSubject || 'Outbound Email' } }],
         },
         Status: {
-          status: { name: 'Sent' },
+          status: { name: 'Draft' },
         },
         Direction: {
           select: { name: 'Outbound' },
@@ -123,19 +96,99 @@ export default defineEventHandler(async (event) => {
         ...(userId ? { User: { relation: [{ id: notionNormalizeId(userId) }] } } : {}),
         ...(contactId ? { Contact: { relation: [{ id: notionNormalizeId(contactId) }] } } : {}),
       },
-      children: [
+    })
+    const emailId = emailPage.id
+
+    let finalizedText = text || ''
+    let finalizedHtml = html || ''
+    let attachments: { filename: string; content: Buffer<ArrayBuffer>; contentType: string }[] | undefined = undefined
+
+    // 2. Render templates using the acquired emailId
+    if (template !== 'none') {
+      const templateDef = templateRegistry[template]
+      const trackingPayload = {
+        ...variables?.tracking,
+        emailId,
+        baseUrl: config.public.connectUrl,
+      }
+      const templatePayload = {
+        ...variables,
+        tracking: trackingPayload,
+      }
+
+      const transformedProps = templateDef.transformPayload(templatePayload)
+
+      finalizedHtml = await render(templateDef.component, transformedProps, {
+        pretty: false,
+      })
+      finalizedText = await render(templateDef.component, transformedProps, {
+        plainText: true,
+      })
+
+      if (templateDef.getAttachments) {
+        attachments = await templateDef.getAttachments(templatePayload)
+      }
+    }
+
+    try {
+      // 3. Dispatch the email with tracking links pointing to emailId
+      const dispatchResult = await dispatchEmail(
         {
-          object: 'block',
-          type: 'code',
-          code: {
-            language: 'html',
-            rich_text: (finalizedHtml.match(/[\s\S]{1,2000}/g) || []).slice(0, 100).map((chunk) => ({ text: { content: chunk } })),
+          to: recipientEmail,
+          subject: activeSubject,
+          text: finalizedText,
+          html: finalizedHtml,
+          displayName: displayName,
+          attachments,
+        },
+        orgSlug
+      )
+
+      // 4. Promote Notion page from Draft to Sent and append rendered HTML
+      await notion.pages.update({
+        page_id: emailId,
+        properties: {
+          Title: {
+            title: [{ text: { content: activeSubject || 'No Subject' } }],
+          },
+          Content: {
+            rich_text: [{ text: { content: finalizedText.slice(0, 2000) } }],
+          },
+          Status: {
+            status: { name: 'Sent' },
           },
         },
-      ],
-    })
+      })
 
-    return { success: true, dispatchId: dispatchResult.providerMessageId }
+      if (finalizedHtml) {
+        await notion.blocks.children.append({
+          block_id: emailId,
+          children: [
+            {
+              object: 'block',
+              type: 'code',
+              code: {
+                language: 'html',
+                rich_text: (finalizedHtml.match(/[\s\S]{1,2000}/g) || []).slice(0, 100).map((chunk) => ({ text: { content: chunk } })),
+              },
+            },
+          ],
+        })
+      }
+
+      return { success: true, dispatchId: dispatchResult.providerMessageId, emailId }
+    } catch (dispatchError) {
+      // 5. Flip status to Failed on dispatch failure
+      await notion.pages.update({
+        page_id: emailId,
+        properties: {
+          Status: {
+            status: { name: 'Failed' },
+          },
+        },
+      })
+      throw dispatchError
+    }
   } catch (error: any) {
     console.error('API connect/text/email/send POST', error)
 
