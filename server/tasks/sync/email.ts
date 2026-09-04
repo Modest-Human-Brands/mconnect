@@ -4,8 +4,8 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { $fetch } from 'ofetch'
 
-import notion from '~/server/utils/notion'
-import notionQueryDb from '~/server/utils/notion-query-db'
+import notion from '#server/utils/notion.ts'
+import notionQueryDb from '#server/utils/notion-query-db.ts'
 import type { NotionDB } from '~/server/types'
 
 interface HostingerEnrichedMessage {

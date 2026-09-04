@@ -1,7 +1,7 @@
 import { $fetch } from 'ofetch'
 import { z } from 'zod'
 import Component from './component.vue'
-import registerTemplate from '~/server/utils/template-registry-email'
+import registerTemplate from '#server/utils/template-registry-email.ts'
 
 export const internshipCompletionCertificateSchema = z.object({
   recipientName: z.string(),

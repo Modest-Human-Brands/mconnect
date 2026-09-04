@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
-import vue from '@vitejs/plugin-vue'
+import vue from 'unplugin-vue/rollup'
 
 export default defineConfig({
   plugins: [vue()],

@@ -1,8 +1,9 @@
-import { defineEventHandler, getValidatedRouterParams, HTTPError, setHeader } from 'nitro/h3'
-import { templateRegistry } from '~/server/utils/template-registry-whatsapp'
+import { defineEventHandler, getValidatedRouterParams, HTTPError } from 'nitro/h3'
 import { z } from 'zod'
 
-import '~/templates/text/whatsapp/QuotationV1'
+import { templateRegistry } from '#server/utils/template-registry-whatsapp.ts'
+
+import '#templates/text/whatsapp/QuotationV1/index.ts'
 
 const pathParamsSchema = z.object({ id: z.string() })
 

@@ -1,8 +1,8 @@
 import { defineEventHandler, getValidatedRouterParams, HTTPError } from 'nitro/h3'
-import { templateRegistry } from '~/server/utils/template-registry-email'
+import { templateRegistry } from '#server/utils/template-registry-email.ts'
 import { z } from 'zod'
 
-import '~/templates/text/email'
+import '#templates/text/email/index.ts'
 
 const pathParamsSchema = z.object({ id: z.string() })
 
@@ -60,16 +60,15 @@ export default defineEventHandler(async (event) => {
         <div class="p-4 bg-gray-50 border-b border-gray-200 font-semi-bold text-gray-700 flex justify-between items-center shadow-sm z-10">
            <span>Template: <span class="text-blue-600">${templateId}</span></span>
            <span class="flex items-center gap-2">
-             <span class="w-2 h-2 rounded-full" :class="socketConnected ? 'bg-green-500' : 'bg-red-500'"></span>
-             <span class="text-xs tracking-wide" :class="socketConnected ? 'text-green-700' : 'text-red-700'">
-                {{ socketConnected ? 'WebSocket Active' : 'Disconnected' }}
+             <span class="w-2 h-2 rounded-full" :class="hasError ? 'bg-red-500' : isRendering ? 'bg-amber-400 animate-pulse' : 'bg-green-500'"></span>
+             <span class="text-xs tracking-wide" :class="hasError ? 'text-red-700' : 'text-gray-600'">
+                {{ hasError ? 'Render Error' : isRendering ? 'Rendering...' : 'Ready' }}
              </span>
            </span>
         </div>
         
         <div class="flex-1 overflow-auto bg-[#e5e7eb] flex justify-center p-8">
            <div class="bg-white shadow-2xl min-h-[600px] w-full max-w-[650px] border border-gray-200 overflow-hidden relative">
-              
               <iframe :srcdoc="previewHtml" class="size-full border-none"></iframe>
               
               <div v-if="isRendering" class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-md animate-pulse">
@@ -84,14 +83,12 @@ export default defineEventHandler(async (event) => {
            Live Variables Editor
         </div>
         <div class="flex-1 overflow-y-auto p-6 space-y-6 bg-white">
-           
            <editor-node
              v-for="(val, key) in variables"
              :key="key"
              :node-key="key"
              v-model="variables[key]"
            ></editor-node>
-
         </div>
       </div>
 
@@ -107,7 +104,7 @@ export default defineEventHandler(async (event) => {
           <editor-node 
             v-for="(val, key) in modelValue" 
             :key="key" 
-            :node-key="key"
+            :node-key="key" 
             :model-value="val"
             @update:model-value="updateNested(key, $event)"
           ></editor-node>
@@ -161,48 +158,66 @@ export default defineEventHandler(async (event) => {
         data() {
           return {
             variables: ${JSON.stringify(variables)},
-            previewHtml: '<div style="display:flex; justify-content:center; align-items:center; height:100%; color:#888;">Connecting to Nitro Engine...</div>',
-            ws: null,
-            socketConnected: false,
+            previewHtml: '<div style="display:flex; justify-content:center; align-items:center; height:100%; color:#888;">Rendering preview...</div>',
             isRendering: false,
-            renderTimeout: null
+            hasError: false,
+            renderTimeout: null,
+            abortController: null
           }
         },
         mounted() {
-          this.connectWebSocket();
+          this.triggerRender();
         },
         methods: {
-          connectWebSocket() {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            this.ws = new WebSocket(protocol + '//' + window.location.host + '/api/interaction/email/template/preview');
-            
-            this.ws.onopen = () => {
-              this.socketConnected = true;
-              this.triggerRender();
-            };
-            
-            this.ws.onclose = () => {
-              this.socketConnected = false;
-              setTimeout(() => this.connectWebSocket(), 3000); 
-            };
+          async triggerRender() {
+            if (this.abortController) {
+              this.abortController.abort();
+            }
+            this.abortController = new AbortController();
+            this.isRendering = true;
 
-            this.ws.onmessage = (event) => {
-              const data = JSON.parse(event.data);
-              this.isRendering = false;
-              if (data.html) {
-                this.previewHtml = data.html;
-              } else if (data.error) {
-                this.previewHtml = '<div style="padding:20px; color:red; font-family:sans-serif;"><b>Error:</b> ' + data.error + '</div>';
+            try {
+              const res = await fetch('/api/interaction/email/template/preview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal: this.abortController.signal,
+                body: JSON.stringify({
+                  templateId: '${templateId}',
+                  variables: this.variables
+                })
+              });
+
+              const contentType = res.headers.get('content-type') || '';
+              if (contentType.includes('application/json')) {
+                const data = await res.json();
+                const rendered = data.contentHtml
+                
+                if (rendered) {
+                  this.previewHtml = rendered;
+                  this.hasError = false;
+                } else if (data.error) {
+                  this.hasError = true;
+                  this.previewHtml = '<div style="padding:20px; color:red; font-family:sans-serif;"><b>Error:</b> ' + (data.error?.message || data.error) + '</div>';
+                } else {
+                  this.previewHtml = JSON.stringify(data);
+                }
+              } else {
+                const text = await res.text();
+                if (!res.ok) {
+                  this.hasError = true;
+                  this.previewHtml = '<div style="padding:20px; color:red; font-family:sans-serif;"><b>Error (' + res.status + '):</b> ' + text + '</div>';
+                } else {
+                  this.previewHtml = text;
+                  this.hasError = false;
+                }
               }
-            };
-          },
-          triggerRender() {
-            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-              this.isRendering = true;
-              this.ws.send(JSON.stringify({
-                templateId: '${templateId}',
-                variables: this.variables
-              }));
+            } catch (err) {
+              if (err.name !== 'AbortError') {
+                this.hasError = true;
+                this.previewHtml = '<div style="padding:20px; color:red; font-family:sans-serif;"><b>Network Error:</b> ' + err.message + '</div>';
+              }
+            } finally {
+              this.isRendering = false;
             }
           }
         },

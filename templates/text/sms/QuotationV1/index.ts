@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import registerSMSTemplate from '~/server/utils/template-registry-sms'
+import registerSMSTemplate from '#server/utils/template-registry-sms.ts'
 
 export const quotationSchema = z.object({
   clientName: z.string(),

@@ -1,9 +1,9 @@
 import { defineEventHandler, HTTPError, readBody } from 'nitro/h3'
 import { render } from '@vue-email/render'
 
-import { templateRegistry } from '~/server/utils/template-registry-email'
+import { templateRegistry } from '#server/utils/template-registry-email.ts'
 
-import '~/templates/text/email'
+import '#templates/text/email/index.ts'
 
 export default defineEventHandler(async (event) => {
   try {

@@ -1,8 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { createStorage } from 'unstorage'
 import type { H3Event } from 'h3'
 import clickHandler from '~/server/api/track/click.get'
 import openHandler from '~/server/api/track/open.get'
 import trapHandler from '~/server/api/track/trap.get'
+
+const testStorage = createStorage()
+// @ts-ignore
+globalThis.useStorage = () => testStorage
 
 function createRouteEvent(query: Record<string, string>, userAgent = 'Mozilla/5.0') {
   const queryString = new URLSearchParams(query).toString()
@@ -57,13 +62,12 @@ describe('Tracking Routes', () => {
     const target = 'https://example.com/blog/article'
     const { event } = createRouteEvent({
       url: encodeURIComponent(target),
-      c: 'camp-123',
-      r: 'rec-456',
+      e: 'email-456',
     })
 
     await clickHandler(event)
 
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[REAL CLICK] Recipient rec-456 clicked to https://example.com/blog/article'))
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[REAL CLICK] Email email-456 clicked to https://example.com/blog/article'))
   })
 
   it('click.get: falls back gracefully when target url is missing', async () => {
@@ -79,8 +83,7 @@ describe('Tracking Routes', () => {
     const { event } = createRouteEvent(
       {
         url: encodeURIComponent('https://example.com'),
-        c: 'camp-123',
-        r: 'rec-456',
+        e: 'email-456',
       },
       'GoogleImageProxy'
     )
@@ -92,23 +95,23 @@ describe('Tracking Routes', () => {
 
   it('open.get: returns transparent 1x1 GIF with no-cache headers', async () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const { event, resHeaders } = createRouteEvent({ c: 'camp-123', r: 'rec-456' })
+    const { event, resHeaders } = createRouteEvent({ e: 'email-456' })
 
     const result = await openHandler(event)
 
     expect(resHeaders.get('content-type')).toBe('image/gif')
     expect(resHeaders.get('cache-control')).toContain('no-store')
     expect(Buffer.isBuffer(result)).toBe(true)
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[REAL OPEN] Recipient rec-456 opened on desktop'))
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[REAL OPEN] Email email-456 opened on desktop'))
   })
 
   it('trap.get: logs honeypot trigger for recipient', async () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const { event } = createRouteEvent({ r: 'rec-456' })
+    const { event } = createRouteEvent({ e: 'email-456' })
 
     const res = await trapHandler(event)
 
     expect(res).toBe('OK')
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("[HONEYPOT TRIGGERED] Recipient rec-456's email is being actively scanned by a bot."))
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[HONEYPOT TRIGGERED] Email email-456 is being actively scanned by a bot.'))
   })
 })

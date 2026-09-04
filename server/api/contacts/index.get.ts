@@ -2,7 +2,7 @@ import { defineEventHandler, getValidatedQuery, HTTPError } from 'nitro/h3'
 import { useStorage } from 'nitro/storage'
 import { z } from 'zod'
 import type { Resource } from '~/server/types'
-import notionTextStringify from '~/server/utils/notion-text-stringify'
+import notionTextStringify from '#server/utils/notion-text-stringify.ts'
 
 const queryParamsSchema = z.object({
   limit: z.string().optional(),

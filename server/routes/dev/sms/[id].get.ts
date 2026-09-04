@@ -1,8 +1,8 @@
 import { defineEventHandler, getValidatedRouterParams, HTTPError } from 'nitro/h3'
-import { templateRegistry } from '~/server/utils/template-registry-sms'
+import { templateRegistry } from '#server/utils/template-registry-sms.ts'
 import { z } from 'zod'
 
-import '~/templates/text/sms'
+import '#templates/text/sms/index.ts'
 
 const pathParamsSchema = z.object({ id: z.string() })
 

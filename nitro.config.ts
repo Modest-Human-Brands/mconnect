@@ -8,7 +8,6 @@ export default defineConfig({
   rollupConfig: {
     plugins: [vue()],
   },
-  // imports: {},
   features: {
     websocket: true,
   },
@@ -16,7 +15,7 @@ export default defineConfig({
     tasks: true,
   },
   scheduledTasks: {
-    '*/3 * * * *': ['sync:resource'],
+    '*/5 * * * *': ['sync:resource'],
   },
   runtimeConfig: {
     app: {

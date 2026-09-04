@@ -1,7 +1,7 @@
 import { defineWebSocketHandler } from 'nitro/h3'
-import { templateRegistry } from '~/server/utils/template-registry-sms'
+import { templateRegistry } from '#server/utils/template-registry-sms.ts'
 
-import '~/templates/text/sms'
+import '#templates/text/sms/index.ts'
 
 export default defineWebSocketHandler({
   open(peer) {

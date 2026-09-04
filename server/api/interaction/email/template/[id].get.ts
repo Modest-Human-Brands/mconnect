@@ -1,8 +1,9 @@
 import { defineEventHandler, getRouterParam, HTTPError } from 'nitro/h3'
-import { templateRegistry } from '~/server/utils/template-registry-email'
-import zodToJsonSchema from '~/server/utils/zod-to-json-schema'
 
-import '~/templates/text/email'
+import zodToJsonSchema from '#server/utils/zod-to-json-schema.ts'
+import { templateRegistry } from '#server/utils/template-registry-email.ts'
+
+import '#templates/text/email/index.ts'
 
 export default defineEventHandler((event) => {
   try {

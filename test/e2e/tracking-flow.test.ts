@@ -2,11 +2,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createSSRApp, h } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 import type { H3Event } from 'h3'
+import { createStorage } from 'unstorage'
 
 import Component from '~/templates/text/email/ContentReleaseV1/component.vue'
 import clickHandler from '~/server/api/track/click.get'
 import openHandler from '~/server/api/track/open.get'
 import trapHandler from '~/server/api/track/trap.get'
+
+const testStorage = createStorage()
+// @ts-ignore
+globalThis.useStorage = () => testStorage
 
 const mocks = vi.hoisted(() => ({
   templateConfig: null as any,
@@ -74,8 +79,7 @@ describe('E2E Tracking & Template Pipeline', () => {
       },
       unsubscribeUrl: 'https://modesthumanbrands.com/unsubscribe',
       tracking: {
-        campaignId: 'camp-v1',
-        recipientId: 'rec-dev-42',
+        emailId: 'email-dev-42',
         baseUrl: 'http://localhost:3000',
       },
       organization: mocks.templateConfig.placeholders.organization,
@@ -87,14 +91,13 @@ describe('E2E Tracking & Template Pipeline', () => {
 
     // Verify click URL exists on CTA button / feature image
     expect(html).toContain('http://localhost:3000/api/track/click?')
-    expect(html).toContain('c=camp-v1')
-    expect(html).toContain('r=rec-dev-42')
+    expect(html).toContain('e=email-dev-42')
 
     // Verify tracking pixel exists
-    expect(html).toContain('http://localhost:3000/api/track/open?c=camp-v1&r=rec-dev-42')
+    expect(html).toContain('http://localhost:3000/api/track/open?e=email-dev-42')
 
     // Verify invisible honeypot trap link exists
-    expect(html).toContain('http://localhost:3000/api/track/trap?r=rec-dev-42')
+    expect(html).toContain('http://localhost:3000/api/track/trap?e=email-dev-42')
   })
 
   it('simulates a human lifecycle: opens pixel, clicks CTA, and redirects to destination with UTM intact', async () => {
@@ -109,8 +112,7 @@ describe('E2E Tracking & Template Pipeline', () => {
       },
       unsubscribeUrl: 'https://modesthumanbrands.com/unsubscribe',
       tracking: {
-        campaignId: 'camp-human-flow',
-        recipientId: 'rec-human-101',
+        emailId: 'email-human-101',
         baseUrl: 'http://localhost:3000',
       },
       organization: mocks.templateConfig.placeholders.organization,
@@ -124,7 +126,7 @@ describe('E2E Tracking & Template Pipeline', () => {
 
     expect(openHeaders.get('content-type')).toBe('image/gif')
     expect(Buffer.isBuffer(pixelResponse)).toBe(true)
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[REAL OPEN] Recipient rec-human-101 opened on desktop'))
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[REAL OPEN] Email email-human-101 opened on desktop'))
 
     // 2. Human Clicks Button -> follows click redirect
     const { event: clickEvt, resHeaders: clickHeaders } = createH3Event(props.ctaUrl, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0 Safari/537.36')
@@ -132,7 +134,7 @@ describe('E2E Tracking & Template Pipeline', () => {
     const redirectUrl = clickHeaders.get('location') || clickResponse?.headers?.get?.('location')
 
     expect(redirectUrl).toBe('https://modesthumanbrands.com/products/tracker?ref=mail-content&utm_source=mconnect&utm_medium=email')
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[REAL CLICK] Recipient rec-human-101 clicked to https://modesthumanbrands.com/products/tracker'))
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[REAL CLICK] Email email-human-101 clicked to https://modesthumanbrands.com/products/tracker'))
   })
 
   it('simulates security bot scanner: flags scanner on open and click', async () => {
@@ -147,8 +149,7 @@ describe('E2E Tracking & Template Pipeline', () => {
       },
       unsubscribeUrl: 'https://modesthumanbrands.com/unsub',
       tracking: {
-        campaignId: 'camp-security-check',
-        recipientId: 'rec-scan-500',
+        emailId: 'email-scan-500',
         baseUrl: 'http://localhost:3000',
       },
       organization: mocks.templateConfig.placeholders.organization,
@@ -160,7 +161,7 @@ describe('E2E Tracking & Template Pipeline', () => {
     const { event: botOpenEvt } = createH3Event(props.trackingPixelUrl, 'Proofpoint-Email-Protection-Scanner/1.0')
     await openHandler(botOpenEvt)
 
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[BOT FILTERED] Open by agent:proofpoint for Recipient rec-scan-500'))
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[BOT FILTERED] Open by agent:proofpoint for Email email-scan-500'))
 
     // 2. Proofpoint scans CTA link
     const { event: botClickEvt } = createH3Event(props.ctaUrl, 'Proofpoint-Email-Protection-Scanner/1.0')
@@ -181,8 +182,7 @@ describe('E2E Tracking & Template Pipeline', () => {
       },
       unsubscribeUrl: 'https://modesthumanbrands.com/unsub',
       tracking: {
-        campaignId: 'camp-trap',
-        recipientId: 'rec-trapped-88',
+        emailId: 'email-trapped-88',
         baseUrl: 'http://localhost:3000',
       },
       organization: mocks.templateConfig.placeholders.organization,
@@ -195,6 +195,6 @@ describe('E2E Tracking & Template Pipeline', () => {
     const trapResult = await trapHandler(trapEvt)
 
     expect(trapResult).toBe('OK')
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("[HONEYPOT TRIGGERED] Recipient rec-trapped-88's email is being actively scanned by a bot."))
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[HONEYPOT TRIGGERED] Email email-trapped-88 is being actively scanned by a bot.'))
   })
 })

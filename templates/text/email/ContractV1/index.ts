@@ -1,5 +1,5 @@
 import Component from './component.vue'
-import registerTemplate from '~/server/utils/template-registry-email'
+import registerTemplate from '#server/utils/template-registry-email.ts'
 import { z } from 'zod'
 
 export const contractSchema = z.object({

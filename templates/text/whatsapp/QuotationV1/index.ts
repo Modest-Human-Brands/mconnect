@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import registerWhatsAppTemplate from '~/server/utils/template-registry-whatsapp'
+import registerWhatsAppTemplate from '#server/utils/template-registry-whatsapp.ts'
 
 export const quotationSchema = z.object({
   clientName: z.string(),

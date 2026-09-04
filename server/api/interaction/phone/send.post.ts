@@ -1,9 +1,9 @@
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { z } from 'zod'
 import type { NotionContact, NotionOrganization, NotionUser } from '~/server/types'
-import notion from '~/server/utils/notion'
-import notionTextStringify from '~/server/utils/notion-text-stringify'
-import { initializeLiveKitSipBridge } from '~/server/utils/providers-phone'
+import notion from '#server/utils/notion.ts'
+import notionTextStringify from '#server/utils/notion-text-stringify.ts'
+import { initializeLiveKitSipBridge } from '#server/utils/providers-phone.ts'
 
 const bodySchema = z.object({
   contactId: z.string().min(1),

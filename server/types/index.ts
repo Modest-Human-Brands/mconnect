@@ -1,4 +1,4 @@
-export const resourceTypes = ['user', 'contact', 'message', 'call', 'email'] as const
+export const resourceTypes = ['user', 'contact', 'message', 'call', 'email', 'telemetry'] as const
 
 export type ResourceType = (typeof resourceTypes)[number]
 
@@ -10,6 +10,7 @@ export interface ResourceRecordMap {
   email: NotionEmail
   message: NotionMessage
   call: NotionCall
+  telemetry: NotionTelemetry
 }
 
 export interface Resource<T extends ResourceType = ResourceType> {
@@ -514,6 +515,58 @@ export interface NotionCall {
     Contact: {
       type: 'relation'
       relation: { id: string }[]
+    }
+  }
+}
+
+export interface NotionTelemetry {
+  id: string
+  created_time: string
+  last_edited_time: string
+  cover: NotionImage | null
+  icon: NotionImage | null
+  properties: {
+    'Event Name': {
+      type: 'title'
+      title: { plain_text: string }[]
+    }
+    Email: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
+    'Event Type': {
+      type: 'select'
+      select: {
+        name: 'open' | 'click'
+      }
+    }
+    Recipient: {
+      type: 'rich_text'
+      rich_text: { plain_text: string }[]
+    }
+    Device: {
+      type: 'select'
+      select: {
+        name: 'desktop' | 'mobile' | 'unknown'
+      }
+    }
+    'Target URL': {
+      type: 'url'
+      url: string | null
+    }
+    Location: {
+      type: 'rich_text'
+      rich_text: { plain_text: string }[]
+    }
+    'IP Address': {
+      type: 'rich_text'
+      rich_text: { plain_text: string }[]
+    }
+    Timestamp: {
+      type: 'date'
+      date: {
+        start: string
+      }
     }
   }
 }

@@ -24,6 +24,7 @@
     "detect": "gitleaks git --verbose",
     "lint": "eslint . --fix",
     "format": "prettier . --write",
+    "test": "vitest run",
     "test:load": "k6 run tests/load.test.ts",
     "build": "nitro build",
     "generate": "nitro generate",
@@ -32,6 +33,9 @@
     "clean": "nitro cleanup",
     "docker:build": "docker build --build-arg VERSION=dev --build-arg BUILD_TIME=now -t mconnect:dev .",
     "docker:start": "docker run --detach --name mconnect-dev --env-file .env.prod -p 3500:3000 mconnect:dev"
+  },
+  "imports": {
+    "#*": "./*"
   },
   "dependencies": {
     "@notionhq/client": "^5.26.0",
@@ -61,7 +65,6 @@
     "@types/mailparser": "^3.4.6",
     "@types/marked": "^6.0.0",
     "@types/nodemailer": "^8.0.1",
-    "@vitejs/plugin-vue": "^6.0.8",
     "eslint": "^10.9.1",
     "eslint-config-unjs": "^0.6.2",
     "husky": "^9.1.7",

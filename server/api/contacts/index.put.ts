@@ -1,9 +1,9 @@
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
+import notion from '#server/utils/notion.ts'
+import notionQueryDb from '#server/utils/notion-query-db.ts'
 import type { NotionDB } from '~/server/types'
-import notion from '~/server/utils/notion'
-import notionQueryDb from '~/server/utils/notion-query-db'
 
 const CONTACT_STATUSES = ['Unverified', 'Researched', 'Verified', 'Initiate', 'Communicate', 'Converted', 'Cancelled', 'Active', 'Inactive', 'On Hold'] as const
 const COMPANY_TYPES = ['Brand', 'Product', 'Agency', 'Food', 'FMCG', 'Sweet', 'Real Estate', 'Hotel', 'Home Decor', 'Leather', 'Garment', 'Cosmetics', 'Jewellery', 'Accessories'] as const

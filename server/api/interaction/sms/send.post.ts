@@ -2,12 +2,12 @@ import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import type { NotionContact, NotionDB, NotionOrganization } from '~/server/types'
-import notion from '~/server/utils/notion'
-import notionTextStringify from '~/server/utils/notion-text-stringify'
-import dispatchSMS from '~/server/utils/providers-sms'
-import { templateRegistry } from '~/server/utils/template-registry-sms'
+import notion from '#server/utils/notion.ts'
+import notionTextStringify from '#server/utils/notion-text-stringify.ts'
+import dispatchSMS from '#server/utils/providers-sms.ts'
+import { templateRegistry } from '#server/utils/template-registry-sms.ts'
 
-import '~/templates/text/sms'
+import '#templates/text/sms/index.ts'
 
 const basePayload = z.object({ userId: z.string(), contactId: z.string().optional(), recipientPhone: z.string().optional(), orgId: z.string() })
 

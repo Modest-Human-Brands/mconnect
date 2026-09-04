@@ -2,7 +2,7 @@ import { useRuntimeConfig } from 'nitro/runtime-config'
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { z } from 'zod'
 import { $fetch } from 'ofetch'
-import notion from '~/server/utils/notion'
+import notion from '#server/utils/notion.ts'
 
 const bodySchema = z.object({
   from: z.string(),

@@ -4,7 +4,6 @@ const mocks = vi.hoisted(() => ({
   templateConfig: null as any,
 }))
 
-// Intercept registration before importing template index
 vi.mock('~/server/utils/template-registry-email', () => ({
   default: (config: any) => {
     mocks.templateConfig = config
@@ -12,7 +11,7 @@ vi.mock('~/server/utils/template-registry-email', () => ({
   },
 }))
 
-import '../../templates/text/email/ContentReleaseV1/index'
+import '~/templates/text/email/ContentReleaseV1'
 
 describe('Content Release Email Template', () => {
   beforeAll(() => {
@@ -34,8 +33,7 @@ describe('Content Release Email Template', () => {
       },
       unsubscribeUrl: 'https://example.com/unsubscribe',
       tracking: {
-        campaignId: 'camp-summer-2026',
-        recipientId: 'rec-alice-999',
+        emailId: 'email-alice-999',
         baseUrl: 'https://track.example.com',
       },
       organization: mocks.templateConfig.placeholders.organization,
@@ -50,20 +48,19 @@ describe('Content Release Email Template', () => {
 
     // 2. Click Wrapping & UTM
     expect(payload.ctaUrl).toContain('https://track.example.com/api/track/click?')
-    expect(payload.ctaUrl).toContain('c=camp-summer-2026')
-    expect(payload.ctaUrl).toContain('r=rec-alice-999')
+    expect(payload.ctaUrl).toContain('e=email-alice-999')
 
     const urlParam = new URL(payload.ctaUrl).searchParams.get('url')
     expect(urlParam).toBe('https://example.com/blog/new-feature?ref=mail-content&utm_source=mconnect&utm_medium=email')
 
     // 3. Dynamic Telemetry Pixel
-    expect(payload.trackingPixelUrl).toBe('https://track.example.com/api/track/open?c=camp-summer-2026&r=rec-alice-999')
+    expect(payload.trackingPixelUrl).toBe('https://track.example.com/api/track/open?e=email-alice-999')
 
     // 4. Honeypot Trap Link
-    expect(payload.honeypotUrl).toBe('https://track.example.com/api/track/trap?r=rec-alice-999')
+    expect(payload.honeypotUrl).toBe('https://track.example.com/api/track/trap?e=email-alice-999')
   })
 
-  it('falls back to stable base64url recipient ID and default campaign ID when tracking object is omitted', () => {
+  it('falls back to placeholder emailId when tracking object is omitted', () => {
     const rawData = {
       recipient: {
         name: 'Bob Jones',
@@ -79,12 +76,11 @@ describe('Content Release Email Template', () => {
     }
 
     const payload = mocks.templateConfig.transformPayload(rawData)
-    const expectedRecipientId = Buffer.from('bob@domain.com').toString('base64url')
+    const defaultEmailId = mocks.templateConfig.placeholders.tracking.emailId
 
-    expect(payload.ctaUrl).toContain('c=content-release')
-    expect(payload.ctaUrl).toContain(`r=${expectedRecipientId}`)
-    expect(payload.trackingPixelUrl).toContain(`r=${expectedRecipientId}`)
-    expect(payload.honeypotUrl).toContain(`r=${expectedRecipientId}`)
+    expect(payload.ctaUrl).toContain(`e=${defaultEmailId}`)
+    expect(payload.trackingPixelUrl).toContain(`e=${defaultEmailId}`)
+    expect(payload.honeypotUrl).toContain(`e=${defaultEmailId}`)
   })
 
   it('includes all 6 required organization branding keys per AGENTS.md', () => {

@@ -1,7 +1,7 @@
 import { defineWebSocketHandler } from 'nitro/h3'
-import { templateRegistry } from '~/server/utils/template-registry-whatsapp'
+import { templateRegistry } from '#server/utils/template-registry-whatsapp.ts'
 
-import '~/templates/text/whatsapp'
+import '#templates/text/whatsapp/index.ts'
 
 export default defineWebSocketHandler({
   open(peer) {

@@ -3,14 +3,14 @@ import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import { render } from '@vue-email/render'
 
-import notion from '~/server/utils/notion'
-import dispatchEmail from '~/server/utils/providers-email'
-import { templateRegistry } from '~/server/utils/template-registry-email'
+import notion from '#server/utils/notion.ts'
+import dispatchEmail from '#server/utils/providers-email.ts'
+import { templateRegistry } from '#server/utils/template-registry-email.ts'
 import type { NotionContact, NotionDB, NotionOrganization } from '~/server/types'
 
-import '~/templates/text/email'
-import notionNormalizeId from '~/server/utils/notion-normalize-id'
-import notionTextStringify from '~/server/utils/notion-text-stringify'
+import '#templates/text/email/index.ts'
+import notionNormalizeId from '#server/utils/notion-normalize-id.ts'
+import notionTextStringify from '#server/utils/notion-text-stringify.ts'
 
 const basePayload = z.object({ userId: z.string().optional(), contactId: z.string().optional(), recipientEmail: z.email().optional(), orgId: z.string() })
 

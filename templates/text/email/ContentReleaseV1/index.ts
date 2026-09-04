@@ -1,5 +1,5 @@
 import Component from './component.vue'
-import registerTemplate from '~/server/utils/template-registry-email'
+import registerTemplate from '#server/utils/template-registry-email.ts'
 import { z } from 'zod'
 
 export const contentReleaseSchema = z.object({
@@ -17,9 +17,8 @@ export const contentReleaseSchema = z.object({
   trackingPixelUrl: z.url().optional(),
   tracking: z
     .object({
-      campaignId: z.string().optional(),
-      recipientId: z.string().optional(),
-      baseUrl: z.string().url().optional(),
+      emailId: z.string(),
+      baseUrl: z.url().optional(),
     })
     .optional(),
   organization: z.object({
@@ -70,10 +69,14 @@ const placeholders: ContentReleasePayload = {
   content: {
     title: '10 Ways to Improve Your Visual Branding',
     imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/photo-0020-0001-002',
-    linkUrl: 'https://redcatpictures.com/blog/visual-branding',
+    linkUrl: 'https://redcatpictures.com/',
   },
   unsubscribeUrl: 'https://redcatpictures.com/newsletter/unsubscribe',
-  trackingPixelUrl: 'https://api.redcatpictures.com/track/open?e=test',
+  trackingPixelUrl: 'http://localhost:3001/api/track/open?e=test',
+  tracking: {
+    emailId: 'test-emailid-1',
+    baseUrl: 'http://localhost:3001',
+  },
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
@@ -120,8 +123,7 @@ registerTemplate({
     const p = placeholders
     const org = rawData?.organization || p.organization
 
-    const campaignId = rawData?.tracking?.campaignId || 'content-release'
-    const recipientId = rawData?.tracking?.recipientId || Buffer.from(rawData?.recipient?.email || p.recipient.email).toString('base64url')
+    const emailId = rawData?.tracking?.emailId || p.tracking?.emailId || 'unassigned-email'
     const baseUrl = rawData?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
 
     const rawUrl = rawData?.content?.linkUrl || p.content.linkUrl
@@ -134,9 +136,9 @@ registerTemplate({
       emailSubject: rawData?.emailSubject || p.emailSubject,
       contentTitle: rawData?.content?.title || p.content.title,
       contentImage: rawData?.content?.imageUrl || p.content.imageUrl,
-      ctaUrl: `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&c=${campaignId}&r=${recipientId}`,
-      honeypotUrl: `${baseUrl}/api/track/trap?r=${recipientId}`,
-      trackingPixelUrl: rawData?.trackingPixelUrl || `${baseUrl}/api/track/open?c=${campaignId}&r=${recipientId}`,
+      ctaUrl: `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`,
+      honeypotUrl: `${baseUrl}/api/track/trap?e=${emailId}`,
+      trackingPixelUrl: rawData?.trackingPixelUrl || `${baseUrl}/api/track/open?e=${emailId}`,
       unsubscribeUrl: rawData?.unsubscribeUrl || p.unsubscribeUrl,
 
       organizationName: org?.name || p.organization.name,

@@ -1,9 +1,9 @@
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { useStorage } from 'nitro/storage'
 import { defineTask } from 'nitro/task'
-import notion from '~/server/utils/notion'
-import notionNormalizeId from '~/server/utils/notion-normalize-id'
-import notionQueryDb from '~/server/utils/notion-query-db'
+import notion from '#server/utils/notion.ts'
+import notionNormalizeId from '#server/utils/notion-normalize-id.ts'
+import notionQueryDb from '#server/utils/notion-query-db.ts'
 import type { ResourceType, NotionDB, NotionContact, ResourceRecordMap, Resource, NotionUser, NotionCall, NotionMessage, NotionEmail } from '~/server/types'
 
 type ResourceQueries = {

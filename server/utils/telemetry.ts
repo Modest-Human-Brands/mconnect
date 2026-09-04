@@ -1,7 +1,7 @@
 import { H3Event, getRequestIP } from 'h3'
 import geoip from 'geoip-lite'
 import ipaddr from 'ipaddr.js'
-import { appleMppCidrs } from '~/server/plugins/apple-mpp'
+import { appleMppCidrs } from '#server/plugins/apple-mpp.ts'
 
 const KNOWN_BOT_AGENTS = ['googleimageproxy', 'barracuda', 'proofpoint', 'mimecast', 'cisco', 'bingbot', 'googlebot']
 

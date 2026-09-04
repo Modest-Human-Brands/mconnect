@@ -2,9 +2,9 @@ import { defineEventHandler, getValidatedQuery, getValidatedRouterParams, HTTPEr
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import type { NotionCall, NotionDB, NotionEmail, NotionMessage } from '~/server/types'
-import notion from '~/server/utils/notion'
-import notionQueryDb from '~/server/utils/notion-query-db'
-import notionTextStringify from '~/server/utils/notion-text-stringify'
+import notion from '#server/utils/notion.ts'
+import notionQueryDb from '#server/utils/notion-query-db.ts'
+import notionTextStringify from '#server/utils/notion-text-stringify.ts'
 
 const pathParamsSchema = z.object({ contactId: z.string() })
 const queryParamsSchema = z.object({
