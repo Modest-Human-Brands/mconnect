@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.2
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.1...v0.5.2)
+
+### 💅 Refactors
+
+- Add tracking schema to email templates and prevent self tracking ([a6550d7](https://github.com/Modest-Human-Brands/mconnect/commit/a6550d7))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.1
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.0...v0.5.1)
