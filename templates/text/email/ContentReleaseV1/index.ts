@@ -14,7 +14,14 @@ export const contentReleaseSchema = z.object({
     linkUrl: z.url(),
   }),
   unsubscribeUrl: z.url(),
-  trackingPixelUrl: z.url().optional(), // Telemetry Hook
+  trackingPixelUrl: z.url().optional(),
+  tracking: z
+    .object({
+      campaignId: z.string().optional(),
+      recipientId: z.string().optional(),
+      baseUrl: z.string().url().optional(),
+    })
+    .optional(),
   organization: z.object({
     id: z.string(),
     name: z.string(),
@@ -113,10 +120,13 @@ registerTemplate({
     const p = placeholders
     const org = rawData?.organization || p.organization
 
-    // Generate tracking/UTM parameters at the data layer
+    const campaignId = rawData?.tracking?.campaignId || 'content-release'
+    const recipientId = rawData?.tracking?.recipientId || Buffer.from(rawData?.recipient?.email || p.recipient.email).toString('base64url')
+    const baseUrl = rawData?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
+
     const rawUrl = rawData?.content?.linkUrl || p.content.linkUrl
     const utmParams = '?ref=mail-content&utm_source=mconnect&utm_medium=email'
-    const wrappedLink = `${rawUrl}${utmParams}`
+    const destinationWithUtm = `${rawUrl}${utmParams}`
 
     return {
       recipientName: rawData?.recipient?.name || p.recipient.name,
@@ -124,9 +134,10 @@ registerTemplate({
       emailSubject: rawData?.emailSubject || p.emailSubject,
       contentTitle: rawData?.content?.title || p.content.title,
       contentImage: rawData?.content?.imageUrl || p.content.imageUrl,
-      ctaUrl: wrappedLink,
+      ctaUrl: `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&c=${campaignId}&r=${recipientId}`,
+      honeypotUrl: `${baseUrl}/api/track/trap?r=${recipientId}`,
+      trackingPixelUrl: rawData?.trackingPixelUrl || `${baseUrl}/api/track/open?c=${campaignId}&r=${recipientId}`,
       unsubscribeUrl: rawData?.unsubscribeUrl || p.unsubscribeUrl,
-      trackingPixelUrl: rawData?.trackingPixelUrl || p.trackingPixelUrl,
 
       organizationName: org?.name || p.organization.name,
       organizationWebsite: org?.website || p.organization.website,

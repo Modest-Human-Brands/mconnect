@@ -24,7 +24,7 @@ function isIpInCidrList(ipStr: string, cidrList: string[]): boolean {
     for (const cidrStr of cidrList) {
       const cidr = ipaddr.parseCIDR(cidrStr)
       // eslint-disable-next-line unicorn/prefer-regexp-test
-      if (ip.kind() === cidr[0].kind() && ip.match(cidr[0])) {
+      if (ip.kind() === cidr[0].kind() && ip.match(cidr)) {
         return true
       }
     }

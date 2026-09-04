@@ -24,4 +24,7 @@ logs
 !.env.example
 !.env.native
 
+# Vitest reports and artifacts
+.vitest/
+
 config
