@@ -70,6 +70,7 @@ export default defineEventHandler(async (event) => {
         return { error: `Email template layout '${template}' is not registered.` }
       }
 
+      if (variables) variables.tracking.baseUrl = config.public.connectUrl
       const transformedProps = templateDef.transformPayload(variables ?? {})
 
       finalizedHtml = await render(templateDef.component, transformedProps, {

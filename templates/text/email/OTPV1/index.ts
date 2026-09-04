@@ -3,7 +3,9 @@ import registerTemplate from '#server/utils/template-registry-email.ts'
 import { z } from 'zod'
 
 export const otpSchema = z.object({
-  recipientEmail: z.email(),
+  recipient: z.object({
+    email: z.string(),
+  }),
   otpCode: z.string(),
   expiresIn: z.string().default('10 minutes'),
   tracking: z
@@ -52,7 +54,7 @@ export const otpSchema = z.object({
 export type OtpPayload = z.infer<typeof otpSchema>
 
 const placeholders: OtpPayload = {
-  recipientEmail: 'alex.mercer@example.com',
+  recipient: { email: 'alex.mercer@example.com' },
   otpCode: '2p9T6y',
   expiresIn: '10 minutes',
   tracking: {
@@ -114,7 +116,7 @@ registerTemplate({
     const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
     return {
-      recipientEmail: data?.recipientEmail || p.recipientEmail,
+      recipientEmail: data?.recipientEmail || p.recipient.email,
       otpCode: data?.otpCode || p.otpCode,
       expiresIn: data?.expiresIn || p.expiresIn,
       trackingPixelUrl: dynamicPixel,

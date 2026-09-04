@@ -31,8 +31,7 @@ describe('Internship Completion Certificate Email Template', () => {
 
   it('generates tracked CTA, dynamic pixel, and honeypot with explicit tracking parameters', () => {
     const rawData = {
-      recipientName: 'Dev Intern',
-      recipientRole: 'Software Engineer Intern',
+      recipient: { name: 'Dev Intern', role: 'Software Engineer Intern' },
       scopeOfWork: 'Backend API Development',
       startDate: new Date('2026-01-01'),
       endDate: new Date('2026-06-30'),
@@ -78,8 +77,7 @@ describe('Internship Completion Certificate Email Template', () => {
 
   it('falls back to default placeholder tracking when tracking is omitted', () => {
     const rawData = {
-      recipientName: 'Fallback Intern',
-      recipientRole: 'Design Intern',
+      recipient: { name: 'Fallback Intern', role: 'Design Intern' },
       scopeOfWork: 'Brand UI Assets',
       startDate: new Date(),
       endDate: new Date(),
@@ -119,8 +117,7 @@ describe('Internship Completion Certificate Email Template', () => {
 
   it('renders compiled HTML containing the certificate button, honeypot trap, and telemetry pixel', async () => {
     const rawData = {
-      recipientName: 'Alice Walker',
-      recipientRole: 'Product Intern',
+      recipient: { name: 'Alice Walker', role: 'Product Intern' },
       scopeOfWork: 'Roadmap Analytics',
       startDate: new Date('2026-02-01'),
       endDate: new Date('2026-08-01'),

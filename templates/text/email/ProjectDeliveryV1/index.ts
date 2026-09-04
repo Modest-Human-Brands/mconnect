@@ -9,7 +9,7 @@ const deliveryLinkSchema = z.object({
 })
 
 export const projectDeliverySchema = z.object({
-  recipientName: z.string(),
+  recipient: z.object({ name: z.string() }),
   projectName: z.string(),
   completionDate: z.date(),
   deliveryNotes: z.string(),
@@ -60,7 +60,7 @@ export const projectDeliverySchema = z.object({
 export type ProjectDeliveryPayload = z.infer<typeof projectDeliverySchema>
 
 const placeholders: ProjectDeliveryPayload = {
-  recipientName: 'Sarah Jenkins',
+  recipient: { name: 'Sarah Jenkins' },
   projectName: 'Omni-Channel Brand Refresh',
   completionDate: new Date(),
   deliveryNotes:
@@ -138,7 +138,7 @@ registerTemplate({
     const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
     return {
-      recipientName: data?.recipientName || p.recipientName,
+      recipientName: data?.recipient.name || p.recipient.name,
       projectName: data?.projectName || p.projectName,
       completionDate: data?.completionDate || p.completionDate.toISOString(),
       deliveryNotes: data?.deliveryNotes || p.deliveryNotes,

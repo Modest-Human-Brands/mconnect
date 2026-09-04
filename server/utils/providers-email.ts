@@ -5,6 +5,15 @@ import nodemailer from 'nodemailer'
 import MailComposer from 'nodemailer/lib/mail-composer'
 import { ImapFlow } from 'imapflow'
 
+interface DispatchEmailPayload {
+  to: string
+  subject: string
+  text: string
+  html: string
+  displayName?: string
+  attachments?: { filename: string; content: Buffer<ArrayBuffer>; contentType: string }[]
+}
+
 let cachedEmailConfig: any = null
 
 async function getEmailInfrastructure(orgSlug: string) {
@@ -21,15 +30,6 @@ async function getEmailInfrastructure(orgSlug: string) {
 
   cachedEmailConfig = emailSettings
   return cachedEmailConfig
-}
-
-interface DispatchEmailPayload {
-  to: string
-  subject: string
-  text: string
-  html: string
-  displayName?: string
-  attachments?: { filename: string; content: Buffer<ArrayBuffer>; contentType: string }[]
 }
 
 async function appendToSentFolder(mailOptions: any, settings: { host: string; port?: number; auth: { user: string; pass: string }; imapHost?: string; imapPort?: number }) {
@@ -159,7 +159,6 @@ const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { s
 
     return { messageId: info.messageId }
   },
-
   resendApi: async (payload) => {
     console.log(`📡 Sending via HTTP API driver to ${payload.to} using token ${payload.settings?.apiKey}`)
     return { messageId: `resend-api-${Date.now()}` }

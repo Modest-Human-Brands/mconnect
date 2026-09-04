@@ -32,8 +32,13 @@ describe('Outreach Email Template', () => {
   it('generates tracked CTA, dynamic pixel, and honeypot with explicit tracking parameters', () => {
     const rawData = {
       recipient: { name: 'Acme Studio' },
-      category: 'food',
-      ctaUrl: 'https://modesthumanbrands.com/book-call',
+      category: 'creative-studios',
+      heroHeadline: 'Scale Your Studio Pipeline',
+      ctaButtons: [
+        { label: 'Explore Platform →', url: 'https://modesthumanbrands.com/' },
+        { label: 'Book Demo', url: 'https://modesthumanbrands.com/demo' },
+      ],
+      ctaUrl: 'https://modesthumanbrands.com/get-started',
       unsubscribeUrl: 'https://modesthumanbrands.com/unsubscribe',
       tracking: {
         emailId: 'email-outreach-test-1',
@@ -46,16 +51,33 @@ describe('Outreach Email Template', () => {
 
     // Template specific fields
     expect(payload.recipientName).toBe('Acme Studio')
-    expect(payload.categoryName).toBe('food')
-    expect(payload.portfolioItems).toBeDefined()
-    expect(payload.portfolioItems.length).toBeGreaterThan(0)
+    expect(payload.categoryName).toBe('creative-studios')
+    expect(payload.heroHeadline).toBe('Scale Your Studio Pipeline')
+    expect(payload.featuredItems).toBeDefined()
+    expect(payload.featuredItems.length).toBe(4)
+    expect(payload.featuredItems[0].title).toBe('Unified creative project pipeline')
 
-    // Click-wrapped CTA URL
+    // Click-wrapped primary CTA URL
     expect(payload.ctaUrl).toContain('https://connect.modesthumanbrands.com/api/track/click?')
     expect(payload.ctaUrl).toContain('e=email-outreach-test-1')
 
-    const urlParam = new URL(payload.ctaUrl).searchParams.get('url')
-    expect(urlParam).toBe('https://modesthumanbrands.com/book-call?ref=mail-outreach&utm_source=mconnect&utm_medium=email')
+    // Click-wrapped dual CTA buttons
+    expect(payload.ctaButtons?.length).toBe(2)
+    expect(payload.ctaButtons?.[0].url).toContain('https://connect.modesthumanbrands.com/api/track/click?')
+    expect(payload.ctaButtons?.[0].url).toContain('e=email-outreach-test-1')
+    const btn1Target = new URL(payload.ctaButtons![0].url).searchParams.get('url')
+    expect(btn1Target).toBe('https://modesthumanbrands.com/?ref=mail-outreach&utm_source=mconnect&utm_medium=email')
+
+    expect(payload.ctaButtons?.[1].url).toContain('https://connect.modesthumanbrands.com/api/track/click?')
+    expect(payload.ctaButtons?.[1].url).toContain('e=email-outreach-test-1')
+    const btn2Target = new URL(payload.ctaButtons![1].url).searchParams.get('url')
+    expect(btn2Target).toBe('https://modesthumanbrands.com/demo?ref=mail-outreach&utm_source=mconnect&utm_medium=email')
+
+    // Click-wrapped featured item cards
+    expect(payload.featuredItems[0].linkUrl).toContain('https://connect.modesthumanbrands.com/api/track/click?')
+    expect(payload.featuredItems[0].linkUrl).toContain('e=email-outreach-test-1')
+    const cardTarget = new URL(payload.featuredItems[0].linkUrl).searchParams.get('url')
+    expect(cardTarget).toBe('https://modesthumanbrands.com/dashboard?ref=mail-outreach&utm_source=mconnect&utm_medium=email')
 
     // Dynamic telemetry pixel & honeypot URLs
     expect(payload.trackingPixelUrl).toBe('https://connect.modesthumanbrands.com/api/track/open?e=email-outreach-test-1')
@@ -73,8 +95,6 @@ describe('Outreach Email Template', () => {
   it('falls back to default placeholder tracking when tracking is omitted', () => {
     const rawData = {
       recipient: { name: 'Fallback Client' },
-      category: 'ecommerce',
-      ctaUrl: 'https://modesthumanbrands.com/call',
       organization: mocks.templateConfig.placeholders.organization,
     }
 
@@ -82,6 +102,8 @@ describe('Outreach Email Template', () => {
     const defaultEmailId = mocks.templateConfig.placeholders.tracking.emailId
 
     expect(payload.ctaUrl).toContain(`e=${defaultEmailId}`)
+    expect(payload.ctaButtons?.[0].url).toContain(`e=${defaultEmailId}`)
+    expect(payload.featuredItems[0].linkUrl).toContain(`e=${defaultEmailId}`)
     expect(payload.trackingPixelUrl).toContain(`e=${defaultEmailId}`)
     expect(payload.honeypotUrl).toContain(`e=${defaultEmailId}`)
   })
@@ -90,33 +112,46 @@ describe('Outreach Email Template', () => {
     const rawData = {
       ...mocks.templateConfig.placeholders,
       ctaUrl: '#',
+      ctaButtons: [{ label: 'Empty Link', url: '#' }],
+      featuredItems: [{ title: 'Empty Card', imageUrl: 'https://example.com/img.png', linkUrl: '#' }],
     }
 
     const payload = mocks.templateConfig.transformPayload(rawData)
     expect(payload.ctaUrl).toBe('#')
+    expect(payload.ctaButtons?.[0].url).toBe('#')
+    expect(payload.featuredItems[0].linkUrl).toBe('#')
   })
 
-  it('renders compiled HTML containing CTA link, honeypot trap, and telemetry pixel', async () => {
+  it('renders compiled HTML containing hero headline, dual CTA buttons, 2-column cards, and telemetry pixel', async () => {
     const rawData = {
-      recipient: { name: 'SSR Prospect' },
-      category: 'ecommerce',
-      ctaUrl: 'https://modesthumanbrands.com/schedule',
-      unsubscribeUrl: 'https://modesthumanbrands.com/unsub',
+      ...mocks.templateConfig.placeholders,
       tracking: {
         emailId: 'email-ssr-outreach-99',
         baseUrl: 'http://localhost:3000',
       },
-      organization: mocks.templateConfig.placeholders.organization,
     }
 
     const props = mocks.templateConfig.transformPayload(rawData)
     const app = createSSRApp({ render: () => h(Component, props) })
     const html = await renderToString(app)
 
-    // CTA button link with click tracking
+    // Greeting and copy
+    expect(html).toContain('Hey Creative Director 👋')
+    expect(html).toContain('Unified Studio Operations. Automate the Rest.')
+
+    // Dual CTA buttons with click tracking
     expect(html).toContain('http://localhost:3000/api/track/click?')
     expect(html).toContain('e=email-ssr-outreach-99')
-    expect(html).toContain('Book Strategy Call')
+    expect(html).toContain('Explore Platform →')
+    expect(html).toContain('Book 15-Min Demo')
+
+    // 2-Column Showcase Cards
+    expect(html).toContain('// THE MHB SUITE')
+    expect(html).toContain('Four Core Tools. One Connected Pipeline.')
+    expect(html).toContain('Unified creative project pipeline')
+    expect(html).toContain('Frictionless client agreements')
+    expect(html).toContain('Live stream')
+    expect(html).toContain('Unified media storage')
 
     // Invisible honeypot trap link
     expect(html).toContain('http://localhost:3000/api/track/trap?e=email-ssr-outreach-99')

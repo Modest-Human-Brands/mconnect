@@ -1,5 +1,6 @@
 import { defineEventHandler, HTTPError, readBody } from 'nitro/h3'
 import { render } from '@vue-email/render'
+import { useRuntimeConfig } from 'nitro/runtime-config'
 
 import { templateRegistry } from '#server/utils/template-registry-email.ts'
 
@@ -8,6 +9,8 @@ import '#templates/text/email/index.ts'
 export default defineEventHandler(async (event) => {
   try {
     const { templateId, variables } = await readBody<{ templateId: string; variables: Record<string, any> }>(event)
+
+    const config = useRuntimeConfig()
 
     if (!templateId) {
       event.res.status = 400
@@ -22,6 +25,7 @@ export default defineEventHandler(async (event) => {
       return { error: `Template '${templateId}' not found.` }
     }
 
+    variables.tracking.baseUrl = config.public.connectUrl
     const transformedProps = await templateDef.transformPayload(variables || {})
 
     const contentHtml = await render(templateDef.component, transformedProps, {

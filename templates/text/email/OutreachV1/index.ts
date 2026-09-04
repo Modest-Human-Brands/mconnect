@@ -4,9 +4,53 @@ import { z } from 'zod'
 
 export const outreachSchema = z.object({
   recipient: z.object({ name: z.string() }),
+  emailSubject: z.string().optional(),
+  heroHeadline: z.string().optional(),
+  heroImageUrl: z.string().optional(),
+  pitchMessage: z.string().optional(),
+  ctaText: z.string().optional(),
+  ctaButtonText: z.string().optional(),
+  ctaButtons: z
+    .array(
+      z.object({
+        label: z.string(),
+        url: z.string(),
+      })
+    )
+    .max(2)
+    .optional(),
+  sectionPretitle: z.string().optional(),
+  sectionTitle: z.string().optional(),
+  sectionDescription: z.string().optional(),
   category: z.string().default('ecommerce'),
-  customPortfolioItems: z.record(z.string(), z.array(z.object({ imageUrl: z.string(), linkUrl: z.string(), alt: z.string() }))),
-  ctaUrl: z.string(),
+  featuredItems: z
+    .array(
+      z.object({
+        imageUrl: z.string(),
+        linkUrl: z.string(),
+        alt: z.string().optional(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        actionLabel: z.string().optional(),
+      })
+    )
+    .optional(),
+  customfeaturedItems: z
+    .record(
+      z.string(),
+      z.array(
+        z.object({
+          imageUrl: z.string(),
+          linkUrl: z.string(),
+          alt: z.string().optional(),
+          title: z.string().optional(),
+          description: z.string().optional(),
+          actionLabel: z.string().optional(),
+        })
+      )
+    )
+    .optional(),
+  ctaUrl: z.string().optional(),
   unsubscribeUrl: z.string(),
   tracking: z
     .object({
@@ -51,100 +95,68 @@ export const outreachSchema = z.object({
 export type OutreachPayload = z.infer<typeof outreachSchema>
 
 const placeholders: OutreachPayload = {
-  recipient: { name: 'Prospect Brand' },
-  category: 'ecommerce',
-  ctaUrl: '#',
-  unsubscribeUrl: '#',
+  recipient: {
+    name: 'Creative Director',
+  },
+  category: 'creative-studios',
+  pitchMessage:
+    'Modest Human Brands (MHB) builds workflow automation and project management platforms designed specifically for modern advertising agencies, production houses, and commercial studios. We eliminate operational friction across your entire creative pipeline—streamlining shoot timelines, legal contracts, live asset handoffs, and media distribution.',
+  heroHeadline: 'Unified Studio Operations. Automate the Rest.',
+  heroImageUrl: 'https://modesthumanbrands.com/images/hero-image-1.webp',
+  sectionPretitle: '// THE MHB SUITE',
+  sectionTitle: 'Four Core Tools. One Connected Pipeline.',
+  sectionDescription: 'Purpose-built infrastructure to help creative studios track shoots, execute contracts, stream media, and store production assets without tier limits.',
+  ctaText: 'Ready to cut hours off production planning and review cycles? Let us show you how MHB eliminates pipeline friction in a quick 15-minute walkthrough.',
+  ctaButtons: [
+    {
+      label: 'Explore Platform →',
+      url: 'https://modesthumanbrands.com/',
+    },
+    {
+      label: 'Book 15-Min Demo',
+      url: 'https://modesthumanbrands.com/demo',
+    },
+  ],
+  ctaUrl: 'https://modesthumanbrands.com/get-started',
+  unsubscribeUrl: 'https://modesthumanbrands.com/newsletter/unsubscribe',
   tracking: {
-    emailId: 'test-outreach-1',
+    emailId: 'outreach-campaign-preview',
     baseUrl: 'http://localhost:3001',
   },
-  customPortfolioItems: {
-    ecommerce: [
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/photo-0020-0001-002',
-        linkUrl: 'https://redcatpictures.com/photo/photo-0020-0001-002',
-        alt: 'Ecommerce 1',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/photo-0000-0025-002',
-        linkUrl: 'https://redcatpictures.com/photo/photo-0000-0025-002',
-        alt: 'Ecommerce 2',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/photo-0000-0007-001',
-        linkUrl: 'https://redcatpictures.com/photo/photo-0000-0007-001',
-        alt: 'Ecommerce 3',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/photo-0022-0004-001',
-        linkUrl: 'https://redcatpictures.com/photo/photo-0022-0004-001',
-        alt: 'Ecommerce 4',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/photo-0000-0016-001',
-        linkUrl: 'https://redcatpictures.com/photo/photo-0000-0016-001',
-        alt: 'Ecommerce 5',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/photo-0010-0004-001',
-        linkUrl: 'https://redcatpictures.com/photo/photo-0010-0004-001',
-        alt: 'Ecommerce 6',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/photo-0003-0005-001',
-        linkUrl: 'https://redcatpictures.com/photo/photo-0003-0005-001',
-        alt: 'Ecommerce 7',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/photo-0011-0005-001',
-        linkUrl: 'https://redcatpictures.com/photo/photo-0011-0005-001',
-        alt: 'Ecommerce 8',
-      },
-    ],
-    food: [
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/food-photo-042-002',
-        linkUrl: 'https://redcatpictures.com/photo/food-photo-042-002',
-        alt: 'Food 1',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/food-photo-042-004',
-        linkUrl: 'https://redcatpictures.com/photo/food-photo-042-004',
-        alt: 'Food 2',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/food-photo-042-003',
-        linkUrl: 'https://redcatpictures.com/photo/food-photo-042-003',
-        alt: 'Food 3',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/food-photo-000-016',
-        linkUrl: 'https://redcatpictures.com/photo/food-photo-000-016',
-        alt: 'Food 4',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/food-photo-010-002',
-        linkUrl: 'https://redcatpictures.com/photo/food-photo-010-002',
-        alt: 'Food 5',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/food-photo-031-003',
-        linkUrl: 'https://redcatpictures.com/photo/food-photo-031-003',
-        alt: 'Food 6',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/food-photo-000-024',
-        linkUrl: 'https://redcatpictures.com/photo/food-photo-000-024',
-        alt: 'Food 7',
-      },
-      {
-        imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/food-photo-000-019',
-        linkUrl: 'https://redcatpictures.com/photo/food-photo-000-019',
-        alt: 'Food 8',
-      },
-    ],
-  },
+  featuredItems: [
+    {
+      imageUrl: 'https://modesthumanbrands.com/images/mockup-dashboard.webp',
+      linkUrl: 'https://modesthumanbrands.com/dashboard',
+      title: 'Unified creative project pipeline',
+      description: 'Track multi-project timelines, control budgets, and streamline creative workflows from planning to post-production.',
+      actionLabel: 'Explore Dashboard →',
+      alt: 'MHB Dashboard - Creative Project Pipeline',
+    },
+    {
+      imageUrl: 'https://modesthumanbrands.com/images/mockup-document.webp',
+      linkUrl: 'https://modesthumanbrands.com/mdoc',
+      title: 'Frictionless client agreements',
+      description: 'Generate SOWs, collect e-signatures, and issue invoices with extreme speed. Stay in the creative flow and keep projects moving.',
+      actionLabel: 'Explore MDoc →',
+      alt: 'MHB MDoc - Agreements & E-Signatures',
+    },
+    {
+      imageUrl: 'https://modesthumanbrands.com/images/mockup-stream.webp',
+      linkUrl: 'https://modesthumanbrands.com/msync',
+      title: 'Live stream & media sync',
+      description: 'Eliminate manual file transfers and broken links. Keep raw footage, project assets, and team updates synchronized across your entire pipeline.',
+      actionLabel: 'Explore MSync →',
+      alt: 'MHB MSync - Live Stream & Asset Handoff',
+    },
+    {
+      imageUrl: 'https://modesthumanbrands.com/images/mockup-media.webp',
+      linkUrl: 'https://modesthumanbrands.com/mdrive',
+      title: 'Unified media storage & distribution',
+      description: 'Organize raw production files, control client access, and store heavy media assets without storage limits or tier penalties.',
+      actionLabel: 'Explore MDrive →',
+      alt: 'MHB MDrive - Cloud Media Storage',
+    },
+  ],
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
@@ -182,7 +194,7 @@ const placeholders: OutreachPayload = {
       instagram: 'https://www.instagram.com/modesthumanbrands/',
       facebook: '',
       linkedin: '',
-      youtube: 'https://www.youtube.com/@red_cat_pictures',
+      youtube: 'https://www.youtube.com/@modesthumanbrands',
     },
   },
 }
@@ -193,7 +205,7 @@ registerTemplate({
   description: '',
   schema: outreachSchema,
   placeholders,
-  subject: (rawData: OutreachPayload) => `Elevating visual branding for ${rawData?.recipient?.name || 'your brand'}`,
+  subject: (rawData: OutreachPayload) => rawData?.emailSubject || `Elevating visual branding for ${rawData?.recipient?.name || 'your brand'}`,
   component: Component,
   transformPayload: (rawData: OutreachPayload) => {
     const p = placeholders
@@ -202,30 +214,52 @@ registerTemplate({
     const emailId = rawData?.tracking?.emailId || p.tracking?.emailId || 'unassigned-email'
     const baseUrl = rawData?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
 
+    const wrapTracked = (rawUrl?: string) => {
+      if (!rawUrl || rawUrl === '#') return '#'
+      const utmParams = '?ref=mail-outreach&utm_source=mconnect&utm_medium=email'
+      const destinationWithUtm = `${rawUrl}${utmParams}`
+      return `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`
+    }
+
     const rawUrl = rawData?.ctaUrl || p.ctaUrl
-    const utmParams = '?ref=mail-outreach&utm_source=mconnect&utm_medium=email'
-    const destinationWithUtm = `${rawUrl}${utmParams}`
-    const trackedCta = rawUrl === '#' ? '#' : `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`
+    const trackedCta = wrapTracked(rawUrl)
     const dynamicPixel = `${baseUrl}/api/track/open?e=${emailId}`
     const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
-    const customMap = rawData?.customPortfolioItems || p.customPortfolioItems
-    const resolvedItems = customMap[activeCategoryKey]
+    const sourceItems = rawData?.featuredItems || p.featuredItems || []
+    const resolvedItems = sourceItems.map((item) => ({
+      ...item,
+      linkUrl: wrapTracked(item.linkUrl),
+    }))
+
+    const trackedButtons = (rawData?.ctaButtons || p.ctaButtons || []).map((btn) => ({
+      label: btn.label,
+      url: wrapTracked(btn.url),
+    }))
 
     return {
       recipientName: rawData?.recipient?.name || p.recipient.name,
       categoryName: activeCategoryKey,
+      heroHeadline: rawData?.heroHeadline || p.heroHeadline,
+      heroImageUrl: rawData?.heroImageUrl || p.heroImageUrl,
+      pitchMessage: rawData?.pitchMessage,
+      ctaText: rawData?.ctaText,
+      ctaButtonText: rawData?.ctaButtonText,
+      ctaButtons: trackedButtons,
+      sectionPretitle: rawData?.sectionPretitle || p.sectionPretitle,
+      sectionTitle: rawData?.sectionTitle || p.sectionTitle,
+      sectionDescription: rawData?.sectionDescription || p.sectionDescription,
       ctaUrl: trackedCta,
       trackingPixelUrl: dynamicPixel,
       honeypotUrl,
       unsubscribeUrl: rawData?.unsubscribeUrl || p.unsubscribeUrl,
-      portfolioItems: resolvedItems,
+      featuredItems: resolvedItems,
 
       organizationName: org.name,
       organizationPhone: org.phone || p.organization.phone,
       organizationAddress: org.address,
       organizationWebsite: org.website || p.organization.website,
-      organizationEpisodeUrl: `${org.website || p.organization.website}/episode`,
+      organizationEpisodeUrl: org.website ? `${org.website}/episode` : p.organization.website ? `${p.organization.website}/episode` : undefined,
       organizationLogo: org.branding.logo || p.organization.branding.logo,
       organizationColorPrimary: org.branding?.color?.primary || p.organization.branding.color.primary,
       organizationColorAccent: org.branding?.color?.accent || p.organization.branding.color.accent,

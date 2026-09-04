@@ -4,8 +4,10 @@ import Component from './component.vue'
 import registerTemplate from '#server/utils/template-registry-email.ts'
 
 export const internshipCompletionCertificateSchema = z.object({
-  recipientName: z.string(),
-  recipientRole: z.string(),
+  recipient: z.object({
+    name: z.string(),
+    role: z.string(),
+  }),
   scopeOfWork: z.string(),
   startDate: z.date(),
   endDate: z.date(),
@@ -59,8 +61,7 @@ export const internshipCompletionCertificateSchema = z.object({
 export type InternshipCompletionCertificatePayload = z.infer<typeof internshipCompletionCertificateSchema>
 
 const placeholders: InternshipCompletionCertificatePayload = {
-  recipientName: 'Alex Mercer',
-  recipientRole: 'Senior Marketing Intern',
+  recipient: { name: 'Alex Mercer', role: 'Senior Marketing Intern' },
   scopeOfWork: 'Digital Campaign Management',
   startDate: new Date('June 1, 2025'),
   endDate: new Date('December 31, 2025'),
@@ -112,7 +113,7 @@ registerTemplate({
   description: 'The formal proof of completion, including your start and end dates, role, and an authorized signature.',
   schema: internshipCompletionCertificateSchema,
   placeholders,
-  subject: (data: InternshipCompletionCertificatePayload) => `Certificate of Completion - ${data?.recipientName || placeholders.recipientName}`,
+  subject: (data: InternshipCompletionCertificatePayload) => `Certificate of Completion - ${data?.recipient.name || placeholders.recipient.name}`,
   component: Component,
   transformPayload: (data: InternshipCompletionCertificatePayload) => {
     const p = placeholders
@@ -128,8 +129,8 @@ registerTemplate({
     const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
     return {
-      recipientName: data?.recipientName || p.recipientName,
-      recipientRole: data?.recipientRole || p.recipientRole,
+      recipientName: data?.recipient.name || p.recipient.name,
+      recipientRole: data?.recipient.role || p.recipient.role,
       recipientScopeOfWork: data?.scopeOfWork || p.scopeOfWork,
       startDate: data?.startDate || p.startDate.toISOString(),
       endDate: data?.endDate || p.endDate.toISOString(),
@@ -155,7 +156,7 @@ registerTemplate({
     })
     return [
       {
-        filename: `Certificate of Completion - ${data.recipientName}.pdf`,
+        filename: `Certificate of Completion - ${data.recipient.name}.pdf`,
         content: Buffer.from(fileBuffer),
         contentType: 'application/pdf',
       },

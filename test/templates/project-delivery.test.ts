@@ -31,7 +31,7 @@ describe('Project Delivery Email Template', () => {
 
   it('generates click-wrapped project links, dynamic pixel, and honeypot with explicit tracking parameters', () => {
     const rawData = {
-      recipientName: 'David Clark',
+      recipient: { name: 'David Clark' },
       projectName: 'Full Production Master',
       completionDate: new Date('2026-09-01'),
       deliveryNotes: 'All master files, color grades, and deliverables are uploaded.',
@@ -115,7 +115,7 @@ describe('Project Delivery Email Template', () => {
 
   it('renders compiled HTML with project links, buttons, honeypot trap, and telemetry pixel', async () => {
     const rawData = {
-      recipientName: 'SSR Client',
+      recipient: { name: 'SSR Client' },
       projectName: 'Autumn Commercial',
       completionDate: new Date('2026-09-02'),
       deliveryNotes: 'Files ready for review.',
