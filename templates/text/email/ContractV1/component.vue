@@ -9,13 +9,13 @@ defineProps<{
   organizationColorPrimary: string
   organizationColorAccent: string
   organizationWebsite: string
-  contractorName: string
-  contractorRole: string
-  projectTitle: string
+  recipientName: string
+  recipientRole: string
+  projectName: string
   shootDate: string | Date
   shootLocation: string
   totalAmount: number
-  contractLink: string
+  ctaUrl: string
 }>()
 
 const formatCurrency = (val: number) => `${val.toLocaleString('en-IN')} Rupees`
@@ -37,9 +37,9 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
             <Hr class="border-gray-100 my-6" />
 
             <Section class="mb-6">
-              <Text class="m-0 text-base text-gray-800 font-medium mb-3"> Hi {{ contractorName }}, </Text>
+              <Text class="m-0 text-base text-gray-800 font-medium mb-3"> Hi {{ recipientName }}, </Text>
               <Text class="m-0 text-sm text-gray-600 leading-relaxed mb-4">
-                We are excited to have you on board for our upcoming project. Before we begin, please review and sign your Independent Contractor Agreement ({{ contractorRole }}).
+                We are excited to have you on board for our upcoming project. Before we begin, please review and sign your Independent Contractor Agreement ({{ recipientRole }}).
               </Text>
             </Section>
 
@@ -53,7 +53,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
                       <Text class="m-0 text-sm font-semi-bold text-gray-700">Project:</Text>
                     </td>
                     <td align="left" valign="top" class="pb-3">
-                      <Text class="m-0 text-sm text-gray-900">{{ projectTitle }}</Text>
+                      <Text class="m-0 text-sm text-gray-900">{{ projectName }}</Text>
                     </td>
                   </tr>
                   <tr>
@@ -81,10 +81,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
             </Section>
 
             <Section class="text-center mb-8">
-              <Button
-                class="px-8 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline"
-                :style="{ backgroundColor: organizationColorAccent }"
-                :href="contractLink">
+              <Button class="px-8 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline" :style="{ backgroundColor: organizationColorAccent }" :href="ctaUrl">
                 Review and Sign
               </Button>
               <Text class="m-0 text-xs text-gray-400 mt-4 leading-relaxed px-4">

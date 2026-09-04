@@ -130,17 +130,17 @@ registerTemplate({
       organizationColorAccent: org?.branding?.color?.accent || p.organization.branding.color.accent,
       organizationWebsite: org?.website || p.organization.website,
 
-      contractorName: rawData?.contact.name || p.contact.name,
-      contractorRole: rawData.contact?.role || p.contact.role,
+      recipientName: rawData?.contact.name || p.contact.name,
+      recipientRole: rawData.contact?.role || p.contact.role,
 
-      projectTitle: rawData.project?.title || p.project.title,
+      projectName: rawData.project?.title || p.project.title,
       projectQuoteNumber: rawData.project?.quoteNumber || p.project.quoteNumber,
       shootDate: rawData.project?.shootDate || p.project.shootDate,
       shootLocation: rawData.project?.shootLocation || p.project.shootLocation,
       callTime: rawData.project?.callTime || p.project.callTime,
 
       totalAmount: rawData.totalAmount || p.totalAmount,
-      contractLink: rawData?.link || p.link,
+      ctaUrl: rawData?.link || p.link,
     }
   },
 })

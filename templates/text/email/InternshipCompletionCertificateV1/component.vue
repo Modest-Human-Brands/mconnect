@@ -7,10 +7,10 @@ defineProps<{
   recipientScopeOfWork: string
   startDate: string | Date
   endDate: string | Date
-  dataOfIssue: string
+  dateOfIssue: string
   signerName: string
   signerTitle: string
-  certificateUrl: string
+  ctaUrl: string
   organizationName: string
   organizationLogo: string
   organizationColorPrimary: string
@@ -42,11 +42,11 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
                 </Text>
 
                 <Section class="mx-auto text-center my-4">
-                  <Text class="m-0 text-xs text-gray-400 font-medium uppercase tracking-wider"> Issued On: {{ formatDate(dataOfIssue) }} </Text>
+                  <Text class="m-0 text-xs text-gray-400 font-medium uppercase tracking-wider"> Issued On: {{ formatDate(dateOfIssue) }} </Text>
                 </Section>
 
                 <Section class="text-center my-6">
-                  <Button class="text-white font-bold text-sm px-6 py-3 rounded-md no-underline inline-block" :style="{ backgroundColor: organizationColorPrimary }" :href="certificateUrl">
+                  <Button class="text-white font-bold text-sm px-6 py-3 rounded-md no-underline inline-block" :style="{ backgroundColor: organizationColorPrimary }" :href="ctaUrl">
                     Download Certificate PDF
                   </Button>
                 </Section>

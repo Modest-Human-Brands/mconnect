@@ -124,7 +124,7 @@ registerTemplate({
       emailSubject: rawData?.emailSubject || p.emailSubject,
       contentTitle: rawData?.content?.title || p.content.title,
       contentImage: rawData?.content?.imageUrl || p.content.imageUrl,
-      contentUrl: wrappedLink,
+      ctaUrl: wrappedLink,
       unsubscribeUrl: rawData?.unsubscribeUrl || p.unsubscribeUrl,
       trackingPixelUrl: rawData?.trackingPixelUrl || p.trackingPixelUrl,
 

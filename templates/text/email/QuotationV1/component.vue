@@ -7,7 +7,7 @@ defineProps<{
   isSigned: boolean
   pricingModel: 'project' | 'day'
   projectName: string
-  quoteNumber: string
+  quotationNumber: string
   validUntil: string
   deliverables: { title: string; description: string; points: string[]; rate: number; quantity: number; amount: number }[]
   financialsSubtotal: number
@@ -16,7 +16,7 @@ defineProps<{
   financialsTaxLabel: string
   financialsTaxAmount: number
   financialsGrandTotal: number
-  quotationUrl: string
+  ctaUrl: string
   organizationName: string
   organizationWebsite: string
   organizationLogo: string
@@ -39,7 +39,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
             <Section class="mb-8">
               <Img :src="organizationLogo" :alt="organizationName" width="120" class="mb-4" />
               <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semi-bold"> Commercial Estimate / Proposal </Text>
-              <Text class="m-0 text-xl font-bold text-gray-800"> Quote #{{ quoteNumber }} </Text>
+              <Text class="m-0 text-xl font-bold text-gray-800"> Quote #{{ quotationNumber }} </Text>
             </Section>
 
             <Hr class="border-gray-100 my-4" />
@@ -135,10 +135,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
             </Section>
 
             <Section class="text-center my-8">
-              <Button
-                class="px-6 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline"
-                :style="{ backgroundColor: organizationColorAccent }"
-                :href="quotationUrl">
+              <Button class="px-6 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline" :style="{ backgroundColor: organizationColorAccent }" :href="ctaUrl">
                 {{ isSigned ? 'Download Executed Proposal' : isRecipientContact ? 'Review Full Proposal' : 'Review & Countersign Proposal' }}
               </Button>
             </Section>

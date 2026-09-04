@@ -8,7 +8,7 @@ interface DeliveryLink {
 }
 
 defineProps<{
-  clientName: string
+  recipientName: string
   projectName: string
   completionDate: string
   deliveryNotes: string
@@ -18,6 +18,7 @@ defineProps<{
   organizationWebsite: string
   organizationLogo: string
   organizationColorPrimary: string
+  organizationColorAccent: string
   organizationFont: string
 }>()
 
@@ -41,7 +42,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
 
             <!-- Greeting & Details -->
             <Section class="mb-6">
-              <Text class="m-0 text-base text-gray-800 font-medium mb-3"> Hi {{ clientName }}, </Text>
+              <Text class="m-0 text-base text-gray-800 font-medium mb-3"> Hi {{ recipientName }}, </Text>
               <Text class="m-0 text-sm text-gray-600 leading-relaxed mb-4">
                 {{ deliveryNotes }}
               </Text>

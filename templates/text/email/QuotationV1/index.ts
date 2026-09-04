@@ -11,7 +11,7 @@ export const quotationSchema = z.object({
   pricingModel: z.enum(['project', 'day']).optional(),
   project: z.object({
     title: z.string(),
-    quoteNumber: z.string(),
+    quotationNumber: z.string(),
   }),
   deliverables: z.array(
     z.object({
@@ -206,7 +206,7 @@ registerTemplate({
       financialsTaxAmount: taxAmount,
       financialsGrandTotal: grandTotal,
 
-      quotationUrl: rawData?.link || p.link,
+      ctaUrl: rawData?.link || p.link,
       organizationName: org?.name || p.organization.name,
       organizationWebsite: org?.website || p.organization.website,
       organizationLogo: org?.branding?.logo || p.organization.branding.logo,

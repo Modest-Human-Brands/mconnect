@@ -9,7 +9,7 @@ const deliveryLinkSchema = z.object({
 })
 
 export const projectDeliverySchema = z.object({
-  clientName: z.string(),
+  recipientName: z.string(),
   projectName: z.string(),
   completionDate: z.date(),
   deliveryNotes: z.string(),
@@ -54,7 +54,7 @@ export const projectDeliverySchema = z.object({
 export type ProjectDeliveryPayload = z.infer<typeof projectDeliverySchema>
 
 const placeholders: ProjectDeliveryPayload = {
-  clientName: 'Sarah Jenkins',
+  recipientName: 'Sarah Jenkins',
   projectName: 'Omni-Channel Brand Refresh',
   completionDate: new Date(),
   deliveryNotes:
@@ -114,7 +114,7 @@ registerTemplate({
     const org = data?.organization || {}
 
     return {
-      clientName: data?.clientName || p.clientName,
+      recipientName: data?.recipientName || p.recipientName,
       projectName: data?.projectName || p.projectName,
       completionDate: data?.completionDate || p.completionDate.toISOString(),
       deliveryNotes: data?.deliveryNotes || p.deliveryNotes,
@@ -123,6 +123,7 @@ registerTemplate({
       organizationWebsite: org?.website || p.organization.website,
       organizationLogo: org?.branding?.logo || p.organization.branding.logo,
       organizationColorPrimary: org?.branding?.color?.primary || p.organization.branding.color.primary,
+      organizationColorAccent: org?.branding?.color?.accent || p.organization.branding.color.accent,
       organizationFont: org?.branding?.font || p.organization.branding.font,
     }
   },

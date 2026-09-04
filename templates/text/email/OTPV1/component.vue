@@ -9,6 +9,7 @@ defineProps<{
   organizationWebsite: string
   organizationLogo: string
   organizationColorPrimary: string
+  organizationColorAccent: string
   organizationFont: string
 }>()
 </script>

@@ -12,9 +12,9 @@ defineProps<{
   organizationAddress: string
   organizationWebsite: string
   organizationEpisodeUrl: string
-  organizationLogoFull: string
-  organizationLogoSimple: string
+  organizationLogo: string
   organizationColorPrimary: string
+  organizationColorAccent: string
   organizationFont: string
   organizationSocialWhatsapp: string
   organizationSocialInstagram: string
@@ -39,7 +39,7 @@ defineProps<{
 
           <!-- LOGO -->
           <Section class="mb-6 text-center">
-            <Img :src="organizationLogoFull" :alt="organizationName" width="80" class="inline-block h-auto border-0" />
+            <Img :src="organizationLogo" :alt="organizationName" width="80" class="inline-block h-auto border-0" />
           </Section>
 
           <!-- PITCH COPY -->
@@ -86,7 +86,7 @@ defineProps<{
           <!-- BRAND FOOTER -->
           <Section class="text-center mb-4">
             <Link :href="organizationWebsite" target="_blank" class="inline-block no-underline">
-              <Img :src="organizationLogoSimple" :alt="organizationName" width="40" height="40" class="block w-10 h-10 mx-auto border-0" />
+              <Img :src="organizationLogo" :alt="organizationName" width="40" height="40" class="block w-10 h-10 mx-auto border-0" />
             </Link>
             <Text class="m-0 mt-2 text-lg font-semi-bold text-gray-900">
               {{ organizationName }}

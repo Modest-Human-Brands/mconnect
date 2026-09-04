@@ -7,7 +7,7 @@ defineProps<{
   emailSubject: string
   contentTitle: string
   contentImage: string
-  contentUrl: string
+  ctaUrl: string
   unsubscribeUrl: string
   trackingPixelUrl?: string
   organizationName: string
@@ -60,7 +60,7 @@ defineProps<{
 
           <!-- Feature Image -->
           <Section class="mb-6">
-            <Link :href="contentUrl" target="_blank" class="block">
+            <Link :href="ctaUrl" target="_blank" class="block">
               <Img :src="contentImage" :alt="contentTitle" width="552" class="block w-full h-auto rounded object-cover border-0" />
             </Link>
           </Section>
@@ -70,7 +70,7 @@ defineProps<{
             <Text class="m-0 mb-4 text-lg font-semibold text-gray-800 leading-snug">
               {{ contentTitle }}
             </Text>
-            <Button :href="contentUrl" class="rounded bg-primary px-6 py-2.5 text-sm font-medium text-white no-underline inline-block"> Read More </Button>
+            <Button :href="ctaUrl" class="rounded bg-primary px-6 py-2.5 text-sm font-medium text-white no-underline inline-block"> Read More </Button>
           </Section>
 
           <Hr class="border-gray-100 my-6" />
