@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.3
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.2...v0.5.3)
+
+### 🚀 Enhancements
+
+- Enhance email templates with tracking capabilities and dynamic links ([0ecdbb3](https://github.com/Modest-Human-Brands/mconnect/commit/0ecdbb3))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.2
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.1...v0.5.2)
