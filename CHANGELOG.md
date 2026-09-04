@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.5.5
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.4...v0.5.5)
+
+### 🩹 Fixes
+
+- Update scheduled tasks to include telemetry sync and refactor email handling ([547a712](https://github.com/Modest-Human-Brands/mconnect/commit/547a712))
+
+### 💅 Refactors
+
+- Update outreach and project delivery email templates with new schema and placeholders ([0b18761](https://github.com/Modest-Human-Brands/mconnect/commit/0b18761))
+- Improve code readability and structure in email handling functions ([bfbfc37](https://github.com/Modest-Human-Brands/mconnect/commit/bfbfc37))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.4
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.3...v0.5.4)
