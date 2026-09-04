@@ -1,6 +1,7 @@
 import { defineEventHandler, HTTPError } from 'nitro/h3'
 import { useStorage } from 'nitro/storage'
 import type { Resource } from '~/server/types'
+import sanitizeEmailHtml from '#server/utils/sanitize-email-html.ts'
 
 export default defineEventHandler(async () => {
   try {

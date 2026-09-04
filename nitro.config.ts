@@ -15,7 +15,7 @@ export default defineConfig({
     tasks: true,
   },
   scheduledTasks: {
-    '*/5 * * * *': ['sync:resource'],
+    '*/5 * * * *': ['sync:telemetry', 'sync:resource'],
   },
   runtimeConfig: {
     app: {

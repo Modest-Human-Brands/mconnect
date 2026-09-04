@@ -1,4 +1,4 @@
-export function sanitizeEmailForDashboard(html: string): string {
+export default function (html: string): string {
   if (!html) return ''
 
   return (
