@@ -33,7 +33,13 @@ export const invoiceEmailSchema = z.object({
     })
     .optional(),
   dueDate: z.date(),
-  invoiceUrl: z.url(),
+  invoiceUrl: z.string(),
+  tracking: z
+    .object({
+      emailId: z.string(),
+      baseUrl: z.url().optional(),
+    })
+    .optional(),
   organization: z.object({
     id: z.string(),
     name: z.string(),
@@ -108,6 +114,10 @@ const placeholders: InvoiceEmailPayload = {
   },
   dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   invoiceUrl: '#',
+  tracking: {
+    emailId: 'test-invoice-1',
+    baseUrl: 'http://localhost:3001',
+  },
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
@@ -200,6 +210,16 @@ registerTemplate({
       paymentStatus = 'PARTIALLY PAID'
     }
 
+    const emailId = rawData?.tracking?.emailId || p.tracking?.emailId || 'unassigned-email'
+    const baseUrl = rawData?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
+
+    const rawUrl = rawData?.invoiceUrl || p.invoiceUrl
+    const utmParams = '?ref=mail-invoice&utm_source=mconnect&utm_medium=email'
+    const destinationWithUtm = `${rawUrl}${utmParams}`
+    const trackedCta = rawUrl === '#' ? '#' : `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`
+    const dynamicPixel = `${baseUrl}/api/track/open?e=${emailId}`
+    const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
+
     return {
       recipientName: rawData?.recipient?.name || p.recipient.name,
       pricingModel: rawData?.pricingModel || p.pricingModel,
@@ -218,6 +238,9 @@ registerTemplate({
       financialsAmountPaid: amountPaid,
       financialsAmountDue: amountDue,
       paymentStatus,
+      ctaUrl: trackedCta,
+      trackingPixelUrl: dynamicPixel,
+      honeypotUrl,
 
       organizationName: org.name,
       organizationWebsite: org.website,

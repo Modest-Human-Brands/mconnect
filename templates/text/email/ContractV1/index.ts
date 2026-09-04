@@ -17,6 +17,12 @@ export const contractSchema = z.object({
   }),
   totalAmount: z.number(),
   link: z.string(),
+  tracking: z
+    .object({
+      emailId: z.string(),
+      baseUrl: z.url().optional(),
+    })
+    .optional(),
   organization: z.object({
     id: z.string(),
     name: z.string(),
@@ -70,7 +76,11 @@ const placeholders: ContractPayload = {
     callTime: '08:00 AM',
   },
   totalAmount: 150_000,
-  link: '#',
+  link: 'https://modesthumanbrands.com',
+  tracking: {
+    emailId: 'test-contract-1',
+    baseUrl: 'http://localhost:3001',
+  },
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
@@ -120,6 +130,15 @@ registerTemplate({
   transformPayload: (rawData: ContractPayload) => {
     const p = placeholders
     const org = rawData?.organization || {}
+    const emailId = rawData?.tracking?.emailId || p.tracking?.emailId || 'unassigned-email'
+    const baseUrl = rawData?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
+
+    const rawUrl = rawData?.link || p.link
+    const utmParams = '?ref=mail-contract&utm_source=mconnect&utm_medium=email'
+    const destinationWithUtm = `${rawUrl}${utmParams}`
+    const trackedCta = rawUrl === '#' ? '#' : `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`
+    const dynamicPixel = `${baseUrl}/api/track/open?e=${emailId}`
+    const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
     return {
       organizationName: org?.name || p.organization.name,
@@ -140,7 +159,9 @@ registerTemplate({
       callTime: rawData.project?.callTime || p.project.callTime,
 
       totalAmount: rawData.totalAmount || p.totalAmount,
-      ctaUrl: rawData?.link || p.link,
+      ctaUrl: trackedCta,
+      trackingPixelUrl: dynamicPixel,
+      honeypotUrl,
     }
   },
 })

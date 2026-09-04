@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Html, Head, Body, Img, Container, Section, Text, Tailwind, Hr } from '@vue-email/components'
+import { Html, Head, Body, Img, Container, Section, Text, Button, Tailwind, Hr, Link } from '@vue-email/components'
 
 defineProps<{
   recipientName: string
@@ -18,6 +18,9 @@ defineProps<{
   financialsAmountPaid: number
   financialsAmountDue: number
   paymentStatus: 'PAID' | 'UNPAID' | 'PARTIALLY PAID'
+  ctaUrl?: string
+  trackingPixelUrl?: string
+  honeypotUrl?: string
   organizationName: string
   organizationWebsite: string
   organizationLogo: string
@@ -59,7 +62,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
 
               <template v-else-if="paymentStatus === 'PARTIALLY PAID'">
                 <Text class="m-0 text-sm text-gray-600 leading-relaxed">
-                  Thank you for your recent payment. We have attached the updated invoice for <strong> {{ projectName }}</strong> reflecting the remaining balance.
+                  Thank you for your recent payment. We have attached the updated invoice for <strong>{{ projectName }}</strong> reflecting the remaining balance.
                 </Text>
               </template>
 
@@ -150,6 +153,13 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
                 <span v-else class="text-red-500 mr-2">UNPAID</span>
                 A PDF copy of this invoice is attached to this email.
               </Text>
+              <Button
+                v-if="ctaUrl && ctaUrl !== '#'"
+                class="mt-4 px-6 py-2.5 rounded text-white font-bold text-sm inline-block no-underline"
+                :style="{ backgroundColor: organizationColorPrimary }"
+                :href="ctaUrl">
+                View Invoice
+              </Button>
             </Section>
 
             <Hr class="border-gray-100 my-6" />
@@ -161,6 +171,12 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
               </Text>
             </Section>
           </Section>
+
+          <!-- HONEYPOT TRAP LINK -->
+          <Link v-if="honeypotUrl" :href="honeypotUrl" style="display: none; max-height: 0px; overflow: hidden; opacity: 0" aria-hidden="true"> &zwnj; </Link>
+
+          <!-- MCONNECT TELEMETRY PIXEL -->
+          <Img v-if="trackingPixelUrl" :src="trackingPixelUrl" width="1" height="1" alt="" class="block hidden opacity-0 invisible" />
         </Container>
       </Body>
     </Tailwind>

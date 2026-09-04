@@ -8,6 +8,12 @@ export const outreachSchema = z.object({
   customPortfolioItems: z.record(z.string(), z.array(z.object({ imageUrl: z.string(), linkUrl: z.string(), alt: z.string() }))),
   ctaUrl: z.string(),
   unsubscribeUrl: z.string(),
+  tracking: z
+    .object({
+      emailId: z.string(),
+      baseUrl: z.url().optional(),
+    })
+    .optional(),
   organization: z.object({
     id: z.string(),
     name: z.string(),
@@ -49,6 +55,10 @@ const placeholders: OutreachPayload = {
   category: 'ecommerce',
   ctaUrl: '#',
   unsubscribeUrl: '#',
+  tracking: {
+    emailId: 'test-outreach-1',
+    baseUrl: 'http://localhost:3001',
+  },
   customPortfolioItems: {
     ecommerce: [
       {
@@ -189,6 +199,15 @@ registerTemplate({
     const p = placeholders
     const org = rawData?.organization || p.organization
     const activeCategoryKey = rawData?.category?.toLowerCase() || 'ecommerce'
+    const emailId = rawData?.tracking?.emailId || p.tracking?.emailId || 'unassigned-email'
+    const baseUrl = rawData?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
+
+    const rawUrl = rawData?.ctaUrl || p.ctaUrl
+    const utmParams = '?ref=mail-outreach&utm_source=mconnect&utm_medium=email'
+    const destinationWithUtm = `${rawUrl}${utmParams}`
+    const trackedCta = rawUrl === '#' ? '#' : `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`
+    const dynamicPixel = `${baseUrl}/api/track/open?e=${emailId}`
+    const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
     const customMap = rawData?.customPortfolioItems || p.customPortfolioItems
     const resolvedItems = customMap[activeCategoryKey]
@@ -196,7 +215,9 @@ registerTemplate({
     return {
       recipientName: rawData?.recipient?.name || p.recipient.name,
       categoryName: activeCategoryKey,
-      ctaUrl: rawData?.ctaUrl || p.ctaUrl,
+      ctaUrl: trackedCta,
+      trackingPixelUrl: dynamicPixel,
+      honeypotUrl,
       unsubscribeUrl: rawData?.unsubscribeUrl || p.unsubscribeUrl,
       portfolioItems: resolvedItems,
 

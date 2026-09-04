@@ -2,6 +2,9 @@ import { loadConfig } from 'c12'
 import { HTTPError } from 'nitro/h3'
 import nodemailer from 'nodemailer'
 
+import MailComposer from 'nodemailer/lib/mail-composer'
+import { ImapFlow } from 'imapflow'
+
 let cachedEmailConfig: any = null
 
 async function getEmailInfrastructure(orgSlug: string) {
@@ -29,10 +32,44 @@ interface DispatchEmailPayload {
   attachments?: { filename: string; content: Buffer<ArrayBuffer>; contentType: string }[]
 }
 
+async function appendToSentFolder(mailOptions: any, settings: { host: string; port?: number; auth: { user: string; pass: string }; imapHost?: string; imapPort?: number }) {
+  try {
+    const imapHost = settings.imapHost || settings.host.replace(/^smtp\./i, 'imap.')
+    const imapPort = Number(settings.imapPort || 993)
+
+    const composer = new MailComposer(mailOptions)
+    const messageBuffer = await composer.compile().build()
+
+    const client = new ImapFlow({
+      host: imapHost,
+      port: imapPort,
+      secure: true,
+      auth: {
+        user: settings.auth.user,
+        pass: settings.auth.pass,
+      },
+      logger: false,
+    })
+
+    await client.connect()
+    try {
+      const mailboxes = await client.list()
+      const sentMailbox = mailboxes.find((m) => m.specialUse === '\\Sent') || mailboxes.find((m) => /^sent/i.test(m.path) || /inbox\.sent/i.test(m.path))
+
+      const targetFolder = sentMailbox ? sentMailbox.path : 'Sent'
+      await client.append(targetFolder, messageBuffer, ['\\Seen'])
+    } finally {
+      await client.logout()
+    }
+  } catch (error) {
+    console.error('[IMAP SYNC ERROR] Failed to save copy to Sent folder:', error)
+  }
+}
+
 const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { settings: any; defaults: any }) => Promise<{ messageId: string }>> = {
   smtp: async (payload) => {
     if (!payload.settings?.host || !payload.settings?.auth) {
-      throw new HTTPError({ statusCode: 400, message: 'Connection parameters for email provider Hostinger are incomplete.' })
+      throw new HTTPError({ statusCode: 400, message: 'Connection parameters for email provider SMTP are incomplete.' })
     }
 
     const transporter = nodemailer.createTransport({
@@ -47,14 +84,17 @@ const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { s
     const fromName = payload.defaults?.fromName
     const fromEmail = payload.defaults?.fromEmail
 
-    const info = await transporter.sendMail({
+    const mailOptions = {
       from: `"${fromName}" <${fromEmail}>`,
       to: payload.to,
       subject: payload.subject,
       text: payload.text,
       html: payload.html,
       attachments: payload.attachments,
-    })
+    }
+
+    const info = await transporter.sendMail(mailOptions)
+    appendToSentFolder(mailOptions, payload.settings).catch(() => {})
 
     return { messageId: info.messageId }
   },
@@ -76,20 +116,23 @@ const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { s
     const fromName = payload.displayName || payload.defaults?.fromName
     const fromEmail = payload.settings?.auth?.user || payload.defaults?.fallbackFromEmail
 
-    const info = await transporter.sendMail({
+    const mailOptions = {
       from: `"${fromName}" <${fromEmail}>`,
       to: payload.to,
       subject: payload.subject,
       text: payload.text,
       html: payload.html,
       attachments: payload.attachments,
-    })
+    }
+
+    const info = await transporter.sendMail(mailOptions)
+    appendToSentFolder(mailOptions, payload.settings).catch(() => {})
 
     return { messageId: info.messageId }
   },
   gmail: async (payload) => {
     if (!payload.settings?.host || !payload.settings?.auth) {
-      throw new HTTPError({ statusCode: 400, message: 'Connection parameters for email provider Hostinger are incomplete.' })
+      throw new HTTPError({ statusCode: 400, message: 'Connection parameters for email provider Gmail are incomplete.' })
     }
 
     const transporter = nodemailer.createTransport({
@@ -129,7 +172,7 @@ export default async function (payload: DispatchEmailPayload, orgSlug: string) {
 
   const adapterRunner = emailProviderAdapters[activeProviderName]
   if (!adapterRunner) {
-    throw new HTTPError({ statusCode: 400, message: 'The target email execution adapter "${activeProviderName}" is unrecognized or unmapped.' })
+    throw new HTTPError({ statusCode: 400, message: `The target email execution adapter "${activeProviderName}" is unrecognized or unmapped.` })
   }
 
   const providerSettings = emailConfigProfile.providers?.[activeProviderName]

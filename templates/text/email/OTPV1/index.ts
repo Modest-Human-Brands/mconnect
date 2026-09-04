@@ -6,6 +6,12 @@ export const otpSchema = z.object({
   recipientEmail: z.email(),
   otpCode: z.string(),
   expiresIn: z.string().default('10 minutes'),
+  tracking: z
+    .object({
+      emailId: z.string(),
+      baseUrl: z.url().optional(),
+    })
+    .optional(),
   organization: z.object({
     id: z.string(),
     name: z.string(),
@@ -49,6 +55,10 @@ const placeholders: OtpPayload = {
   recipientEmail: 'alex.mercer@example.com',
   otpCode: '2p9T6y',
   expiresIn: '10 minutes',
+  tracking: {
+    emailId: 'test-otp-1',
+    baseUrl: 'http://localhost:3001',
+  },
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
@@ -97,11 +107,18 @@ registerTemplate({
   transformPayload: (data: any) => {
     const p = placeholders
     const org = data?.organization || {}
+    const emailId = data?.tracking?.emailId || p.tracking?.emailId || 'unassigned-email'
+    const baseUrl = data?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
+
+    const dynamicPixel = `${baseUrl}/api/track/open?e=${emailId}`
+    const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
     return {
       recipientEmail: data?.recipientEmail || p.recipientEmail,
       otpCode: data?.otpCode || p.otpCode,
       expiresIn: data?.expiresIn || p.expiresIn,
+      trackingPixelUrl: dynamicPixel,
+      honeypotUrl,
 
       organizationName: org?.name || p.organization.name,
       organizationWebsite: org?.website || p.organization.website,

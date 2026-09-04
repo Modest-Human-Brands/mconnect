@@ -33,6 +33,12 @@ export const quotationSchema = z.object({
     .optional(),
   expiresIn: z.date(),
   link: z.string(),
+  tracking: z
+    .object({
+      emailId: z.string(),
+      baseUrl: z.url().optional(),
+    })
+    .optional(),
   organization: z.object({
     id: z.string(),
     name: z.string(),
@@ -92,7 +98,7 @@ const placeholders: QuotationPayload = {
   pricingModel: 'project',
   project: {
     title: 'Test',
-    quoteNumber: 'QT-2026-089',
+    quotationNumber: 'QT-2026-089',
   },
   deliverables: [
     { title: 'Premium Brand Strategy', quantity: 1, rate: 5000, points: [] },
@@ -107,6 +113,10 @@ const placeholders: QuotationPayload = {
   },
   expiresIn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   link: '#',
+  tracking: {
+    emailId: 'test-quotation-1',
+    baseUrl: 'http://localhost:3001',
+  },
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
@@ -148,7 +158,7 @@ registerTemplate({
   schema: quotationSchema,
   placeholders,
   subject: (rawData: QuotationPayload) => {
-    const qNum = rawData?.project.quoteNumber || placeholders.project.quoteNumber
+    const qNum = rawData?.project?.quotationNumber || placeholders.project.quotationNumber
     const orgName = rawData?.organization?.name || placeholders.organization.name
     return `Project Quotation Estimate #${qNum} - ${orgName}`
   },
@@ -189,13 +199,23 @@ registerTemplate({
     const taxAmount = (postDiscountTotal * taxRate) / 100
     const grandTotal = postDiscountTotal + taxAmount
 
+    const emailId = rawData?.tracking?.emailId || p.tracking?.emailId || 'unassigned-email'
+    const baseUrl = rawData?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
+
+    const rawUrl = rawData?.link || p.link
+    const utmParams = '?ref=mail-quotation&utm_source=mconnect&utm_medium=email'
+    const destinationWithUtm = `${rawUrl}${utmParams}`
+    const trackedCta = rawUrl === '#' ? '#' : `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`
+    const dynamicPixel = `${baseUrl}/api/track/open?e=${emailId}`
+    const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
+
     return {
       recipientName: rawData?.recipient.name || p.recipient.name,
       isRecipientContact: rawData?.recipient.isContact || p.recipient.isContact,
       isSigned: rawData?.recipient.isSigned || p.recipient.isSigned,
       pricingModel: rawData?.pricingModel || p.pricingModel,
       projectName: rawData?.project.title || p.project.title,
-      quoteNumber: rawData?.project.quoteNumber || p.project.quoteNumber,
+      quotationNumber: rawData?.project?.quotationNumber || p.project.quotationNumber,
       validUntil: rawData?.expiresIn || p.expiresIn.toISOString(),
       deliverables: computedDeliverables,
 
@@ -206,7 +226,9 @@ registerTemplate({
       financialsTaxAmount: taxAmount,
       financialsGrandTotal: grandTotal,
 
-      ctaUrl: rawData?.link || p.link,
+      ctaUrl: trackedCta,
+      trackingPixelUrl: dynamicPixel,
+      honeypotUrl,
       organizationName: org?.name || p.organization.name,
       organizationWebsite: org?.website || p.organization.website,
       organizationLogo: org?.branding?.logo || p.organization.branding.logo,

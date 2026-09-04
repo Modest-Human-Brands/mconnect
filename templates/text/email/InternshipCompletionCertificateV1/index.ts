@@ -13,6 +13,12 @@ export const internshipCompletionCertificateSchema = z.object({
   signerName: z.string(),
   signerTitle: z.string(),
   certificateUrl: z.string(),
+  tracking: z
+    .object({
+      emailId: z.string(),
+      baseUrl: z.url().optional(),
+    })
+    .optional(),
   organization: z.object({
     id: z.string(),
     name: z.string(),
@@ -62,6 +68,10 @@ const placeholders: InternshipCompletionCertificatePayload = {
   signerName: 'Sarah Jenkins',
   signerTitle: 'Director of Marketing',
   certificateUrl: '#',
+  tracking: {
+    emailId: 'test-certificate-1',
+    baseUrl: 'http://localhost:3001',
+  },
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
@@ -107,6 +117,15 @@ registerTemplate({
   transformPayload: (data: InternshipCompletionCertificatePayload) => {
     const p = placeholders
     const orgName = data?.organization?.name || p.organization.name
+    const emailId = data?.tracking?.emailId || p.tracking?.emailId || 'unassigned-email'
+    const baseUrl = data?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
+
+    const rawUrl = data?.certificateUrl || p.certificateUrl
+    const utmParams = '?ref=mail-certificate&utm_source=mconnect&utm_medium=email'
+    const destinationWithUtm = `${rawUrl}${utmParams}`
+    const trackedCta = rawUrl === '#' ? '#' : `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`
+    const dynamicPixel = `${baseUrl}/api/track/open?e=${emailId}`
+    const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
     return {
       recipientName: data?.recipientName || p.recipientName,
@@ -117,7 +136,9 @@ registerTemplate({
       dateOfIssue: data?.dateOfIssue || p.dateOfIssue.toISOString(),
       signerName: data?.signerName || p.signerName,
       signerTitle: data?.signerTitle || p.signerTitle,
-      ctaUrl: data?.certificateUrl || p.certificateUrl,
+      ctaUrl: trackedCta,
+      trackingPixelUrl: dynamicPixel,
+      honeypotUrl,
       organizationName: orgName,
       organizationWebsite: data?.organization?.website || p.organization.website,
       organizationLogo: data?.organization?.branding?.logo || p.organization.branding.logo,

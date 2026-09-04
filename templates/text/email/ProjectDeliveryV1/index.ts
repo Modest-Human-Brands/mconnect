@@ -14,6 +14,12 @@ export const projectDeliverySchema = z.object({
   completionDate: z.date(),
   deliveryNotes: z.string(),
   projectLinks: z.array(deliveryLinkSchema),
+  tracking: z
+    .object({
+      emailId: z.string(),
+      baseUrl: z.url().optional(),
+    })
+    .optional(),
   organization: z.object({
     id: z.string(),
     name: z.string(),
@@ -63,6 +69,10 @@ const placeholders: ProjectDeliveryPayload = {
     { title: 'Brand Guidelines (PDF)', url: '#', description: 'Rules for typography, spacing, and color usage.' },
     { title: 'Production Assets (Drive)', url: '#', description: 'High-resolution vectors and social media kits.' },
   ],
+  tracking: {
+    emailId: 'test-project-delivery-1',
+    baseUrl: 'http://localhost:3001',
+  },
   organization: {
     id: 'modest-human-brands',
     name: 'Modest Human Brands',
@@ -112,13 +122,29 @@ registerTemplate({
   transformPayload: (data: ProjectDeliveryPayload) => {
     const p = placeholders
     const org = data?.organization || {}
+    const emailId = data?.tracking?.emailId || p.tracking?.emailId || 'unassigned-email'
+    const baseUrl = data?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
+
+    const rawLinks = Array.isArray(data?.projectLinks) && data.projectLinks.length > 0 ? data.projectLinks : p.projectLinks
+    const trackedLinks = rawLinks.map((item) => {
+      const rawUrl = item.url || '#'
+      const utmParams = '?ref=mail-delivery&utm_source=mconnect&utm_medium=email'
+      const destinationWithUtm = `${rawUrl}${utmParams}`
+      const trackedUrl = rawUrl === '#' ? '#' : `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`
+      return { ...item, url: trackedUrl }
+    })
+
+    const dynamicPixel = `${baseUrl}/api/track/open?e=${emailId}`
+    const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
     return {
       recipientName: data?.recipientName || p.recipientName,
       projectName: data?.projectName || p.projectName,
       completionDate: data?.completionDate || p.completionDate.toISOString(),
       deliveryNotes: data?.deliveryNotes || p.deliveryNotes,
-      projectLinks: Array.isArray(data?.projectLinks) && data.projectLinks.length > 0 ? data.projectLinks : p.projectLinks,
+      projectLinks: trackedLinks,
+      trackingPixelUrl: dynamicPixel,
+      honeypotUrl,
       organizationName: org?.name || p.organization.name,
       organizationWebsite: org?.website || p.organization.website,
       organizationLogo: org?.branding?.logo || p.organization.branding.logo,

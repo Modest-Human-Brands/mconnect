@@ -5,6 +5,8 @@ defineProps<{
   recipientName: string
   categoryName: string
   ctaUrl: string
+  trackingPixelUrl?: string
+  honeypotUrl?: string
   unsubscribeUrl: string
   portfolioItems: { imageUrl: string; linkUrl: string; alt: string }[]
   organizationName: string
@@ -151,6 +153,12 @@ defineProps<{
                 class="block w-5 h-5 border-0" />
             </Link>
           </Section>
+
+          <!-- HONEYPOT TRAP LINK -->
+          <Link v-if="honeypotUrl" :href="honeypotUrl" style="display: none; max-height: 0px; overflow: hidden; opacity: 0" aria-hidden="true"> &zwnj; </Link>
+
+          <!-- MCONNECT TELEMETRY PIXEL -->
+          <Img v-if="trackingPixelUrl" :src="trackingPixelUrl" width="1" height="1" alt="" class="block hidden opacity-0 invisible" />
         </Container>
       </Body>
     </Tailwind>

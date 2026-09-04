@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Html, Head, Body, Img, Container, Section, Text, Button, Tailwind, Hr } from '@vue-email/components'
+import { Html, Head, Body, Img, Container, Section, Text, Button, Tailwind, Hr, Link } from '@vue-email/components'
 
 interface DeliveryLink {
   title: string
@@ -13,6 +13,8 @@ defineProps<{
   completionDate: string
   deliveryNotes: string
   projectLinks: DeliveryLink[]
+  trackingPixelUrl?: string
+  honeypotUrl?: string
 
   organizationName: string
   organizationWebsite: string
@@ -88,6 +90,12 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
               </Text>
             </Section>
           </Section>
+
+          <!-- HONEYPOT TRAP LINK -->
+          <Link v-if="honeypotUrl" :href="honeypotUrl" style="display: none; max-height: 0px; overflow: hidden; opacity: 0" aria-hidden="true"> &zwnj; </Link>
+
+          <!-- MCONNECT TELEMETRY PIXEL -->
+          <Img v-if="trackingPixelUrl" :src="trackingPixelUrl" width="1" height="1" alt="" class="block hidden opacity-0 invisible" />
         </Container>
       </Body>
     </Tailwind>
