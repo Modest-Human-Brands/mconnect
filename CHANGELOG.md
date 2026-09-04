@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.5.1
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.0...v0.5.1)
+
+### 🚀 Enhancements
+
+- Update package dependencies and improve tracking functionality ([cffc12c](https://github.com/Modest-Human-Brands/mconnect/commit/cffc12c))
+
+### 💅 Refactors
+
+- **email-templates:** Adopt canonical field naming and add template guide ([12f2450](https://github.com/Modest-Human-Brands/mconnect/commit/12f2450))
+- Update import paths to use absolute imports and improve template registration ([0245ed7](https://github.com/Modest-Human-Brands/mconnect/commit/0245ed7))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.0
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.4.9...v0.5.0)
