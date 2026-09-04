@@ -63,7 +63,8 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    let contentHtml = resource.htmlContent || ''
+    let contentHtml = sanitizeEmailHtml(resource.htmlContent || '')
+
     if (!contentHtml.trim()) {
       contentHtml = `<div style="font-family: sans-serif; max-width: 600px;">
           <h2 style="font-size: 20px; margin-bottom: 16px; color: #000;">${subject}</h2>

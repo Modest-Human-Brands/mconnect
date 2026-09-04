@@ -11,6 +11,13 @@ export default defineEventHandler(async (event) => {
   const FALLBACK_URL = 'https://modesthumanbrands.com'
   const destination = targetUrl ? decodeURIComponent(targetUrl) : FALLBACK_URL
 
+  const referer = event.req.headers.get('referer') || ''
+  const isDashboardView = referer.includes('localhost:') || referer.includes('modesthumanbrands.com')
+
+  if (isDashboardView) {
+    return redirect(destination, 302)
+  }
+
   if (emailId && targetUrl) {
     const telemetry = extractTelemetry(event)
     const telemetryStorage = useStorage<TelemetryRecord>('data:telemetry')

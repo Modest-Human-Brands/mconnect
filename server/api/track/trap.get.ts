@@ -6,6 +6,13 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const emailId = query.e as string
 
+  const referer = event.req.headers.get('referer') || ''
+  const isDashboardView = referer.includes('localhost:') || referer.includes('modesthumanbrands.com')
+
+  if (isDashboardView) {
+    return 'OK'
+  }
+
   if (emailId) {
     console.log(`[HONEYPOT TRIGGERED] Email ${emailId} is being actively scanned by a bot.`)
 

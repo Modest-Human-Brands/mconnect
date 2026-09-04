@@ -29,6 +29,7 @@ Define a `z.object()` that captures every field the caller must supply. The sche
 | Section                  | Purpose                                            |
 | ------------------------ | -------------------------------------------------- |
 | Template-specific fields | Business data (names, dates, amounts, links, etc.) |
+| `tracking`               | Optional telemetry routing (`emailId`, `baseUrl`)  |
 | `organization`           | Shared organization object (see below)             |
 
 **Canonical naming rules for template-specific fields:**
@@ -41,6 +42,19 @@ Define a `z.object()` that captures every field the caller must supply. The sche
 | Quotation reference number   | `quotationNumber`      | ~~quoteNumber~~                                            |
 | Date the document was issued | `dateOfIssue`          | ~~dataOfIssue~~ (typo)                                     |
 | Action / CTA link URL        | `ctaUrl`               | ~~certificateUrl, quotationUrl, contractLink, invoiceUrl~~ |
+
++**Canonical tracking schema additions:**
+
+```ts
+z.object({
+  tracking: z
+    .object({
+      emailId: z.string(),
+      baseUrl: z.url().optional(),
+    })
+    .optional(),
+})
+```
 
 > **Rule:** If your template has a single "action link" button, it is always named `ctaUrl`. No exceptions.
 
@@ -95,6 +109,10 @@ const placeholders: YourTemplatePayload = {
   recipientName: 'John Doe',
   projectName: 'Sample Project',
   ctaUrl: '#',
+  tracking: {
+    emailId: 'preview-email-id',
+    baseUrl: 'https://connect.modesthumanbrands.com',
+  },
   organization: {/* full org object with branding */},
 }
 ```

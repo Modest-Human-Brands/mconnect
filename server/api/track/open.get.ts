@@ -13,6 +13,13 @@ export default defineEventHandler(async (event) => {
   event.res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
   event.res.headers.set('Pragma', 'no-cache')
 
+  const referer = event.req.headers.get('referer') || ''
+  const isDashboardView = referer.includes('localhost:') || referer.includes('modesthumanbrands.com')
+
+  if (isDashboardView) {
+    return TRANSPARENT_PIXEL
+  }
+
   if (emailId) {
     const telemetry = extractTelemetry(event)
     const telemetryStorage = useStorage<TelemetryRecord>('data:telemetry')
