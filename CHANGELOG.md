@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.4
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.3...v0.5.4)
+
+### 🩹 Fixes
+
+- Add geoip-lite data copy to Dockerfile for runtime access ([ff18131](https://github.com/Modest-Human-Brands/mconnect/commit/ff18131))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.3
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.2...v0.5.3)
