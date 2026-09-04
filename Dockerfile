@@ -22,6 +22,8 @@ ARG BUILD_TIME
 WORKDIR /app
 
 COPY --from=builder /app/.output ./.output
+# Copy binary databases to the runtime location expected by .output/server/_libs/geoip-lite.mjs
+COPY --from=builder /app/node_modules/geoip-lite/data/ ./.output/server/data/
 
 ENV NODE_ENV=production
 ENV NITRO_APP_VERSION=$VERSION
