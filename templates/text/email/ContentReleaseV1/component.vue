@@ -55,10 +55,9 @@ const tailwindConfig = computed(() => ({
 
       <Body
         :style="{
-          backgroundColor: '#000000',
           fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif`,
         }"
-        class="m-0 p-0 bg-black">
+        class="m-0 p-0 bg-white">
         <Container class="mx-auto w-full max-w-[600px] my-10 bg-white">
           <!-- BADGE -->
           <Section class="pt-10 pb-3 px-6 text-center bg-white">

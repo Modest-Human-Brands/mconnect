@@ -129,8 +129,8 @@ registerTemplate({
     const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
     return {
-      recipientName: data?.recipient.name || p.recipient.name,
-      recipientRole: data?.recipient.role || p.recipient.role,
+      recipientName: data?.recipient?.name || p.recipient.name,
+      recipientRole: data?.recipient?.role || p.recipient.role,
       recipientScopeOfWork: data?.scopeOfWork || p.scopeOfWork,
       startDate: data?.startDate || p.startDate.toISOString(),
       endDate: data?.endDate || p.endDate.toISOString(),

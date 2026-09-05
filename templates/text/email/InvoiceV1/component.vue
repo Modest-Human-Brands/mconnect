@@ -39,7 +39,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
     <Tailwind :config="{ theme: { extend: { colors: { primary: organizationColorPrimary } } } }">
       <Body :style="{ fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif` }" class="m-0 p-0 bg-white">
         <Container class="mx-auto w-full max-w-[600px] my-10">
-          <Section class="bg-white p-10 shadow-xl border-t-4" :style="{ borderColor: organizationColorPrimary }">
+          <Section class="bg-white p-10 border-t-4" :style="{ borderColor: organizationColorPrimary }">
             <Section class="mb-8">
               <Img :src="organizationLogo" :alt="organizationName" width="120" class="mb-4" />
               <Text class="m-0 text-xs uppercase tracking-wider text-gray-400 font-semi-bold"> Tax Invoice </Text>

@@ -70,7 +70,7 @@ const chunkedPortfolio = computed(() => {
     <Preview>{{ heroHeadline || `Elevating ${categoryName} solutions with ${organizationName}` }}</Preview>
 
     <Tailwind :config="{ theme: { extend: { colors: { primary: organizationColorPrimary } } } }">
-      <Body :style="{ fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif` }" class="m-0 p-0 bg-white text-gray-800">
+      <Body :style="{ fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif` }" class="m-0 p-0 bg-white">
         <Container class="mx-auto w-full max-w-[600px] min-w-[300px] p-6 bg-white">
           <!-- PURE CODE GRADIENT HEADER -->
           <Section class="mb-6">

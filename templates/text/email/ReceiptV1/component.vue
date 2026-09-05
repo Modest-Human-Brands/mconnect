@@ -102,13 +102,12 @@ const tailwindConfig = computed(() => ({
 
       <Body
         :style="{
-          backgroundColor: '#f8fafc',
           fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif`,
         }"
-        class="m-0 p-0 bg-slate-50 text-gray-800">
-        <Container class="mx-auto w-full max-w-[600px] my-10 bg-white" style="background-color: #ffffff">
+        class="m-0 p-0 bg-white">
+        <Container class="mx-auto w-full max-w-[600px] my-10 bg-white">
           <!-- HEADER BANNER -->
-          <Section class="p-8 border-t-4" :style="{ borderColor: accentColor, backgroundColor: '#ffffff' }">
+          <Section class="p-8 border-t-4" :style="{ borderColor: accentColor }">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
               <tbody>
                 <tr>

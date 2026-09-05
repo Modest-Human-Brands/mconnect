@@ -138,7 +138,7 @@ registerTemplate({
     const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
     return {
-      recipientName: data?.recipient.name || p.recipient.name,
+      recipientName: data?.recipient?.name || p.recipient.name,
       projectName: data?.projectName || p.projectName,
       completionDate: data?.completionDate || p.completionDate.toISOString(),
       deliveryNotes: data?.deliveryNotes || p.deliveryNotes,

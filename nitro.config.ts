@@ -5,6 +5,9 @@ import mcp from 'nitro-mcp-toolkit/module'
 export default defineConfig({
   modules: [mcp()],
   serverDir: './server',
+  routeRules: {
+    '/api/**': { cors: true },
+  },
   rollupConfig: {
     plugins: [vue()],
   },

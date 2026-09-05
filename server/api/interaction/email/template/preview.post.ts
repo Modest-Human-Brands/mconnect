@@ -25,10 +25,10 @@ export default defineEventHandler(async (event) => {
       return { error: `Template '${templateId}' not found.` }
     }
 
-    variables.tracking.baseUrl = config.public.connectUrl
-    console.log('---------------------- Test 1 --------------------------')
+    if (variables?.tracking?.baseUrl) variables.tracking.baseUrl = config.public.connectUrl
+    console.log('Input to transformpayload')
     const transformedProps = await templateDef.transformPayload(variables || {})
-    console.log('---------------------- Test 10 --------------------------')
+    console.log('Output to transformpayload')
 
     const contentHtml = await render(templateDef.component, transformedProps, {
       pretty: false,
