@@ -4,13 +4,17 @@ import { z } from 'zod'
 
 export const contentReleaseSchema = z.object({
   recipient: z.object({
-    name: z.string(),
+    name: z.string().optional(),
     email: z.email(),
   }),
   emailSubject: z.string().default('New Content Published'),
   content: z.object({
+    badge: z.string().optional(), // 'New Blog Post' | 'New Video' | 'Podcast Episode' | 'Case Study'
     title: z.string(),
+    meta: z.string().optional(), // 'Posted by Alan Bennet, 1 min' | '12 min watch · 4K'
     imageUrl: z.url(),
+    excerpt: z.string().optional(), // teaser hook paragraph
+    ctaLabel: z.string().optional(), // 'Read More' | 'Watch Video' | 'Listen Now'
     linkUrl: z.url(),
   }),
   unsubscribeUrl: z.url(),
@@ -50,7 +54,7 @@ export const contentReleaseSchema = z.object({
     contactEmail: z.email(),
     billingEmail: z.email(),
     whatsapp: z.string().optional(),
-    socials: z.record(z.any(), z.any()).optional(),
+    socials: z.record(z.string(), z.any()).optional(),
     primaryContactId: z.string(),
     organizationMemberIds: z.array(z.string()),
     createdAt: z.string(),
@@ -62,16 +66,20 @@ export type ContentReleasePayload = z.infer<typeof contentReleaseSchema>
 
 const placeholders: ContentReleasePayload = {
   recipient: {
-    name: 'John Doe',
-    email: 'john@example.com',
+    name: 'Sarah Jenkins',
+    email: 'sarah@example.com',
   },
-  emailSubject: 'Our Latest Post is Live!',
+  emailSubject: 'Three Ways to Deepen Your Creative Flow',
   content: {
-    title: '10 Ways to Improve Your Visual Branding',
-    imageUrl: 'https://cdn.redcatpictures.com/media/image/f_auto&q_80&progressive_yes&fit_cover&s_427x640/photo-0020-0001-002',
-    linkUrl: 'https://redcatpictures.com/',
+    badge: 'New Release',
+    title: 'Three Ways to Deepen Your Creative Workflow',
+    meta: 'Posted by Modest Human Brands · 3 min read',
+    imageUrl: 'https://modesthumanbrands.com/images/hero-image-1.webp',
+    excerpt: "You've been optimizing your routine for a while, and now you feel it's time to take your studio output to the next level. Here is how modern teams eliminate friction across production.",
+    ctaLabel: 'Read More',
+    linkUrl: 'https://modesthumanbrands.com/blog/creative-workflow',
   },
-  unsubscribeUrl: 'https://redcatpictures.com/newsletter/unsubscribe',
+  unsubscribeUrl: 'https://modesthumanbrands.com/newsletter/unsubscribe',
   trackingPixelUrl: 'http://localhost:3001/api/track/open?e=test',
   tracking: {
     emailId: 'test-emailid-1',
@@ -103,10 +111,18 @@ const placeholders: ContentReleasePayload = {
     branding: {
       logo: 'https://modesthumanbrands.com/logo.svg',
       color: {
-        primary: '#2B2B2B',
-        accent: '#4A85FF',
+        primary: '#111827',
+        accent: '#0284c7',
       },
       font: 'Exo2',
+    },
+    phone: '+919999999999',
+    whatsapp: '+919999999999',
+    socials: {
+      instagram: 'https://www.instagram.com/modesthumanbrands/',
+      facebook: 'https://facebook.com/modesthumanbrands',
+      linkedin: 'https://linkedin.com/company/modesthumanbrands',
+      youtube: 'https://www.youtube.com/@modesthumanbrands',
     },
   },
 }
@@ -114,10 +130,10 @@ const placeholders: ContentReleasePayload = {
 registerTemplate({
   id: 'content-release',
   label: 'Content Release',
-  description: '',
+  description: 'Notification announcing newly published blog posts, articles, videos, or editorial insights.',
   schema: contentReleaseSchema,
   placeholders,
-  subject: (rawData: ContentReleasePayload) => rawData?.emailSubject || placeholders.emailSubject,
+  subject: (rawData: ContentReleasePayload) => rawData?.emailSubject || rawData?.content?.title || placeholders.emailSubject,
   component: Component,
   transformPayload: (rawData: ContentReleasePayload) => {
     const p = placeholders
@@ -134,19 +150,33 @@ registerTemplate({
       recipientName: rawData?.recipient?.name || p.recipient.name,
       recipientEmail: rawData?.recipient?.email || p.recipient.email,
       emailSubject: rawData?.emailSubject || p.emailSubject,
+
+      // Flexible Content Payload
+      contentBadge: rawData?.content?.badge || p.content.badge,
       contentTitle: rawData?.content?.title || p.content.title,
+      contentMeta: rawData?.content?.meta || p.content.meta,
       contentImage: rawData?.content?.imageUrl || p.content.imageUrl,
+      contentExcerpt: rawData?.content?.excerpt || p.content.excerpt,
+      ctaLabel: rawData?.content?.ctaLabel || p.content.ctaLabel,
+
       ctaUrl: `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`,
       honeypotUrl: `${baseUrl}/api/track/trap?e=${emailId}`,
       trackingPixelUrl: rawData?.trackingPixelUrl || `${baseUrl}/api/track/open?e=${emailId}`,
       unsubscribeUrl: rawData?.unsubscribeUrl || p.unsubscribeUrl,
 
-      organizationName: org?.name || p.organization.name,
-      organizationWebsite: org?.website || p.organization.website,
-      organizationLogo: org?.branding?.logo || p.organization.branding.logo,
-      organizationColorPrimary: org?.branding?.color?.primary || p.organization.branding.color.primary,
-      organizationColorAccent: org?.branding?.color?.accent || p.organization.branding.color.accent,
-      organizationFont: org?.branding?.font || p.organization.branding.font,
+      organizationName: org.name,
+      organizationPhone: org.phone,
+      organizationAddress: org.address,
+      organizationWebsite: org.website || p.organization.website,
+      organizationLogo: org.branding?.logo || p.organization.branding.logo,
+      organizationColorPrimary: org.branding?.color?.primary || p.organization.branding.color.primary,
+      organizationColorAccent: org.branding?.color?.accent || p.organization.branding.color.accent,
+      organizationFont: org.branding?.font || p.organization.branding.font,
+      organizationSocialWhatsapp: org.whatsapp || p.organization.whatsapp,
+      organizationSocialInstagram: org.socials?.instagram || p.organization.socials?.instagram,
+      organizationSocialFacebook: org.socials?.facebook || p.organization.socials?.facebook,
+      organizationSocialLinkedin: org.socials?.linkedin || p.organization.socials?.linkedin,
+      organizationSocialYoutube: org.socials?.youtube || p.organization.socials?.youtube,
     }
   },
 })

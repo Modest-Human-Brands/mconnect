@@ -28,11 +28,11 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
   <Html>
     <Head />
     <Tailwind :config="{ theme: { extend: { colors: { primary: organizationColorPrimary } } } }">
-      <Body :style="{ fontFamily: `'${organizationFont}', system-ui, sans-serif` }" class="m-0 p-0">
+      <Body :style="{ fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif` }" class="m-0 p-0 bg-white">
         <Section>
           <Container class="mx-auto w-full max-w-[600px]">
             <Section class="px-6 py-12">
-              <Section class="p-10 text-center shadow-2xl border-t-4" :style="{ backgroundColor: '#ffffff', borderColor: organizationColorAccent || '#1a1a1a' }">
+              <Section class="p-10 text-center shadow-2xl border-t-4 bg-white" :style="{ borderColor: organizationColorAccent || '#1a1a1a' }">
                 <Img :src="organizationLogo" :alt="organizationName" width="120" class="mx-auto mb-6" />
 
                 <Text class="m-0 mb-2 text-sm font-bold tracking-widest uppercase text-gray-500"> Certificate of Completion </Text>

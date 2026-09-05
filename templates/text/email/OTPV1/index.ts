@@ -98,7 +98,7 @@ const placeholders: OtpPayload = {
 registerTemplate({
   id: 'otp',
   label: 'OTP',
-  description: '',
+  description: 'Time-sensitive one-time verification code for passwordless authentication and account security.',
   schema: otpSchema,
   placeholders,
   subject: (data: any) => {

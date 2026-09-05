@@ -72,9 +72,14 @@ describe('E2E Tracking & Template Pipeline', () => {
   it('renders HTML containing the tracking pixel, click URL, and honeypot link', async () => {
     const rawData = {
       recipient: { name: 'Dev Tester', email: 'dev@modesthumanbrands.com' },
+      emailSubject: 'Release Notes 1.0',
       content: {
+        badge: 'Product Update',
         title: 'Release Notes 1.0',
+        meta: 'Engineering · 2 min read',
         imageUrl: 'https://cdn.example.com/banner.png',
+        excerpt: 'Check out all the new features, performance updates, and bug fixes.',
+        ctaLabel: 'Read Release Notes',
         linkUrl: 'https://modesthumanbrands.com/blog/release-1',
       },
       unsubscribeUrl: 'https://modesthumanbrands.com/unsubscribe',
@@ -93,6 +98,11 @@ describe('E2E Tracking & Template Pipeline', () => {
     expect(html).toContain('http://localhost:3000/api/track/click?')
     expect(html).toContain('e=email-dev-42')
 
+    // Verify editorial content renders
+    expect(html).toContain('Product Update')
+    expect(html).toContain('Release Notes 1.0')
+    expect(html).toContain('Read Release Notes')
+
     // Verify tracking pixel exists
     expect(html).toContain('http://localhost:3000/api/track/open?e=email-dev-42')
 
@@ -105,9 +115,14 @@ describe('E2E Tracking & Template Pipeline', () => {
 
     const rawData = {
       recipient: { name: 'Human User', email: 'human@example.com' },
+      emailSubject: 'Fresh Update',
       content: {
+        badge: 'New Release',
         title: 'Fresh Update',
+        meta: '3 min read',
         imageUrl: 'https://cdn.example.com/art.jpg',
+        excerpt: 'Take an inside look at our latest workflow tool release.',
+        ctaLabel: 'Read More',
         linkUrl: 'https://modesthumanbrands.com/products/tracker',
       },
       unsubscribeUrl: 'https://modesthumanbrands.com/unsubscribe',
@@ -142,9 +157,14 @@ describe('E2E Tracking & Template Pipeline', () => {
 
     const rawData = {
       recipient: { name: 'Corporate Scan', email: 'scanner@enterprise.com' },
+      emailSubject: 'Internal Notice',
       content: {
+        badge: 'Security Notice',
         title: 'Internal Notice',
+        meta: 'Compliance Dept',
         imageUrl: 'https://cdn.example.com/img.jpg',
+        excerpt: 'Routine security protocol check.',
+        ctaLabel: 'View Notice',
         linkUrl: 'https://modesthumanbrands.com/notice',
       },
       unsubscribeUrl: 'https://modesthumanbrands.com/unsub',
@@ -175,9 +195,14 @@ describe('E2E Tracking & Template Pipeline', () => {
 
     const rawData = {
       recipient: { name: 'Bot Target', email: 'victim@enterprise.com' },
+      emailSubject: 'Trapped Mail',
       content: {
+        badge: 'Alert',
         title: 'Trapped Mail',
+        meta: 'Test Case',
         imageUrl: 'https://cdn.example.com/img.jpg',
+        excerpt: 'Automated crawler honeypot detection.',
+        ctaLabel: 'Learn More',
         linkUrl: 'https://modesthumanbrands.com/notice',
       },
       unsubscribeUrl: 'https://modesthumanbrands.com/unsub',

@@ -35,7 +35,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
   <Html>
     <Head />
     <Tailwind :config="{ theme: { extend: { colors: { primary: organizationColorPrimary } } } }">
-      <Body :style="{ fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif` }" class="m-0 p-0 bg-gray-50">
+      <Body :style="{ fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif` }" class="m-0 p-0 bg-white">
         <Container class="mx-auto w-full max-w-[600px] my-10">
           <Section class="bg-white p-10 shadow-xl border-t-4" :style="{ borderColor: organizationColorPrimary }">
             <Section class="mb-8">
@@ -138,7 +138,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
 
             <Section class="text-center my-8">
               <Button class="px-6 py-3 rounded text-white font-bold text-sm tracking-wide text-center inline-block no-underline" :style="{ backgroundColor: organizationColorAccent }" :href="ctaUrl">
-                {{ isSigned ? 'Download Executed Proposal' : isRecipientContact ? 'Review Full Proposal' : 'Review & Countersign Proposal' }}
+                {{ isSigned ? 'Download Executed Proposal' : isRecipientContact ? 'Review Full Proposal' : 'Review &  Countersign Proposal' }}
               </Button>
             </Section>
 

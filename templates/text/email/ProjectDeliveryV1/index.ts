@@ -110,7 +110,7 @@ const placeholders: ProjectDeliveryPayload = {
 registerTemplate({
   id: 'project-delivery',
   label: 'Project Delivery',
-  description: '',
+  description: 'Final handover notification delivering production assets, drive folders, brand guidelines, and documentation.',
   schema: projectDeliverySchema,
   placeholders,
   subject: (data: ProjectDeliveryPayload) => {

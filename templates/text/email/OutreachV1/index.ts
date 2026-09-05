@@ -22,10 +22,11 @@ export const outreachSchema = z.object({
   sectionPretitle: z.string().optional(),
   sectionTitle: z.string().optional(),
   sectionDescription: z.string().optional(),
-  category: z.string().default('ecommerce'),
+  category: z.string(),
   featuredItems: z
     .array(
       z.object({
+        category: z.string().optional(),
         imageUrl: z.string(),
         linkUrl: z.string(),
         alt: z.string().optional(),
@@ -33,21 +34,6 @@ export const outreachSchema = z.object({
         description: z.string().optional(),
         actionLabel: z.string().optional(),
       })
-    )
-    .optional(),
-  customfeaturedItems: z
-    .record(
-      z.string(),
-      z.array(
-        z.object({
-          imageUrl: z.string(),
-          linkUrl: z.string(),
-          alt: z.string().optional(),
-          title: z.string().optional(),
-          description: z.string().optional(),
-          actionLabel: z.string().optional(),
-        })
-      )
     )
     .optional(),
   ctaUrl: z.string().optional(),
@@ -84,7 +70,7 @@ export const outreachSchema = z.object({
     contactEmail: z.email(),
     billingEmail: z.email(),
     whatsapp: z.string().optional(),
-    socials: z.record(z.any(), z.any()).optional(),
+    socials: z.record(z.string(), z.any()).optional(),
     primaryContactId: z.string(),
     organizationMemberIds: z.array(z.string()),
     createdAt: z.string(),
@@ -125,6 +111,7 @@ const placeholders: OutreachPayload = {
   },
   featuredItems: [
     {
+      category: 'creative-studios',
       imageUrl: 'https://modesthumanbrands.com/images/mockup-dashboard.webp',
       linkUrl: 'https://modesthumanbrands.com/dashboard',
       title: 'Unified creative project pipeline',
@@ -133,6 +120,7 @@ const placeholders: OutreachPayload = {
       alt: 'MHB Dashboard - Creative Project Pipeline',
     },
     {
+      category: 'creative-studios',
       imageUrl: 'https://modesthumanbrands.com/images/mockup-document.webp',
       linkUrl: 'https://modesthumanbrands.com/mdoc',
       title: 'Frictionless client agreements',
@@ -141,6 +129,7 @@ const placeholders: OutreachPayload = {
       alt: 'MHB MDoc - Agreements & E-Signatures',
     },
     {
+      category: 'creative-studios',
       imageUrl: 'https://modesthumanbrands.com/images/mockup-stream.webp',
       linkUrl: 'https://modesthumanbrands.com/msync',
       title: 'Live stream & media sync',
@@ -149,6 +138,7 @@ const placeholders: OutreachPayload = {
       alt: 'MHB MSync - Live Stream & Asset Handoff',
     },
     {
+      category: 'creative-studios',
       imageUrl: 'https://modesthumanbrands.com/images/mockup-media.webp',
       linkUrl: 'https://modesthumanbrands.com/mdrive',
       title: 'Unified media storage & distribution',
@@ -202,7 +192,7 @@ const placeholders: OutreachPayload = {
 registerTemplate({
   id: 'outreach',
   label: 'Outreach',
-  description: '',
+  description: 'Cold outreach and brand pitch campaign featuring targeted service showcases and custom portfolio items.',
   schema: outreachSchema,
   placeholders,
   subject: (rawData: OutreachPayload) => rawData?.emailSubject || `Elevating visual branding for ${rawData?.recipient?.name || 'your brand'}`,
@@ -210,7 +200,7 @@ registerTemplate({
   transformPayload: (rawData: OutreachPayload) => {
     const p = placeholders
     const org = rawData?.organization || p.organization
-    const activeCategoryKey = rawData?.category?.toLowerCase() || 'ecommerce'
+    const activeCategoryKey = (rawData?.category || p.category).toLowerCase()
     const emailId = rawData?.tracking?.emailId || p.tracking?.emailId || 'unassigned-email'
     const baseUrl = rawData?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
 
@@ -226,13 +216,20 @@ registerTemplate({
     const dynamicPixel = `${baseUrl}/api/track/open?e=${emailId}`
     const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
-    const sourceItems = rawData?.featuredItems || p.featuredItems || []
+    // Resolve all featured items safely, then filter by category
+    const allItems = Array.isArray(rawData?.featuredItems) && rawData.featuredItems.length > 0 ? rawData.featuredItems : p.featuredItems || []
+
+    const categoryFiltered = allItems.filter((item) => !item.category || item.category.toLowerCase() === activeCategoryKey)
+    const sourceItems = categoryFiltered.length > 0 ? categoryFiltered : allItems
+
     const resolvedItems = sourceItems.map((item) => ({
       ...item,
       linkUrl: wrapTracked(item.linkUrl),
     }))
 
-    const trackedButtons = (rawData?.ctaButtons || p.ctaButtons || []).map((btn) => ({
+    const rawButtons = Array.isArray(rawData?.ctaButtons) && rawData.ctaButtons.length > 0 ? rawData.ctaButtons : p.ctaButtons || []
+
+    const trackedButtons = rawButtons.map((btn) => ({
       label: btn.label,
       url: wrapTracked(btn.url),
     }))
@@ -242,8 +239,8 @@ registerTemplate({
       categoryName: activeCategoryKey,
       heroHeadline: rawData?.heroHeadline || p.heroHeadline,
       heroImageUrl: rawData?.heroImageUrl || p.heroImageUrl,
-      pitchMessage: rawData?.pitchMessage,
-      ctaText: rawData?.ctaText,
+      pitchMessage: rawData?.pitchMessage || p.pitchMessage,
+      ctaText: rawData?.ctaText || p.ctaText,
       ctaButtonText: rawData?.ctaButtonText,
       ctaButtons: trackedButtons,
       sectionPretitle: rawData?.sectionPretitle || p.sectionPretitle,
@@ -260,7 +257,7 @@ registerTemplate({
       organizationAddress: org.address,
       organizationWebsite: org.website || p.organization.website,
       organizationEpisodeUrl: org.website ? `${org.website}/episode` : p.organization.website ? `${p.organization.website}/episode` : undefined,
-      organizationLogo: org.branding.logo || p.organization.branding.logo,
+      organizationLogo: org.branding?.logo || p.organization.branding.logo,
       organizationColorPrimary: org.branding?.color?.primary || p.organization.branding.color.primary,
       organizationColorAccent: org.branding?.color?.accent || p.organization.branding.color.accent,
       organizationFont: org.branding?.font || p.organization.branding.font,

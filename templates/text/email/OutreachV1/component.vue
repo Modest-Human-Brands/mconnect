@@ -71,7 +71,7 @@ const chunkedPortfolio = computed(() => {
 
     <Tailwind :config="{ theme: { extend: { colors: { primary: organizationColorPrimary } } } }">
       <Body :style="{ fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif` }" class="m-0 p-0 bg-white text-gray-800">
-        <Container class="mx-auto w-full max-w-[600px] min-w-[300px] p-6">
+        <Container class="mx-auto w-full max-w-[600px] min-w-[300px] p-6 bg-white">
           <!-- PURE CODE GRADIENT HEADER -->
           <Section class="mb-6">
             <div class="h-4 w-full rounded bg-primary" :style="{ background: `linear-gradient(90deg, #111827 0%, ${organizationColorPrimary} 100%)` }"></div>

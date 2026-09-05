@@ -33,9 +33,9 @@ defineProps<{
           },
         },
       }">
-      <Body class="m-0 p-0 bg-white font-sans">
+      <Body :style="{ fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif` }" class="m-0 p-0 bg-white">
         <Container class="mx-auto w-full max-w-[480px] my-12">
-          <Section class="p-8 border border-gray-200 rounded-lg">
+          <Section class="p-8 bg-white border border-gray-200 rounded-lg bg-white">
             <Section class="mb-6">
               <Img :src="organizationLogo" :alt="organizationName" width="80" class="block mx-auto mb-6" />
               <Text class="m-0 text-xl font-bold text-gray-900 tracking-tight mb-2"> Log in to {{ organizationName }} </Text>

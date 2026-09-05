@@ -31,7 +31,7 @@ export const quotationSchema = z.object({
       taxRate: z.number().min(0).optional(),
     })
     .optional(),
-  expiresIn: z.date(),
+  expiresIn: z.coerce.date(), // Accepts native Date instances and ISO date strings
   link: z.string(),
   tracking: z
     .object({
@@ -68,7 +68,7 @@ export const quotationSchema = z.object({
     contactEmail: z.email(),
     billingEmail: z.email(),
     whatsapp: z.string().optional(),
-    socials: z.record(z.any(), z.any()).optional(),
+    socials: z.record(z.string(), z.any()).optional(),
     primaryContactId: z.string(),
     organizationMemberIds: z.array(z.string()),
     createdAt: z.string(),
@@ -148,13 +148,21 @@ const placeholders: QuotationPayload = {
       },
       font: 'Exo2',
     },
+    phone: '+919999999999',
+    whatsapp: '+919999999999',
+    socials: {
+      instagram: 'https://www.instagram.com/modesthumanbrands/',
+      facebook: '',
+      linkedin: '',
+      youtube: 'https://www.youtube.com/@modesthumanbrands',
+    },
   },
 }
 
 registerTemplate({
   id: 'quotation',
   label: 'Quotation',
-  description: 'The estimated pricing, scope of work, and terms provided to the client before finalizing the agreement.',
+  description: 'The estimated pricing breakdown, scope of work, and validity window provided prior to contract signing.',
   schema: quotationSchema,
   placeholders,
   subject: (rawData: QuotationPayload) => {
@@ -165,18 +173,21 @@ registerTemplate({
   component: Component,
   transformPayload: (rawData: QuotationPayload) => {
     const p = placeholders
-    const org = rawData?.organization || {}
+    const org = rawData?.organization || p.organization
 
-    const computedDeliverables: ComputedDeliverable[] = (rawData.deliverables || p.deliverables).map((item: DeliverableInput) => {
-      const qty = item.quantity ?? 1
-      const rate = item.rate ?? 0
+    // Guard array input to prevent runtime .map crashes
+    const sourceDeliverables = Array.isArray(rawData?.deliverables) && rawData.deliverables.length > 0 ? rawData.deliverables : p.deliverables
+
+    const computedDeliverables: ComputedDeliverable[] = sourceDeliverables.map((item: DeliverableInput) => {
+      const qty = item?.quantity ?? 1
+      const rate = item?.rate ?? 0
       const rowTotal = qty * rate
 
       return {
-        title: item.title ?? '',
-        description: item.description ?? '',
-        points: Array.isArray(item.points) ? item.points.filter((pt: string) => pt.trim() !== '') : [],
-        rate: rate,
+        title: item?.title ?? '',
+        description: item?.description ?? '',
+        points: Array.isArray(item?.points) ? item.points.filter((pt: string) => pt && pt.trim() !== '') : [],
+        rate,
         quantity: qty,
         amount: rowTotal,
       }
@@ -185,7 +196,7 @@ registerTemplate({
     const subtotal = computedDeliverables.reduce((acc: number, curr: ComputedDeliverable) => acc + curr.amount, 0)
 
     let discountAmount = 0
-    const financials = rawData.financials || p.financials
+    const financials = rawData?.financials || p.financials
     const discountValue = financials?.discountValue || 0
 
     if (financials?.isDiscountPercentage) {
@@ -194,7 +205,7 @@ registerTemplate({
       discountAmount = discountValue
     }
 
-    const postDiscountTotal = subtotal - discountAmount
+    const postDiscountTotal = Math.max(0, subtotal - discountAmount)
     const taxRate = financials?.taxRate || 0
     const taxAmount = (postDiscountTotal * taxRate) / 100
     const grandTotal = postDiscountTotal + taxAmount
@@ -209,14 +220,17 @@ registerTemplate({
     const dynamicPixel = `${baseUrl}/api/track/open?e=${emailId}`
     const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`
 
+    const rawExpiresIn = rawData?.expiresIn || p.expiresIn
+    const resolvedValidUntil = rawExpiresIn instanceof Date ? rawExpiresIn.toISOString() : String(rawExpiresIn)
+
     return {
-      recipientName: rawData?.recipient.name || p.recipient.name,
-      isRecipientContact: rawData?.recipient.isContact || p.recipient.isContact,
-      isSigned: rawData?.recipient.isSigned || p.recipient.isSigned,
+      recipientName: rawData?.recipient?.name || p.recipient.name,
+      isRecipientContact: rawData?.recipient?.isContact ?? p.recipient.isContact,
+      isSigned: rawData?.recipient?.isSigned ?? p.recipient.isSigned,
       pricingModel: rawData?.pricingModel || p.pricingModel,
-      projectName: rawData?.project.title || p.project.title,
+      projectName: rawData?.project?.title || p.project.title,
       quotationNumber: rawData?.project?.quotationNumber || p.project.quotationNumber,
-      validUntil: rawData?.expiresIn || p.expiresIn.toISOString(),
+      validUntil: resolvedValidUntil,
       deliverables: computedDeliverables,
 
       financialsSubtotal: subtotal,
@@ -229,12 +243,12 @@ registerTemplate({
       ctaUrl: trackedCta,
       trackingPixelUrl: dynamicPixel,
       honeypotUrl,
-      organizationName: org?.name || p.organization.name,
-      organizationWebsite: org?.website || p.organization.website,
-      organizationLogo: org?.branding?.logo || p.organization.branding.logo,
-      organizationColorPrimary: org?.branding?.color?.primary || p.organization.branding.color.primary,
-      organizationColorAccent: org?.branding?.color?.accent || p.organization.branding.color.accent,
-      organizationFont: org?.branding?.font || p.organization.branding.font,
+      organizationName: org.name,
+      organizationWebsite: org.website || p.organization.website,
+      organizationLogo: org.branding?.logo || p.organization.branding.logo,
+      organizationColorPrimary: org.branding?.color?.primary || p.organization.branding.color.primary,
+      organizationColorAccent: org.branding?.color?.accent || p.organization.branding.color.accent,
+      organizationFont: org.branding?.font || p.organization.branding.font,
     }
   },
 })

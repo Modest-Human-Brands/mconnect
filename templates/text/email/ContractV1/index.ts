@@ -118,7 +118,7 @@ const placeholders: ContractPayload = {
 registerTemplate({
   id: 'contract',
   label: 'Contract',
-  description: 'The formal agreement or legal document associated with this record.',
+  description: 'The formal agreement or legal document outlining scope, terms, and obligations between parties.',
   schema: contractSchema,
   placeholders,
   subject: (rawData: ContractPayload) => {
