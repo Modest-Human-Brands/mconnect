@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.5.7
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.6...v0.5.7)
+
+### 🚀 Enhancements
+
+- **email-templates:** Update invoice, otp, project delivery, quotation, and receipt templates ([519052f](https://github.com/Modest-Human-Brands/mconnect/commit/519052f))
+
+### 🩹 Fixes
+
+- Add optional chaining for recipient name and role in templates ([957ecad](https://github.com/Modest-Human-Brands/mconnect/commit/957ecad))
+
+### 💅 Refactors
+
+- Email templates contract, internship completion certificate, outreach, project delivery ([e04c6ab](https://github.com/Modest-Human-Brands/mconnect/commit/e04c6ab))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.6
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.5...v0.5.6)
