@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.6
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.5...v0.5.6)
+
+### 🚀 Enhancements
+
+- **email-templates:** Enhance email templates with detailed descriptions and new receipt ([afb6974](https://github.com/Modest-Human-Brands/mconnect/commit/afb6974))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.5
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.4...v0.5.5)
