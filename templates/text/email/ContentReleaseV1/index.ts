@@ -66,18 +66,19 @@ export type ContentReleasePayload = z.infer<typeof contentReleaseSchema>
 
 const placeholders: ContentReleasePayload = {
   recipient: {
-    name: 'Sarah Jenkins',
-    email: 'sarah@example.com',
+    name: 'Creative Partner',
+    email: 'partner@agency.com',
   },
-  emailSubject: 'Three Ways to Deepen Your Creative Flow',
+  emailSubject: 'Eliminate Operational Friction: Next-Gen Studio Automation by MHB',
   content: {
-    badge: 'New Release',
-    title: 'Three Ways to Deepen Your Creative Workflow',
-    meta: 'Posted by Modest Human Brands · 3 min read',
+    badge: 'Capability Spotlight',
+    title: 'Streamlining Production Pipelines, Asset Reviews & Client Deliverables',
+    meta: 'Platform Overview by Modest Human Brands · 3 min read',
     imageUrl: 'https://modesthumanbrands.com/images/hero-image-1.webp',
-    excerpt: "You've been optimizing your routine for a while, and now you feel it's time to take your studio output to the next level. Here is how modern teams eliminate friction across production.",
-    ctaLabel: 'Read More',
-    linkUrl: 'https://modesthumanbrands.com/blog/creative-workflow',
+    excerpt:
+      'Modest Human Brands builds workflow automation and project management platforms engineered specifically for modern advertising agencies, production houses, and creative studios. Discover how our tools eliminate operational friction across client agreements, asset approvals, and high-velocity deliverable pipelines.',
+    ctaLabel: 'Explore Capabilities',
+    linkUrl: 'https://modesthumanbrands.com',
   },
   unsubscribeUrl: 'https://modesthumanbrands.com/newsletter/unsubscribe',
   trackingPixelUrl: 'http://localhost:3001/api/track/open?e=test',

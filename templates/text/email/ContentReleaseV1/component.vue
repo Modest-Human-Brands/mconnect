@@ -101,7 +101,7 @@ const tailwindConfig = computed(() => ({
               {{ contentExcerpt }}
             </Text>
 
-            <Button :href="ctaUrl" class="rounded-full px-8 py-3 text-sm font-semibold text-white no-underline inline-block shadow-sm tracking-wide" :style="{ backgroundColor: accentColor }">
+            <Button :href="ctaUrl" class="rounded px-8 py-3 text-sm font-semibold text-white no-underline inline-block shadow-sm tracking-wide" :style="{ backgroundColor: accentColor }">
               {{ ctaLabel || 'Read More' }}
             </Button>
           </Section>

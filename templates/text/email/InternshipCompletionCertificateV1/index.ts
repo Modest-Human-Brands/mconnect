@@ -61,14 +61,17 @@ export const internshipCompletionCertificateSchema = z.object({
 export type InternshipCompletionCertificatePayload = z.infer<typeof internshipCompletionCertificateSchema>
 
 const placeholders: InternshipCompletionCertificatePayload = {
-  recipient: { name: 'Alex Mercer', role: 'Senior Marketing Intern' },
-  scopeOfWork: 'Digital Campaign Management',
-  startDate: new Date('June 1, 2025'),
-  endDate: new Date('December 31, 2025'),
+  recipient: {
+    name: 'Creative Fellow',
+    role: 'Creative Operations & Studio Production Associate',
+  },
+  scopeOfWork: 'Studio Workflow Automation, Asset Pipeline Architecture & Digital Production Management',
+  startDate: new Date('October 1, 2025'),
+  endDate: new Date('March 31, 2026'),
   dateOfIssue: new Date(),
-  signerName: 'Sarah Jenkins',
-  signerTitle: 'Director of Marketing',
-  certificateUrl: '#',
+  signerName: 'Authorized Signatory',
+  signerTitle: 'Head of Studio Operations & Brand Systems',
+  certificateUrl: 'https://modesthumanbrands.com',
   tracking: {
     emailId: 'test-certificate-1',
     baseUrl: 'http://localhost:3001',

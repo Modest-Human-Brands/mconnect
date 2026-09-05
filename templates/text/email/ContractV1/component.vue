@@ -30,7 +30,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
     <Tailwind :config="{ theme: { extend: { colors: { primary: organizationColorPrimary } } } }">
       <Body :style="{ fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif` }" class="m-0 p-0 bg-white">
         <Container class="mx-auto w-full max-w-[600px] my-10">
-          <Section class="bg-white p-10 shadow-xl border-t-4 rounded-b-md" :style="{ borderColor: organizationColorPrimary }">
+          <Section class="bg-white p-10 border-t-4" :style="{ borderColor: organizationColorPrimary }">
             <Section class="mb-8 text-center">
               <Img :src="organizationLogo" :alt="organizationName" width="120" class="mx-auto mb-6" />
               <Text class="m-0 text-2xl font-black text-gray-900 leading-tight"> Independent Contractor Agreement </Text>

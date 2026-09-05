@@ -64,15 +64,15 @@ export type ContractPayload = z.infer<typeof contractSchema>
 
 const placeholders: ContractPayload = {
   contact: {
-    name: 'Alex Mercer',
-    role: 'Lead Cinematographer',
+    name: 'Production Partner',
+    role: 'Creative Director / Lead Specialist',
   },
   project: {
-    title: 'Photography and Videography',
-    quoteNumber: 'QT-2026-089',
+    title: 'Commercial Campaign Production & Visual Asset Pipeline',
+    quoteNumber: 'MHB-CTR-2026-089',
     quoteDate: new Date(),
     shootDate: new Date(),
-    shootLocation: 'Gotham City / Remote',
+    shootLocation: 'Production Studio & On-Location Stage',
     callTime: '08:00 AM',
   },
   totalAmount: 150_000,

@@ -32,7 +32,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
         <Section>
           <Container class="mx-auto w-full max-w-[600px]">
             <Section class="px-6 py-12">
-              <Section class="p-10 text-center shadow-2xl border-t-4 bg-white" :style="{ borderColor: organizationColorAccent || '#1a1a1a' }">
+              <Section class="p-10 text-center border-t-4 bg-white" :style="{ borderColor: organizationColorAccent }">
                 <Img :src="organizationLogo" :alt="organizationName" width="120" class="mx-auto mb-6" />
 
                 <Text class="m-0 mb-2 text-sm font-bold tracking-widest uppercase text-gray-500"> Certificate of Completion </Text>
@@ -49,7 +49,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
                 </Section>
 
                 <Section class="text-center my-6">
-                  <Button class="text-white font-bold text-sm px-6 py-3 rounded-md no-underline inline-block" :style="{ backgroundColor: organizationColorPrimary }" :href="ctaUrl">
+                  <Button class="text-white font-bold text-sm px-6 py-3 rounded-md no-underline inline-block" :style="{ backgroundColor: organizationColorAccent }" :href="ctaUrl">
                     Download Certificate PDF
                   </Button>
                 </Section>

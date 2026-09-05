@@ -100,8 +100,8 @@ const chunkedPortfolio = computed(() => {
             <Text v-if="heroHeadline" class="m-0 mb-4 text-2xl font-black text-gray-900 leading-tight">
               {{ heroHeadline }}
             </Text>
-            <div v-if="heroImageUrl" class="overflow-hidden rounded-xl border border-gray-100 shadow-sm">
-              <Img :src="heroImageUrl" :alt="heroHeadline || 'Hero banner'" width="552" class="block w-full h-auto rounded-xl object-cover border-0" />
+            <div v-if="heroImageUrl" class="overflow-hidden rounded border border-gray-100 shadow-sm">
+              <Img :src="heroImageUrl" :alt="heroHeadline || 'Hero banner'" width="552" class="block w-full h-auto rounded object-cover border-0" />
             </div>
           </Section>
 
@@ -115,7 +115,7 @@ const chunkedPortfolio = computed(() => {
             <template v-if="computedCtas.length === 1">
               <Button
                 :href="computedCtas[0].url"
-                class="rounded-lg px-7 py-3 text-sm font-bold text-white no-underline inline-block shadow-md tracking-wide"
+                class="rounded px-7 py-3 text-sm font-bold text-white no-underline inline-block shadow-md tracking-wide"
                 :style="{ backgroundColor: organizationColorAccent || organizationColorPrimary }">
                 {{ computedCtas[0].label }}
               </Button>
@@ -129,7 +129,7 @@ const chunkedPortfolio = computed(() => {
                     <td class="pr-2">
                       <Button
                         :href="computedCtas[0].url"
-                        class="rounded-lg px-6 py-3 text-sm font-bold text-white no-underline inline-block shadow-md tracking-wide"
+                        class="rounded px-6 py-3 text-sm font-bold text-white no-underline inline-block shadow-md tracking-wide"
                         :style="{ backgroundColor: organizationColorAccent }">
                         {{ computedCtas[0].label }}
                       </Button>
@@ -137,7 +137,7 @@ const chunkedPortfolio = computed(() => {
                     <td class="pl-2">
                       <Button
                         :href="computedCtas[1].url"
-                        class="rounded-lg px-6 py-3 text-sm font-bold text-white no-underline inline-block shadow-md tracking-wide"
+                        class="rounded px-6 py-3 text-sm font-bold text-white no-underline inline-block shadow-md tracking-wide"
                         :style="{ backgroundColor: organizationColorPrimary }">
                         {{ computedCtas[1].label }}
                       </Button>
@@ -166,7 +166,7 @@ const chunkedPortfolio = computed(() => {
 
             <Row v-for="(row, rIdx) in chunkedPortfolio" :key="`row-${rIdx}`" class="mb-4">
               <Column v-for="(item, cIdx) in row" :key="`col-${cIdx}`" class="w-1/2 align-top" :style="{ paddingRight: cIdx === 0 ? '6px' : '0px', paddingLeft: cIdx === 1 ? '6px' : '0px' }">
-                <div class="rounded-xl border border-gray-200 overflow-hidden bg-white shadow-sm">
+                <div class="rounded border border-gray-200 overflow-hidden bg-white shadow-sm">
                   <Link :href="item.linkUrl" target="_blank" class="block no-underline">
                     <Img :src="item.imageUrl" :alt="item.alt || item.title || 'Work sample'" width="268" class="block w-full max-w-[268px] h-auto object-cover border-0" />
                   </Link>
