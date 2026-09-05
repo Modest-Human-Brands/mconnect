@@ -60,14 +60,22 @@ export const projectDeliverySchema = z.object({
 export type ProjectDeliveryPayload = z.infer<typeof projectDeliverySchema>
 
 const placeholders: ProjectDeliveryPayload = {
-  recipient: { name: 'Sarah Jenkins' },
-  projectName: 'Omni-Channel Brand Refresh',
+  recipient: { name: 'Production Partner' },
+  projectName: 'Studio Workflow Automation & Campaign Asset Pipeline',
   completionDate: new Date(),
   deliveryNotes:
-    'We are thrilled to hand over the final assets for your brand refresh. All files have been organized into respective folders. Please review the brand guidelines before utilizing the new vector logos in production.',
+    'We are pleased to hand over the finalized assets and automated production pipeline for your studio campaign. All visual deliverables, media kits, and system workflows have been categorized and staged for immediate deployment. Please review the pipeline documentation and asset guidelines below before launching downstream production.',
   projectLinks: [
-    { title: 'Brand Guidelines (PDF)', url: '#', description: 'Rules for typography, spacing, and color usage.' },
-    { title: 'Production Assets (Drive)', url: '#', description: 'High-resolution vectors and social media kits.' },
+    {
+      title: 'Workflow Architecture & Guidelines (Portal)',
+      url: 'https://modesthumanbrands.com',
+      description: 'Production standards, review triggers, and asset naming specifications.',
+    },
+    {
+      title: 'Production Master Deliverables (Vault)',
+      url: 'https://modesthumanbrands.com',
+      description: 'High-resolution renders, vector kits, and automated social packages.',
+    },
   ],
   tracking: {
     emailId: 'test-project-delivery-1',

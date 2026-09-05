@@ -92,17 +92,27 @@ interface ComputedDeliverable {
 
 const placeholders: InvoiceEmailPayload = {
   recipient: {
-    name: 'Wayne Enterprises',
+    name: 'Creative Studio Partner',
   },
   pricingModel: 'project',
   project: {
-    title: 'Photography and Videography',
-    invoiceNumber: 'RCP-I-78-2-1',
-    quotationNumber: 'RCP-Q-78-2',
+    title: 'Studio Workflow Automation & Production Pipeline Architecture',
+    invoiceNumber: 'MHB-INV-2026-104',
+    quotationNumber: 'MHB-QT-2026-089',
   },
   deliverables: [
-    { title: 'Premium Brand Strategy', quantity: 1, rate: 5000, points: [] },
-    { title: 'UI/UX Design System', quantity: 1, rate: 8500, points: [] },
+    {
+      title: 'Studio Workflow Automation & Pipeline Deployment',
+      quantity: 1,
+      rate: 85_000,
+      points: [],
+    },
+    {
+      title: 'Digital Asset Management & Client Portal Integration',
+      quantity: 1,
+      rate: 65_000,
+      points: [],
+    },
   ],
   financials: {
     discountLabel: 'Discount',
@@ -113,7 +123,7 @@ const placeholders: InvoiceEmailPayload = {
     amountPaid: 0,
   },
   dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  invoiceUrl: '#',
+  invoiceUrl: 'https://modesthumanbrands.com',
   tracking: {
     emailId: 'test-invoice-1',
     baseUrl: 'http://localhost:3001',

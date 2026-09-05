@@ -95,31 +95,41 @@ interface ComputedDeliverable {
 
 const placeholders: ReceiptEmailPayload = {
   recipient: {
-    name: 'Wayne Enterprises',
+    name: 'Creative Studio Partner',
   },
   pricingModel: 'project',
   project: {
-    title: 'Photography and Videography',
-    receiptNumber: 'RCP-REC-78-1',
-    invoiceNumber: 'RCP-I-78-2-1',
+    title: 'Studio Workflow Automation & Production Pipeline Architecture',
+    receiptNumber: 'MHB-REC-2026-104',
+    invoiceNumber: 'MHB-INV-2026-104',
   },
   deliverables: [
-    { title: 'Premium Brand Strategy', quantity: 1, rate: 5000, points: [] },
-    { title: 'UI/UX Design System', quantity: 1, rate: 8500, points: [] },
+    {
+      title: 'Studio Workflow Automation & Pipeline Deployment',
+      quantity: 1,
+      rate: 85_000,
+      points: [],
+    },
+    {
+      title: 'Digital Asset Management & Client Portal Integration',
+      quantity: 1,
+      rate: 65_000,
+      points: [],
+    },
   ],
   financials: {
-    subtotal: 13_500,
+    subtotal: 150_000,
     discountLabel: 'Discount',
     discountValue: 0,
     isDiscountPercentage: false,
     taxLabel: 'IGST @ 18%',
     taxRate: 18,
-    amountPaid: 15_930,
+    amountPaid: 177_000,
   },
   paymentDate: new Date(),
   paymentMethod: 'Bank Wire / RTGS',
   transactionId: 'HDFC98234710293',
-  receiptUrl: '#',
+  receiptUrl: 'https://modesthumanbrands.com',
   tracking: {
     emailId: 'test-receipt-1',
     baseUrl: 'http://localhost:3001',

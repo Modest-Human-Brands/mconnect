@@ -54,7 +54,7 @@ export const otpSchema = z.object({
 export type OtpPayload = z.infer<typeof otpSchema>
 
 const placeholders: OtpPayload = {
-  recipient: { email: 'alex.mercer@example.com' },
+  recipient: { email: 'partner@agency.com' },
   otpCode: '2p9T6y',
   expiresIn: '10 minutes',
   tracking: {

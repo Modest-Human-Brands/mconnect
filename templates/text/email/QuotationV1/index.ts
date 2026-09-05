@@ -91,18 +91,28 @@ interface ComputedDeliverable {
 
 const placeholders: QuotationPayload = {
   recipient: {
-    name: 'Wayne Enterprises',
+    name: 'Creative Studio Partner',
     isContact: true,
     isSigned: false,
   },
   pricingModel: 'project',
   project: {
-    title: 'Test',
-    quotationNumber: 'QT-2026-089',
+    title: 'Studio Workflow Automation & Campaign Pipeline Deployment',
+    quotationNumber: 'MHB-QT-2026-089',
   },
   deliverables: [
-    { title: 'Premium Brand Strategy', quantity: 1, rate: 5000, points: [] },
-    { title: 'UI/UX Design System', quantity: 1, rate: 8500, points: [] },
+    {
+      title: 'Studio Workflow Automation & Pipeline Deployment',
+      quantity: 1,
+      rate: 85_000,
+      points: [],
+    },
+    {
+      title: 'Digital Asset Management & Client Review Integration',
+      quantity: 1,
+      rate: 65_000,
+      points: [],
+    },
   ],
   financials: {
     discountLabel: 'Discount',
@@ -112,7 +122,7 @@ const placeholders: QuotationPayload = {
     taxRate: 18,
   },
   expiresIn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  link: '#',
+  link: 'https://modesthumanbrands.com',
   tracking: {
     emailId: 'test-quotation-1',
     baseUrl: 'http://localhost:3001',
