@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.8
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.7...v0.5.8)
+
+### 🏡 Chore
+
+- Update email templates to change accent color to #5945EA and improve formatting consistency ([#5945](https://github.com/Modest-Human-Brands/mconnect/issues/5945))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.7
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.6...v0.5.7)
