@@ -84,7 +84,7 @@ const chunkedPortfolio = computed(() => {
 
           <!-- PITCH COPY -->
           <Section class="mb-6 text-left">
-            <Text class="m-0 mb-4 text-base font-semibold text-gray-900 leading-normal"> Hey {{ recipientName }} 👋 </Text>
+            <Text class="m-0 mb-4 text-base font-semibold text-gray-900 leading-normal"> Hey {{ recipientName }}</Text>
             <Text v-if="pitchMessage" class="m-0 text-sm text-gray-600 leading-relaxed">
               {{ pitchMessage }}
             </Text>

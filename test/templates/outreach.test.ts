@@ -136,7 +136,7 @@ describe('Outreach Email Template', () => {
     const html = await renderToString(app)
 
     // Greeting and copy
-    expect(html).toContain('Hey Creative Director 👋')
+    expect(html).toContain('Hey Creative Director')
     expect(html).toContain('Unified Studio Operations. Automate the Rest.')
 
     // Dual CTA buttons with click tracking
