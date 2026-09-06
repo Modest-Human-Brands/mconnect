@@ -78,17 +78,12 @@ const formatDate = (val: string | Date) =>
       })
     : ''
 
-const isValidHex = (val: unknown): val is string => typeof val === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(val)
-
-const primaryColor = computed(() => (isValidHex(props.organizationColorPrimary) ? props.organizationColorPrimary : '#111827'))
-const accentColor = computed(() => (isValidHex(props.organizationColorAccent) ? props.organizationColorAccent : '#16a34a'))
-
 const tailwindConfig = computed(() => ({
   theme: {
     extend: {
       colors: {
-        primary: primaryColor.value,
-        accent: accentColor.value,
+        primary: props.organizationColorPrimary,
+        accent: props.organizationColorAccent,
       },
     },
   },
@@ -107,7 +102,7 @@ const tailwindConfig = computed(() => ({
         class="m-0 p-0 bg-white">
         <Container class="mx-auto w-full max-w-[600px] my-10 bg-white">
           <!-- HEADER BANNER -->
-          <Section class="p-8 border-t-4" :style="{ borderColor: accentColor }">
+          <Section class="p-8 border-t-4" :style="{ borderColor: organizationColorAccent }">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
               <tbody>
                 <tr>
@@ -118,7 +113,7 @@ const tailwindConfig = computed(() => ({
                     </Text>
                   </td>
                   <td align="right" valign="top">
-                    <Text class="m-0 text-xs uppercase tracking-wider font-bold" :style="{ color: accentColor }"> Payment Receipt </Text>
+                    <Text class="m-0 text-xs uppercase tracking-wider font-bold" :style="{ color: organizationColorAccent }"> Payment Receipt </Text>
                     <Text class="m-0 text-lg font-bold text-gray-900 mt-1"> #{{ receiptNumber }} </Text>
                     <Text v-if="invoiceNumber" class="m-0 text-xs text-gray-400 mt-0.5"> Ref: Invoice #{{ invoiceNumber }} </Text>
                   </td>
@@ -268,7 +263,7 @@ const tailwindConfig = computed(() => ({
               <Button
                 v-if="ctaUrl && ctaUrl !== '#'"
                 class="mt-4 px-6 py-2.5 rounded-lg text-white font-bold text-sm inline-block no-underline shadow-sm"
-                :style="{ backgroundColor: primaryColor }"
+                :style="{ backgroundColor: organizationColorAccent }"
                 :href="ctaUrl">
                 View Receipt Online &rarr;
               </Button>

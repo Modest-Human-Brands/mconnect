@@ -103,7 +103,7 @@ const placeholders: InternshipCompletionCertificatePayload = {
       logo: 'https://modesthumanbrands.com/logo.svg',
       color: {
         primary: '#2B2B2B',
-        accent: '#4A85FF',
+        accent: '#5945EA',
       },
       font: 'Exo2',
     },

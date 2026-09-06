@@ -113,7 +113,7 @@ const placeholders: ContentReleasePayload = {
       logo: 'https://modesthumanbrands.com/logo.svg',
       color: {
         primary: '#111827',
-        accent: '#0284c7',
+        accent: '#5945EA',
       },
       font: 'Exo2',
     },

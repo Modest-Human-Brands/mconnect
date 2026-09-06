@@ -156,7 +156,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
               <Button
                 v-if="ctaUrl && ctaUrl !== '#'"
                 class="mt-4 px-6 py-2.5 rounded text-white font-bold text-sm inline-block no-underline"
-                :style="{ backgroundColor: organizationColorPrimary }"
+                :style="{ backgroundColor: organizationColorAccent }"
                 :href="ctaUrl">
                 View Invoice
               </Button>

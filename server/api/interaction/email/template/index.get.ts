@@ -2,13 +2,17 @@ import { defineEventHandler, HTTPError } from 'nitro/h3'
 import { templateRegistry } from '#server/utils/template-registry-email.ts'
 
 import '#templates/text/email/index.ts'
+import { useRuntimeConfig } from 'nitro/runtime-config'
 
 export default defineEventHandler(() => {
   try {
+    const config = useRuntimeConfig()
+
     const templates = Object.values(templateRegistry).map((template) => ({
       id: template.id,
       label: template.label,
       description: template.description,
+      thumbnail: `${config.public.connectUrl}/previews/${template.id}.png`,
     }))
 
     return templates

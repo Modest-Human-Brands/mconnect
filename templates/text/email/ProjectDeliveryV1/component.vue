@@ -66,7 +66,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
                       <td align="right" valign="middle" width="120">
                         <Button
                           class="px-4 py-2 rounded text-white font-semi-bold text-xs tracking-wide text-center inline-block no-underline whitespace-nowrap"
-                          :style="{ backgroundColor: organizationColorPrimary }"
+                          :style="{ backgroundColor: organizationColorAccent }"
                           :href="link.url">
                           Open Link &rarr;
                         </Button>

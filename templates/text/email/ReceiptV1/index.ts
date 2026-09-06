@@ -161,7 +161,7 @@ const placeholders: ReceiptEmailPayload = {
       logo: 'https://modesthumanbrands.com/logo.svg',
       color: {
         primary: '#111827',
-        accent: '#16a34a',
+        accent: '#5945EA',
       },
       font: 'Exo2',
     },
