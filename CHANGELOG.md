@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.9
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.8...v0.5.9)
+
+### 🩹 Fixes
+
+- Remove emoji from greeting in outreach email template test ([17a586d](https://github.com/Modest-Human-Brands/mconnect/commit/17a586d))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.8
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.7...v0.5.8)
