@@ -16,7 +16,6 @@ const basePayload = z.object({
   userId: z.string().optional(),
   contactId: z.string().optional(),
   recipientEmail: z.email().optional(),
-  orgId: z.string(),
 })
 
 const rawContent = z.object({
@@ -44,7 +43,14 @@ function isUuid(text: string) {
 
 export default defineEventHandler(async (event) => {
   try {
-    const { userId, contactId, recipientEmail: bodyEmail, text, html, subject, template, variables, displayName, orgId } = await readValidatedBody(event, bodySchema)
+    const orgId = event.req.headers.get('x-org-id')
+    if (!orgId) {
+      throw new HTTPError({
+        statusCode: 400,
+        statusMessage: 'x-org-id header is required',
+      })
+    }
+    const { userId, contactId, recipientEmail: bodyEmail, text, html, subject, template, variables, displayName } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
@@ -138,7 +144,7 @@ export default defineEventHandler(async (event) => {
           subject: activeSubject,
           text: finalizedText,
           html: finalizedHtml,
-          displayName: displayName,
+          displayName,
           attachments,
         },
         orgSlug

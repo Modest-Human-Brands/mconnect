@@ -3,7 +3,7 @@ import registerTemplate from '#server/utils/template-registry-email.ts'
 import { z } from 'zod'
 
 export const retainerContractSchema = z.object({
-  contact: z.object({
+  recipient: z.object({
     name: z.string(),
     role: z.string(),
   }),
@@ -84,7 +84,7 @@ export const retainerContractSchema = z.object({
 export type RetainerContractPayload = z.infer<typeof retainerContractSchema>
 
 const placeholders: RetainerContractPayload = {
-  contact: {
+  recipient: {
     name: 'Production Partner',
     role: 'Marketing Consultant',
   },
@@ -217,8 +217,8 @@ registerTemplate({
       organizationColorAccent: org?.branding?.color?.accent || p.organization.branding.color.accent,
       organizationWebsite: org?.website || p.organization.website,
 
-      recipientName: rawData?.contact?.name || p.contact.name,
-      recipientRole: rawData?.contact?.role || p.contact.role,
+      recipientName: rawData?.recipient?.name || p.recipient.name,
+      recipientRole: rawData?.recipient?.role || p.recipient.role,
 
       engagementTitle: engagement.title,
       serviceCategory: rawData?.serviceCategory || p.serviceCategory,

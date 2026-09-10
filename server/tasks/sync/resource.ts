@@ -10,7 +10,6 @@ type ResourceQueries = {
   [K in ResourceType]: ResourceRecordMap[K][]
 }
 
-// server/utils/notion-rate-limit.ts
 type Task<T> = () => Promise<T>
 
 class NotionLimiter {
@@ -19,8 +18,8 @@ class NotionLimiter {
   private lastStart = 0
 
   constructor(
-    private maxConcurrent = 3,
-    private minIntervalMs = 350 // ~3 req/s ceiling across the whole task
+    private maxConcurrent = 2,
+    private minIntervalMs = 600
   ) {}
 
   private next() {
@@ -61,8 +60,7 @@ class NotionLimiter {
   }
 }
 
-// Single shared instance for the whole process/task run
-export const notionLimiter = new NotionLimiter(3, 350)
+export const notionLimiter = new NotionLimiter(2, 600)
 
 export default defineTask({
   meta: {
@@ -70,65 +68,88 @@ export default defineTask({
     description: 'Sync Notion Resources into cache',
   },
   async run() {
-    const config = useRuntimeConfig()
-    const notionDbId = JSON.parse(config.private.notionDbId) as unknown as NotionDB
+    const startTime = Date.now()
+    console.info('[sync:resource] Starting resource synchronization...')
 
-    const dbTypes = ['contact', 'user', 'email', 'message', 'call'] as const
-    const queryResults = await Promise.allSettled(dbTypes.map((type) => notionLimiter.run(() => notionQueryDb(notion, notionDbId[type]))))
+    try {
+      const config = useRuntimeConfig()
+      const notionDbId = (typeof config.private.notionDbId === 'string' ? JSON.parse(config.private.notionDbId) : config.private.notionDbId) as unknown as NotionDB
 
-    const resources: Partial<Pick<ResourceQueries, 'contact' | 'user' | 'message' | 'call' | 'email'>> = {}
-    for (const [idx, type] of dbTypes.entries()) {
-      const res = queryResults[idx]
-      if (res.status === 'fulfilled') {
-        resources[type] = (res.value as any[]).filter((a) => !!a)
-      } else {
-        console.warn(`Notion fetch failed for ${type}:`, res.reason)
+      const dbTypes = ['contact', 'user', 'email', 'message', 'call'] as const
+      const queryResults = await Promise.allSettled(dbTypes.map((type) => notionLimiter.run(() => notionQueryDb(notion, notionDbId[type]))))
+
+      const resources: Partial<Pick<ResourceQueries, 'contact' | 'user' | 'message' | 'call' | 'email'>> = {}
+      for (const [idx, type] of dbTypes.entries()) {
+        const res = queryResults[idx]
+        if (res.status === 'fulfilled') {
+          const items = (res.value as any[]).filter((a) => !!a)
+          resources[type] = items
+          console.info(`[sync:resource] Fetched ${items.length} ${type} records`)
+        } else {
+          console.error(`[sync:resource] Notion fetch failed for ${type}:`, res.reason)
+        }
       }
-    }
 
-    for (const type of dbTypes) {
-      const records = resources[type]
-      if (!records) continue
+      for (const type of dbTypes) {
+        const records = resources[type]
+        if (!records || records.length === 0) continue
 
-      const resourceStorage = useStorage<Resource>(`data:resource:${type}`)
+        const resourceStorage = useStorage<Resource>(`data:resource:${type}`)
 
-      // Process records with limited concurrency instead of all at once
-      await Promise.allSettled(
-        records.map((record) =>
-          notionLimiter.run(async () => {
-            if (typeof record === 'string') return
-
-            const resource = ((await resourceStorage.getItem(notionNormalizeId(record.id))) as Resource & { htmlContent?: string }) ?? {
-              type,
-              notificationStatus: false,
-              record,
-            }
-
-            resource.record = record
-
-            if (type === 'email') {
-              let contentHtml = ''
-              try {
-                const blocksResponse = await notionLimiter.run(() => notion.blocks.children.list({ block_id: record.id }))
-                for (const block of blocksResponse.results as any[]) {
-                  if (block.type === 'code') {
-                    contentHtml += block.code.rich_text.map((t: any) => t.plain_text).join('')
-                  } else if (block.type === 'paragraph') {
-                    contentHtml += block.paragraph.rich_text.map((t: any) => t.plain_text).join('')
-                  }
-                }
-              } catch (error_) {
-                console.error(`Failed to fetch blocks for email ${record.id}`, error_)
+        // Process records with limited concurrency instead of all at once
+        const settled = await Promise.allSettled(
+          records.map((record) =>
+            notionLimiter.run(async () => {
+              if (typeof record === 'string' || !record?.id) {
+                console.warn(`[sync:resource] Skipping invalid record in ${type}:`, record)
+                return
               }
-              resource.htmlContent = contentHtml
-            }
 
-            await resourceStorage.setItem(notionNormalizeId(record.id), resource)
-          })
+              const resource = ((await resourceStorage.getItem(notionNormalizeId(record.id))) as Resource & { htmlContent?: string }) ?? {
+                type,
+                notificationStatus: false,
+                record,
+              }
+
+              resource.record = record
+
+              if (type === 'email') {
+                let contentHtml = ''
+                try {
+                  const blocksResponse = await notion.blocks.children.list({ block_id: record.id })
+                  for (const block of blocksResponse.results as any[]) {
+                    if (block.type === 'code') {
+                      contentHtml += block.code.rich_text.map((t: any) => t.plain_text).join('')
+                    } else if (block.type === 'paragraph') {
+                      contentHtml += block.paragraph.rich_text.map((t: any) => t.plain_text).join('')
+                    }
+                  }
+                } catch (error_) {
+                  console.error(`[sync:resource] Failed to fetch blocks for email ${record.id}:`, error_)
+                }
+                resource.htmlContent = contentHtml
+              }
+
+              await resourceStorage.setItem(notionNormalizeId(record.id), resource)
+            })
+          )
         )
-      )
-    }
 
-    return { result: 'success' }
+        const failures = settled.filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+        if (failures.length > 0) {
+          console.error(`[sync:resource] ${failures.length}/${records.length} records failed in ${type}:`)
+          for (const [i, f] of failures.entries()) console.error(`  [${type} error ${i + 1}]:`, f.reason)
+        } else {
+          console.info(`[sync:resource] Successfully synced all ${records.length} records for ${type}`)
+        }
+      }
+
+      const duration = ((Date.now() - startTime) / 1000).toFixed(2)
+      console.info(`[sync:resource] Completed synchronization in ${duration}s`)
+      return { result: 'success', duration: `${duration}s` }
+    } catch (error) {
+      console.error('[sync:resource] Fatal error during synchronization task:', error)
+      throw error
+    }
   },
 })

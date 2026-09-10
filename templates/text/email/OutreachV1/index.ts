@@ -4,7 +4,6 @@ import { z } from 'zod'
 
 export const outreachSchema = z.object({
   recipient: z.object({ name: z.string() }),
-  emailSubject: z.string().optional(),
   heroHeadline: z.string().optional(),
   heroImageUrl: z.string().optional(),
   pitchMessage: z.string().optional(),
@@ -198,7 +197,7 @@ registerTemplate({
   description: 'Cold outreach and brand pitch campaign featuring targeted service showcases and custom portfolio items.',
   schema: outreachSchema,
   placeholders,
-  subject: (rawData: OutreachPayload) => rawData?.emailSubject || `Elevating visual branding for ${rawData?.recipient?.name || 'your brand'}`,
+  subject: (rawData: OutreachPayload) => `Elevating visual branding for ${rawData?.recipient?.name || 'your brand'}`,
   component: Component,
   transformPayload: (rawData: OutreachPayload) => {
     const p = placeholders

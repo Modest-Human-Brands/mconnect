@@ -3,7 +3,7 @@ import registerTemplate from '#server/utils/template-registry-email.ts'
 import { z } from 'zod'
 
 export const shootContractSchema = z.object({
-  contact: z.object({
+  recipient: z.object({
     name: z.string(),
     role: z.string(),
   }),
@@ -63,7 +63,7 @@ export const shootContractSchema = z.object({
 export type ShootContractPayload = z.infer<typeof shootContractSchema>
 
 const placeholders: ShootContractPayload = {
-  contact: {
+  recipient: {
     name: 'Production Partner',
     role: 'Creative Director / Lead Specialist',
   },
@@ -132,7 +132,7 @@ registerTemplate({
   subject: (rawData: ShootContractPayload) => {
     const pName = rawData?.project.title || placeholders.project.title
     const orgName = rawData?.organization?.name || placeholders.organization.name
-    return `Contractor Agreement for ${pName} - ${orgName}`
+    return `Talent Agreement for ${pName} - ${orgName}`
   },
   component: Component,
   transformPayload: (rawData: ShootContractPayload) => {
@@ -157,8 +157,8 @@ registerTemplate({
       organizationColorAccent: org?.branding?.color?.accent || p.organization.branding.color.accent,
       organizationWebsite: org?.website || p.organization.website,
 
-      recipientName: rawData?.contact?.name || p.contact.name,
-      recipientRole: rawData?.contact?.role || p.contact.role,
+      recipientName: rawData?.recipient?.name || p.recipient.name,
+      recipientRole: rawData?.recipient?.role || p.recipient.role,
 
       projectName: rawData?.project?.title || p.project.title,
       projectQuoteNumber: rawData?.project?.quoteNumber || p.project.quoteNumber,

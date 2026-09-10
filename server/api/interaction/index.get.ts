@@ -3,16 +3,28 @@ import { useStorage } from 'nitro/storage'
 import type { Resource } from '~/server/types'
 import sanitizeEmailHtml from '#server/utils/sanitize-email-html.ts'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   try {
-    const emailStorage = useStorage<Resource<'email'> & { htmlContent?: string }>('data:resource:email')
-    const emailResources = (await emailStorage.getItems(await emailStorage.getKeys())).flatMap(({ value }) => value || [])
+    const orgId = event.req.headers.get('x-org-id')
+    if (!orgId) {
+      throw new HTTPError({
+        statusCode: 400,
+        statusMessage: 'x-org-id header is required',
+      })
+    }
 
     const contactStorage = useStorage<Resource<'contact'>>('data:resource:contact')
     const contacts = (await contactStorage.getItems(await contactStorage.getKeys())).flatMap(({ value }) => value?.record || [])
+    // .filter((c) => c.properties.Organization?.relation?.some((r) => r.id === orgId))
 
     const userStorage = useStorage<Resource<'user'>>('data:resource:user')
     const users = (await userStorage.getItems(await userStorage.getKeys())).flatMap(({ value }) => value?.record || [])
+    // .filter((u) => u.properties.Organization?.relation?.some((r) => r.id === orgId))
+
+    const emailStorage = useStorage<Resource<'email'> & { htmlContent?: string }>('data:resource:email')
+    const emailResources = (await emailStorage.getItems(await emailStorage.getKeys()))
+      .flatMap(({ value }) => value || [])
+      .filter((e) => e.record.properties.Organization?.relation?.some((r) => r.id === orgId))
 
     const messages: {
       id: string

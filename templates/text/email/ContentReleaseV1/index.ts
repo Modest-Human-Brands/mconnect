@@ -7,7 +7,6 @@ export const contentReleaseSchema = z.object({
     name: z.string().optional(),
     email: z.email(),
   }),
-  emailSubject: z.string().default('New Content Published'),
   content: z.object({
     badge: z.string().optional(), // 'New Blog Post' | 'New Video' | 'Podcast Episode' | 'Case Study'
     title: z.string(),
@@ -69,7 +68,6 @@ const placeholders: ContentReleasePayload = {
     name: 'Creative Partner',
     email: 'partner@agency.com',
   },
-  emailSubject: 'Eliminate Operational Friction: Next-Gen Studio Automation by MHB',
   content: {
     badge: 'Capability Spotlight',
     title: 'Streamlining Production Pipelines, Asset Reviews & Client Deliverables',
@@ -134,7 +132,7 @@ registerTemplate({
   description: 'Notification announcing newly published blog posts, articles, videos, or editorial insights.',
   schema: contentReleaseSchema,
   placeholders,
-  subject: (rawData: ContentReleasePayload) => rawData?.emailSubject || rawData?.content?.title || placeholders.emailSubject,
+  subject: (data: ContentReleasePayload) => `Content Release - ${data?.content.title}`,
   component: Component,
   transformPayload: (rawData: ContentReleasePayload) => {
     const p = placeholders
@@ -150,7 +148,6 @@ registerTemplate({
     return {
       recipientName: rawData?.recipient?.name || p.recipient.name,
       recipientEmail: rawData?.recipient?.email || p.recipient.email,
-      emailSubject: rawData?.emailSubject || p.emailSubject,
 
       // Flexible Content Payload
       contentBadge: rawData?.content?.badge || p.content.badge,

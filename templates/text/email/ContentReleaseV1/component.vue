@@ -5,7 +5,6 @@ import { Html, Head, Body, Img, Container, Section, Text, Button, Tailwind, Hr, 
 const props = defineProps<{
   recipientName: string
   recipientEmail: string
-  emailSubject: string
   contentBadge: string
   contentTitle: string
   contentMeta: string
