@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.13
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.12...v0.5.13)
+
+### 🚀 Enhancements
+
+- Enhance email templates and API to require organization ID for better context and validation ([434b31f](https://github.com/Modest-Human-Brands/mconnect/commit/434b31f))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.12
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.11...v0.5.12)
