@@ -83,7 +83,7 @@ const placeholders: ContentReleasePayload = {
   unsubscribeUrl: 'https://modesthumanbrands.com/newsletter/unsubscribe',
   trackingPixelUrl: 'http://localhost:3001/api/track/open?e=test',
   tracking: {
-    emailId: 'test-emailid-1',
+    emailId: '',
     baseUrl: 'http://localhost:3001',
   },
   organization: {

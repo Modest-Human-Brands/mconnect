@@ -73,7 +73,7 @@ const placeholders: InternshipCompletionCertificatePayload = {
   signerTitle: 'Head of Studio Operations & Brand Systems',
   certificateUrl: 'https://modesthumanbrands.com',
   tracking: {
-    emailId: 'test-certificate-1',
+    emailId: '',
     baseUrl: 'http://localhost:3001',
   },
   organization: {

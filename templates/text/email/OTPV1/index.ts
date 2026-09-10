@@ -58,7 +58,7 @@ const placeholders: OtpPayload = {
   otpCode: '2p9T6y',
   expiresIn: '10 minutes',
   tracking: {
-    emailId: 'test-otp-1',
+    emailId: '',
     baseUrl: 'http://localhost:3001',
   },
   organization: {

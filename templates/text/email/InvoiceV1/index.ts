@@ -125,7 +125,7 @@ const placeholders: InvoiceEmailPayload = {
   dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   invoiceUrl: 'https://modesthumanbrands.com',
   tracking: {
-    emailId: 'test-invoice-1',
+    emailId: '',
     baseUrl: 'http://localhost:3001',
   },
   organization: {

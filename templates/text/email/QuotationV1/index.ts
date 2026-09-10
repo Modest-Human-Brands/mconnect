@@ -124,7 +124,7 @@ const placeholders: QuotationPayload = {
   expiresIn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   link: 'https://modesthumanbrands.com',
   tracking: {
-    emailId: 'test-quotation-1',
+    emailId: '',
     baseUrl: 'http://localhost:3001',
   },
   organization: {

@@ -106,7 +106,7 @@ const placeholders: OutreachPayload = {
   ctaUrl: 'https://modesthumanbrands.com/get-started',
   unsubscribeUrl: 'https://modesthumanbrands.com/newsletter/unsubscribe',
   tracking: {
-    emailId: 'outreach-campaign-preview',
+    emailId: '',
     baseUrl: 'http://localhost:3001',
   },
   featuredItems: [

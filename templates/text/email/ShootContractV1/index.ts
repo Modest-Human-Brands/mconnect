@@ -78,7 +78,7 @@ const placeholders: ShootContractPayload = {
   totalAmount: 150_000,
   link: 'https://modesthumanbrands.com',
   tracking: {
-    emailId: 'test-contract-1',
+    emailId: '',
     baseUrl: 'http://localhost:3001',
   },
   organization: {

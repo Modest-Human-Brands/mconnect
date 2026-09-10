@@ -131,7 +131,7 @@ const placeholders: ReceiptEmailPayload = {
   transactionId: 'HDFC98234710293',
   receiptUrl: 'https://modesthumanbrands.com',
   tracking: {
-    emailId: 'test-receipt-1',
+    emailId: '',
     baseUrl: 'http://localhost:3001',
   },
   organization: {

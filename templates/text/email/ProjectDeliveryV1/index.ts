@@ -78,7 +78,7 @@ const placeholders: ProjectDeliveryPayload = {
     },
   ],
   tracking: {
-    emailId: 'test-project-delivery-1',
+    emailId: '',
     baseUrl: 'http://localhost:3001',
   },
   organization: {
