@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.11
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.10...v0.5.11)
+
+### 💅 Refactors
+
+- Clear emailId fields in tracking objects across multiple email templates ([72c2651](https://github.com/Modest-Human-Brands/mconnect/commit/72c2651))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.10
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.9...v0.5.10)
