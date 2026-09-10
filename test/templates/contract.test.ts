@@ -21,7 +21,7 @@ vi.mock('~/server/utils/template-registry-email', () => ({
 }))
 
 import Component from '~/templates/text/email/ContractV1/component.vue'
-import '~/templates/text/email/ContractV1/index'
+import '#templates/text/email/RetainerContractV1/index.ts'
 
 describe('Contract Email Template', () => {
   beforeAll(() => {

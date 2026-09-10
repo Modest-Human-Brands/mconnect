@@ -2,7 +2,7 @@ import Component from './component.vue'
 import registerTemplate from '#server/utils/template-registry-email.ts'
 import { z } from 'zod'
 
-export const contractSchema = z.object({
+export const shootContractSchema = z.object({
   contact: z.object({
     name: z.string(),
     role: z.string(),
@@ -60,9 +60,9 @@ export const contractSchema = z.object({
   }),
 })
 
-export type ContractPayload = z.infer<typeof contractSchema>
+export type ShootContractPayload = z.infer<typeof shootContractSchema>
 
-const placeholders: ContractPayload = {
+const placeholders: ShootContractPayload = {
   contact: {
     name: 'Production Partner',
     role: 'Creative Director / Lead Specialist',
@@ -116,18 +116,18 @@ const placeholders: ContractPayload = {
 }
 
 registerTemplate({
-  id: 'contract',
-  label: 'Contract',
+  id: 'shoot-contract',
+  label: 'Shoot Contract',
   description: 'The formal agreement or legal document outlining scope, terms, and obligations between parties.',
-  schema: contractSchema,
+  schema: shootContractSchema,
   placeholders,
-  subject: (rawData: ContractPayload) => {
+  subject: (rawData: ShootContractPayload) => {
     const pName = rawData?.project.title || placeholders.project.title
     const orgName = rawData?.organization?.name || placeholders.organization.name
     return `Contractor Agreement for ${pName} - ${orgName}`
   },
   component: Component,
-  transformPayload: (rawData: ContractPayload) => {
+  transformPayload: (rawData: ShootContractPayload) => {
     const p = placeholders
     const org = rawData?.organization || {}
     const emailId = rawData?.tracking?.emailId || p.tracking?.emailId || 'unassigned-email'
