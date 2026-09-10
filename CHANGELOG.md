@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.12
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.11...v0.5.12)
+
+### 🚀 Enhancements
+
+- Update organization details and contact information across multiple email and SMS templates ([49f67e4](https://github.com/Modest-Human-Brands/mconnect/commit/49f67e4))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.11
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.10...v0.5.11)
