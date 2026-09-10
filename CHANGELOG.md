@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.10
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.9...v0.5.10)
+
+### 💅 Refactors
+
+- Enhance parseSchemaVariables function to improve schema parsing and type resolution ([c05146c](https://github.com/Modest-Human-Brands/mconnect/commit/c05146c))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.9
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.8...v0.5.9)
