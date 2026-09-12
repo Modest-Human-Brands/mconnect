@@ -26,9 +26,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (variables?.tracking?.baseUrl) variables.tracking.baseUrl = config.public.connectUrl
-    console.log('Input to transformpayload')
     const transformedProps = await templateDef.transformPayload(variables || {})
-    console.log('Output to transformpayload')
 
     const contentHtml = await render(templateDef.component, transformedProps, {
       pretty: false,

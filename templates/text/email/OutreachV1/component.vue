@@ -32,7 +32,6 @@ const props = defineProps<{
   organizationPhone?: string
   organizationAddress: string
   organizationWebsite: string
-  organizationEpisodeUrl?: string
   organizationLogo: string
   organizationColorPrimary: string
   organizationColorAccent: string
@@ -43,6 +42,8 @@ const props = defineProps<{
   organizationSocialLinkedin?: string
   organizationSocialYoutube?: string
 }>()
+
+const categoryLabel = computed(() => (props.categoryName ? props.categoryName.charAt(0).toUpperCase() + props.categoryName.slice(1) : ''))
 
 const computedCtas = computed(() => {
   if (props.ctaButtons && props.ctaButtons.length > 0) {
@@ -65,16 +66,16 @@ const chunkedPortfolio = computed(() => {
 </script>
 
 <template>
-  <Html>
-    <Head />
-    <Preview>{{ heroHeadline || `Elevating ${categoryName} solutions with ${organizationName}` }}</Preview>
+  <Tailwind :config="{ theme: { extend: { colors: { primary: organizationColorPrimary } } } }">
+    <Html>
+      <Head />
+      <Preview>{{ heroHeadline || `Elevating ${categoryName} solutions with ${organizationName}` }}</Preview>
 
-    <Tailwind :config="{ theme: { extend: { colors: { primary: organizationColorPrimary } } } }">
       <Body :style="{ fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif` }" class="m-0 p-0 bg-white">
-        <Container class="mx-auto w-full max-w-[600px] min-w-[300px] p-6 bg-white">
+        <Container class="mx-auto w-full min-w-[600px] p-6 bg-white">
           <!-- PURE CODE GRADIENT HEADER -->
           <Section class="mb-6">
-            <div class="h-4 w-full rounded bg-primary" :style="{ background: `linear-gradient(90deg, #111827 0%, ${organizationColorPrimary} 100%)` }"></div>
+            <Section class="h-4 w-full rounded" :style="{ background: `linear-gradient(90deg, #111827 0%, ${organizationColorPrimary} 100%)` }" />
           </Section>
 
           <!-- LOGO -->
@@ -85,24 +86,23 @@ const chunkedPortfolio = computed(() => {
           <!-- PITCH COPY -->
           <Section class="mb-6 text-left">
             <Text class="m-0 mb-4 text-base font-semibold text-gray-900 leading-normal"> Hey {{ recipientName }}</Text>
-            <Text v-if="pitchMessage" class="m-0 text-sm text-gray-600 leading-relaxed">
+            <Text class="m-0 text-sm text-gray-600 leading-relaxed">
               {{ pitchMessage }}
-            </Text>
-            <Text v-else class="m-0 text-sm text-gray-600 leading-relaxed">
-              We are <Link :href="organizationWebsite" target="_blank" class="text-gray-900 underline font-semi-bold">{{ organizationName }}</Link
-              >. We specialize in delivering high-impact <strong class="capitalize text-gray-900">{{ categoryName }}</strong> solutions tailored to help ambitious brands stand out, scale their
-              presence, and engage audiences effectively.
             </Text>
           </Section>
 
           <!-- HERO SECTION -->
           <Section v-if="heroHeadline || heroImageUrl" class="mb-6">
-            <Text v-if="heroHeadline" class="m-0 mb-4 text-2xl font-black text-gray-900 leading-tight">
+            <Text v-if="heroHeadline" class="m-0 mb-4 text-base sm:text-2xl font-black text-gray-900 leading-tight">
               {{ heroHeadline }}
             </Text>
-            <div v-if="heroImageUrl" class="overflow-hidden rounded border border-gray-100 shadow-sm">
-              <Img :src="heroImageUrl" :alt="heroHeadline || 'Hero banner'" width="552" class="block w-full h-auto rounded object-cover border-0" />
-            </div>
+            <Img
+              v-if="heroImageUrl"
+              :src="heroImageUrl"
+              :alt="heroHeadline || 'Hero banner'"
+              width="552"
+              class="block w-full h-auto rounded shadow-sm object-cover"
+              :style="{ border: '1px solid #F3F4F6' }" />
           </Section>
 
           <!-- HERO CTA BUTTONS (0, 1, OR 2 DYNAMIC BUTTONS) -->
@@ -150,50 +150,46 @@ const chunkedPortfolio = computed(() => {
 
           <Hr class="border-gray-200 my-8" />
 
-          <!-- 2-COLUMN SHOWCASE SECTION -->
+          <!-- SHOWCASE SECTION (1 col on mobile, 2 col from sm: up) -->
           <Section v-if="featuredItems && featuredItems.length" class="mb-8">
-            <div class="mb-4">
+            <Section class="mb-4">
               <Text v-if="sectionPretitle" class="m-0 text-xs font-mono font-bold tracking-wider uppercase text-gray-400">
                 {{ sectionPretitle }}
               </Text>
-              <Text class="m-0 text-xl font-bold text-gray-900 mt-1">
+              <Text class="m-0 text-xs sm:text-xl font-bold text-gray-900 mt-1">
                 {{ sectionTitle || 'Explore Solutions' }}
               </Text>
               <Text v-if="sectionDescription" class="m-0 text-xs text-gray-500 mt-1 leading-relaxed">
                 {{ sectionDescription }}
               </Text>
-            </div>
+            </Section>
 
-            <Row v-for="(row, rIdx) in chunkedPortfolio" :key="`row-${rIdx}`" class="mb-4">
-              <Column v-for="(item, cIdx) in row" :key="`col-${cIdx}`" class="w-1/2 align-top" :style="{ paddingRight: cIdx === 0 ? '6px' : '0px', paddingLeft: cIdx === 1 ? '6px' : '0px' }">
-                <div class="rounded border border-gray-200 overflow-hidden bg-white shadow-sm">
+            <Row v-for="(row, rIdx) in chunkedPortfolio" :key="`row-${rIdx}`" class="block sm:table w-full mb-4">
+              <Column v-for="(item, cIdx) in row" :key="`col-${cIdx}`" :class="['w-full sm:w-1/2 align-top block sm:table-cell mb-3 sm:mb-0', cIdx === 0 ? 'sm:pr-1.5' : 'sm:pl-1.5']">
+                <Section class="rounded border border-gray-200 overflow-hidden bg-white shadow-sm">
                   <Link :href="item.linkUrl" target="_blank" class="block no-underline">
-                    <Img :src="item.imageUrl" :alt="item.alt || item.title || 'Work sample'" width="268" class="block w-full max-w-[268px] h-auto object-cover border-0" />
+                    <Img :src="item.imageUrl" :alt="item.alt || item.title || 'Work sample'" width="268" class="block w-full h-auto sm:max-w-[268px] object-cover border-0" />
                   </Link>
-                  <div class="p-3">
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                      <tbody>
-                        <tr>
-                          <td align="left" valign="middle">
-                            <Text class="m-0 text-xs font-bold text-gray-900 leading-snug">
-                              {{ item.title || 'Project Showcase' }}
-                            </Text>
-                          </td>
-                          <td align="right" valign="middle" class="whitespace-nowrap pl-2">
-                            <Link :href="item.linkUrl" target="_blank" class="text-xs font-bold no-underline text-gray-500 hover:text-gray-900">
-                              {{ item.actionLabel || 'View →' }}
-                            </Link>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  <Section class="p-3">
+                    <Row>
+                      <Column align="left" valign="middle">
+                        <Text class="m-0 text-xs font-bold text-gray-900 leading-snug">
+                          {{ item.title || 'Project Showcase' }}
+                        </Text>
+                      </Column>
+                      <Column align="right" valign="middle" class="whitespace-nowrap pl-2">
+                        <Link :href="item.linkUrl" target="_blank" class="text-xs font-bold no-underline text-gray-500 hover:text-gray-900">
+                          {{ item.actionLabel || 'View →' }}
+                        </Link>
+                      </Column>
+                    </Row>
                     <Text v-if="item.description" class="m-0 text-[11px] text-gray-500 mt-1 leading-snug">
                       {{ item.description }}
                     </Text>
-                  </div>
-                </div>
+                  </Section>
+                </Section>
               </Column>
-              <Column v-if="row.length === 1" class="w-1/2" />
+              <Column v-if="row.length === 1" class="hidden sm:table-cell sm:w-1/2" />
             </Row>
           </Section>
 
@@ -204,7 +200,7 @@ const chunkedPortfolio = computed(() => {
             <Link :href="organizationWebsite" target="_blank" class="inline-block no-underline">
               <Img :src="organizationLogo" :alt="organizationName" width="40" height="40" class="block w-10 h-10 mx-auto border-0" />
             </Link>
-            <Text class="m-0 mt-2 text-lg font-semi-bold text-gray-900">
+            <Text class="m-0 mt-2 text-lg font-semibold text-gray-900">
               {{ organizationName }}
             </Text>
           </Section>
@@ -212,16 +208,12 @@ const chunkedPortfolio = computed(() => {
           <!-- METADATA & COMPLIANCE -->
           <Section class="text-center mb-6">
             <Text class="m-0 text-xs text-gray-500 leading-normal">
-              {{ organizationAddress }}<br />
-              <span v-if="organizationPhone">Phone: {{ organizationPhone }}</span>
+              {{ organizationAddress }}
             </Text>
+            <Text v-if="organizationPhone" class="m-0 text-xs text-gray-500 leading-normal">Phone: {{ organizationPhone }}</Text>
             <Text class="m-0 mt-2 text-xs text-gray-500">
               <Link :href="organizationWebsite" target="_blank" class="text-gray-500 underline">VISIT WEBSITE</Link>
-              <template v-if="organizationEpisodeUrl">
-                <span class="text-gray-300 mx-1"> | </span>
-                <Link :href="organizationEpisodeUrl" target="_blank" class="text-gray-500 underline">VISIT EPISODE</Link>
-              </template>
-              <span class="text-gray-300 mx-1"> | </span>
+              &nbsp;|&nbsp;
               <Link :href="unsubscribeUrl" target="_blank" class="text-gray-500 underline">UNSUBSCRIBE</Link>
             </Text>
           </Section>
@@ -277,6 +269,6 @@ const chunkedPortfolio = computed(() => {
           <Img v-if="trackingPixelUrl" :src="trackingPixelUrl" width="1" height="1" alt="" class="block hidden opacity-0 invisible" />
         </Container>
       </Body>
-    </Tailwind>
-  </Html>
+    </Html>
+  </Tailwind>
 </template>

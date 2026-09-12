@@ -88,24 +88,24 @@ const placeholders: OutreachPayload = {
   },
   category: 'creative-studios',
   pitchMessage:
-    'Modest Human Brands (MHB) builds workflow automation and project management platforms designed specifically for modern advertising agencies, production houses, and commercial studios. We eliminate operational friction across your entire creative pipeline—streamlining shoot timelines, legal contracts, live asset handoffs, and media distribution.',
+    'Modest Human Brands (MHB) is the collaborative project management platform built specifically for new-gen content creators, advertising agencies, production houses, and commercial studios. We replace scattered tools and manual handoffs with one unified creative pipeline — from pre-production planning to final delivery — cutting production management time by half.',
   heroHeadline: 'Unified Studio Operations. Automate the Rest.',
-  heroImageUrl: 'https://modesthumanbrands.com/images/hero-image-1.webp',
+  heroImageUrl: 'https://modesthumanbrands.com/images/poster-1.webp',
   sectionPretitle: '// THE MHB SUITE',
   sectionTitle: 'Four Core Tools. One Connected Pipeline.',
   sectionDescription: 'Purpose-built infrastructure to help creative studios track shoots, execute contracts, stream media, and store production assets without tier limits.',
   ctaText: 'Ready to cut hours off production planning and review cycles? Let us show you how MHB eliminates pipeline friction in a quick 15-minute walkthrough.',
   ctaButtons: [
     {
-      label: 'Explore Platform →',
+      label: 'Explore Platform',
       url: 'https://modesthumanbrands.com/',
     },
     {
       label: 'Book 15-Min Demo',
-      url: 'https://modesthumanbrands.com/demo',
+      url: 'https://calendly.com/aratriknandy2200/quick-walkthrough-of-mhb-and-how-it-fits-your-workflow',
     },
   ],
-  ctaUrl: 'https://modesthumanbrands.com/get-started',
+  ctaUrl: 'https://calendly.com/aratriknandy2200/quick-walkthrough-of-mhb-and-how-it-fits-your-workflow',
   unsubscribeUrl: 'https://modesthumanbrands.com/newsletter/unsubscribe',
   tracking: {
     emailId: '',

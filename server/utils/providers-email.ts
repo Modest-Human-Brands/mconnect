@@ -25,7 +25,7 @@ async function getEmailInfrastructure(orgSlug: string) {
 
   const emailSettings = config?.emailConfig
   if (!emailSettings?.activeProvider) {
-    throw new HTTPError({ statusCode: 400, message: 'Email configuration or activeProvider targeting rules are missing from the profile.' })
+    throw new HTTPError({ statusCode: 400, message: `Email configuration or activeProvider targeting rules are missing for ${orgSlug}.` })
   }
 
   cachedEmailConfig = emailSettings
