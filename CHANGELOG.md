@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.14
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.13...v0.5.14)
+
+### 🚀 Enhancements
+
+- Update email templates and API error messages for improved clarity and context ([f89a16d](https://github.com/Modest-Human-Brands/mconnect/commit/f89a16d))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.13
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.12...v0.5.13)
