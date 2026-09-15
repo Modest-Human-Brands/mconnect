@@ -142,8 +142,8 @@ registerTemplate({
     const baseUrl = rawData?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
 
     const rawUrl = rawData?.content?.linkUrl || p.content.linkUrl
-    const utmParams = '?ref=mail-content&utm_source=mconnect&utm_medium=email'
-    const destinationWithUtm = `${rawUrl}${utmParams}`
+    const separator = rawUrl.includes('?') ? '&' : '?'
+    const destinationWithUtm = `${rawUrl}${separator}ref=mail-content&utm_medium=email`
 
     return {
       recipientName: rawData?.recipient?.name || p.recipient.name,

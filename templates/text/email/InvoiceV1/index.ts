@@ -235,8 +235,8 @@ registerTemplate({
     const baseUrl = rawData?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
 
     const rawUrl = rawData?.invoiceUrl || p.invoiceUrl
-    const utmParams = '?ref=mail-invoice&utm_source=mconnect&utm_medium=email'
-    const destinationWithUtm = `${rawUrl}${utmParams}`
+    const separator = rawUrl.includes('?') ? '&' : '?'
+    const destinationWithUtm = `${rawUrl}${separator}ref=mail-invoice&utm_medium=email`
     const trackedCta = rawUrl === '#' ? '#' : `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`
     const dynamicPixel = `${baseUrl}/api/track/open?e=${emailId}`
     const honeypotUrl = `${baseUrl}/api/track/trap?e=${emailId}`

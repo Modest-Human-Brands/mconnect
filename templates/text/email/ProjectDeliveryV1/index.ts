@@ -144,8 +144,8 @@ registerTemplate({
     const rawLinks = Array.isArray(data?.projectLinks) && data.projectLinks.length > 0 ? data.projectLinks : p.projectLinks
     const trackedLinks = rawLinks.map((item) => {
       const rawUrl = item.url || '#'
-      const utmParams = '?ref=mail-delivery&utm_source=mconnect&utm_medium=email'
-      const destinationWithUtm = `${rawUrl}${utmParams}`
+      const separator = rawUrl.includes('?') ? '&' : '?'
+      const destinationWithUtm = `${rawUrl}${separator}ref=mail-delivery&utm_medium=email`
       const trackedUrl = rawUrl === '#' ? '#' : `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`
       return { ...item, url: trackedUrl }
     })

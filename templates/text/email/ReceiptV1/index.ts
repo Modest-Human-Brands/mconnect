@@ -233,7 +233,8 @@ registerTemplate({
     const baseUrl = rawData?.tracking?.baseUrl || 'https://connect.modesthumanbrands.com'
 
     const rawUrl = rawData?.receiptUrl || p.receiptUrl
-    const destinationWithUtm = `${rawUrl}?ref=mail-receipt&utm_source=mconnect&utm_medium=email`
+    const separator = rawUrl.includes('?') ? '&' : '?'
+    const destinationWithUtm = `${rawUrl}${separator}ref=mail-receipt&utm_medium=email`
     const trackedCta = rawUrl === '#' ? '#' : `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`
 
     const rawPaymentDate = rawData?.paymentDate || p.paymentDate

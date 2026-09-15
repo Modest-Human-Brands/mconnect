@@ -208,8 +208,8 @@ registerTemplate({
 
     const wrapTracked = (rawUrl?: string) => {
       if (!rawUrl || rawUrl === '#') return '#'
-      const utmParams = '?ref=mail-outreach&utm_source=mconnect&utm_medium=email'
-      const destinationWithUtm = `${rawUrl}${utmParams}`
+      const separator = rawUrl.includes('?') ? '&' : '?'
+      const destinationWithUtm = `${rawUrl}${separator}ref=mail-outreach&utm_medium=email`
       return `${baseUrl}/api/track/click?url=${encodeURIComponent(destinationWithUtm)}&e=${emailId}`
     }
 
