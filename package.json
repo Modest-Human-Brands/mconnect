@@ -42,6 +42,7 @@
     "@vue-email/components": "^0.0.21",
     "@vue-email/render": "^0.0.9",
     "c12": "^4.0.0-rc.1",
+    "date-fns": "^4.4.0",
     "geoip-lite": "^2.0.3",
     "imapflow": "^1.7.8",
     "ipaddr.js": "^2.5.0",

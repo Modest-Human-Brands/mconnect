@@ -8,12 +8,8 @@ import notion from '#server/utils/notion.ts'
 import notionQueryDb from '#server/utils/notion-query-db.ts'
 import type { ResourceType, NotionDB, ResourceRecordMap, Resource } from '~/server/types'
 
-type ResourceQueries = {
-  [K in ResourceType]: ResourceRecordMap[K][]
-}
-
 const throttle = pThrottle({
-  limit: 3,
+  limit: 2,
   interval: 1000,
 })
 

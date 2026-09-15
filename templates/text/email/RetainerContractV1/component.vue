@@ -10,7 +10,6 @@ defineProps<{
   organizationColorAccent: string
   organizationWebsite: string
   recipientName: string
-  recipientRole: string
   engagementTitle: string
   serviceCategory: string
   startDate: string | Date
@@ -42,7 +41,7 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
             <Section class="mb-6">
               <Text class="m-0 text-base text-gray-800 font-medium mb-3"> Hi {{ recipientName }}, </Text>
               <Text class="m-0 text-sm text-gray-600 leading-relaxed mb-4">
-                We're excited to kick off an ongoing engagement with you. Before we begin, please review and sign your Retainer Agreement ({{ recipientRole }}).
+                We're excited to kick off an ongoing engagement with you. Before we begin, please review and sign your Retainer Agreement ({{ engagementTitle }}).
               </Text>
             </Section>
 
@@ -79,6 +78,17 @@ const formatDate = (val: string | Date) => (val ? new Date(val).toLocaleDateStri
                   </tr>
                 </tbody>
               </table>
+            </Section>
+
+            <Section class="my-6">
+              <Section class="m-0 text-sm leading-relaxed">
+                <Text class="font-semibold text-gray-600 m-0">Identity proof</Text> <Text class="text-gray-400 m-0">&ndash; attach one of: Aadhaar Card, Driving License, or Passport.</Text>
+              </Section>
+              <Section class="m-0 text-sm leading-relaxed">
+                <Text class="font-semibold text-gray-600 m-0">Bank account details</Text>
+                <Text class="text-gray-400 m-0">&ndash; attach a clear image or PDF of your bank account, passbook, or cancelled cheque.</Text>
+              </Section>
+              <Text class="m-0 text-xs text-gray-400 mt-3 leading-relaxed"> Reply to this email with the attachments above. </Text>
             </Section>
 
             <Section class="text-center mb-8">

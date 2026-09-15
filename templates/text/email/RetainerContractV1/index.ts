@@ -2,10 +2,11 @@ import Component from './component.vue'
 import registerTemplate from '#server/utils/template-registry-email.ts'
 import { z } from 'zod'
 
+import { addMonths, subDays } from 'date-fns'
+
 export const retainerContractSchema = z.object({
   recipient: z.object({
     name: z.string(),
-    role: z.string(),
   }),
   engagement: z.object({
     title: z.string(),
@@ -86,10 +87,9 @@ export type RetainerContractPayload = z.infer<typeof retainerContractSchema>
 const placeholders: RetainerContractPayload = {
   recipient: {
     name: 'Production Partner',
-    role: 'Marketing Consultant',
   },
   engagement: {
-    title: 'Performance Marketing Retainer',
+    title: 'Marketing Consultant',
     quoteNumber: 'MHB-RT-2026-089',
     quoteDate: new Date(),
     startDate: new Date(),
@@ -162,12 +162,6 @@ const placeholders: RetainerContractPayload = {
   },
 }
 
-function addMonths(date: Date, months: number): Date {
-  const result = new Date(date)
-  result.setMonth(result.getMonth() + months)
-  return result
-}
-
 function describeCompensation(compensation: RetainerContractPayload['compensation']): string {
   const parts: string[] = []
   if (compensation.flatMonthlyFee) {
@@ -206,7 +200,12 @@ registerTemplate({
 
     const engagement = rawData?.engagement || p.engagement
     const compensation = rawData?.compensation || p.compensation
-    const endDate = addMonths(engagement.startDate, engagement.engagementMonths)
+
+    const endDate = (() => {
+      const start = engagement.startDate
+      if (Number.isNaN(new Date(start).getTime())) return ''
+      return subDays(addMonths(start, Number.parseInt(`${engagement.engagementMonths}`)), 1).toISOString()
+    })()
 
     return {
       organizationName: org?.name || p.organization.name,
@@ -218,13 +217,12 @@ registerTemplate({
       organizationWebsite: org?.website || p.organization.website,
 
       recipientName: rawData?.recipient?.name || p.recipient.name,
-      recipientRole: rawData?.recipient?.role || p.recipient.role,
 
       engagementTitle: engagement.title,
       serviceCategory: rawData?.serviceCategory || p.serviceCategory,
       startDate: engagement.startDate,
       endDate,
-      engagementMonths: engagement.engagementMonths,
+      engagementMonths: Number.parseInt(`${engagement.engagementMonths}`),
 
       compensationSummary: describeCompensation(compensation),
 
