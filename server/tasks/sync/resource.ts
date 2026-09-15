@@ -1,8 +1,10 @@
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { useStorage } from 'nitro/storage'
 import { defineTask } from 'nitro/task'
+import pThrottle from 'p-throttle'
+import pRetry, { AbortError } from 'p-retry'
+
 import notion from '#server/utils/notion.ts'
-import notionNormalizeId from '#server/utils/notion-normalize-id.ts'
 import notionQueryDb from '#server/utils/notion-query-db.ts'
 import type { ResourceType, NotionDB, ResourceRecordMap, Resource } from '~/server/types'
 
@@ -10,57 +12,20 @@ type ResourceQueries = {
   [K in ResourceType]: ResourceRecordMap[K][]
 }
 
-type Task<T> = () => Promise<T>
+const throttle = pThrottle({
+  limit: 3,
+  interval: 1000,
+})
 
-class NotionLimiter {
-  private queue: Array<() => void> = []
-  private active = 0
-  private lastStart = 0
-
-  constructor(
-    private maxConcurrent = 2,
-    private minIntervalMs = 600
-  ) {}
-
-  private next() {
-    if (this.active >= this.maxConcurrent) return
-    const job = this.queue.shift()
-    if (!job) return
-    this.active++
-    job()
-  }
-
-  async run<T>(task: Task<T>, retries = 4): Promise<T> {
-    await new Promise<void>((resolve) => {
-      const start = () => {
-        const wait = Math.max(0, this.minIntervalMs - (Date.now() - this.lastStart))
-        setTimeout(() => {
-          this.lastStart = Date.now()
-          resolve()
-        }, wait)
-      }
-      this.queue.push(start)
-      this.next()
-    })
-
-    try {
-      return await task()
-    } catch (error_: any) {
-      const isRateLimited = error_?.status === 429 || error_?.code === 'rate_limited'
-      if (isRateLimited && retries > 0) {
-        const retryAfter = Number(error_?.headers?.['retry-after']) || 1
-        await new Promise((r) => setTimeout(r, retryAfter * 1000))
-        return this.run(task, retries - 1)
-      }
-      throw error_
-    } finally {
-      this.active--
-      this.next()
-    }
-  }
-}
-
-export const notionLimiter = new NotionLimiter(2, 600)
+export const throttledNotion = throttle((task: () => Promise) =>
+  pRetry(task, {
+    retries: 4,
+    onFailedAttempt: (error: any) => {
+      const isRateLimited = error?.status === 429 || error?.code === 'rate_limited'
+      if (!isRateLimited) throw new AbortError(error)
+    },
+  })
+) as (task: () => Promise) => Promise
 
 export default defineTask({
   meta: {
@@ -71,85 +36,66 @@ export default defineTask({
     const startTime = Date.now()
     console.info('[sync:resource] Starting resource synchronization...')
 
-    try {
-      const config = useRuntimeConfig()
-      const notionDbId = (typeof config.private.notionDbId === 'string' ? JSON.parse(config.private.notionDbId) : config.private.notionDbId) as unknown as NotionDB
+    const config = useRuntimeConfig()
+    const rawDbId = config.private.notionDbId
+    const notionDbId = (typeof rawDbId === 'string' ? JSON.parse(rawDbId) : rawDbId) as unknown as NotionDB
 
-      const dbTypes = ['contact', 'user', 'email', 'message', 'call'] as const
-      const queryResults = await Promise.allSettled(dbTypes.map((type) => notionLimiter.run(() => notionQueryDb(notion, notionDbId[type]))))
+    const dbTypes = ['contact', 'user', 'email', 'message', 'call'] as const
+    const queryResults = await Promise.allSettled(dbTypes.map((type) => throttledNotion(() => notionQueryDb(notion, notionDbId[type]))))
 
-      const resources: Partial<Pick<ResourceQueries, 'contact' | 'user' | 'message' | 'call' | 'email'>> = {}
-      for (const [idx, type] of dbTypes.entries()) {
-        const res = queryResults[idx]
-        if (res.status === 'fulfilled') {
-          const items = (res.value as any[]).filter((a) => !!a)
-          resources[type] = items
-          console.info(`[sync:resource] Fetched ${items.length} ${type} records`)
-        } else {
-          console.error(`[sync:resource] Notion fetch failed for ${type}:`, res.reason)
-        }
+    const resources: Partial<Record<ResourceType, ResourceRecordMap[keyof NotionDB]>> = {}
+    for (const [idx, type] of dbTypes.entries()) {
+      const res = queryResults[idx]
+      if (res.status === 'fulfilled') {
+        const items = (res.value as any[]).filter(Boolean)
+        resources[type] = items
       }
-
-      for (const type of dbTypes) {
-        const records = resources[type]
-        if (!records || records.length === 0) continue
-
-        const resourceStorage = useStorage<Resource>(`data:resource:${type}`)
-
-        // Process records with limited concurrency instead of all at once
-        const settled = await Promise.allSettled(
-          records.map((record) =>
-            notionLimiter.run(async () => {
-              if (typeof record === 'string' || !record?.id) {
-                console.warn(`[sync:resource] Skipping invalid record in ${type}:`, record)
-                return
-              }
-
-              const resource = ((await resourceStorage.getItem(notionNormalizeId(record.id))) as Resource & { htmlContent?: string }) ?? {
-                type,
-                notificationStatus: false,
-                record,
-              }
-
-              resource.record = record
-
-              if (type === 'email') {
-                let contentHtml = ''
-                try {
-                  const blocksResponse = await notion.blocks.children.list({ block_id: record.id })
-                  for (const block of blocksResponse.results as any[]) {
-                    if (block.type === 'code') {
-                      contentHtml += block.code.rich_text.map((t: any) => t.plain_text).join('')
-                    } else if (block.type === 'paragraph') {
-                      contentHtml += block.paragraph.rich_text.map((t: any) => t.plain_text).join('')
-                    }
-                  }
-                } catch (error_) {
-                  console.error(`[sync:resource] Failed to fetch blocks for email ${record.id}:`, error_)
-                }
-                resource.htmlContent = contentHtml
-              }
-
-              await resourceStorage.setItem(notionNormalizeId(record.id), resource)
-            })
-          )
-        )
-
-        const failures = settled.filter((r): r is PromiseRejectedResult => r.status === 'rejected')
-        if (failures.length > 0) {
-          console.error(`[sync:resource] ${failures.length}/${records.length} records failed in ${type}:`)
-          for (const [i, f] of failures.entries()) console.error(`  [${type} error ${i + 1}]:`, f.reason)
-        } else {
-          console.info(`[sync:resource] Successfully synced all ${records.length} records for ${type}`)
-        }
-      }
-
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2)
-      console.info(`[sync:resource] Completed synchronization in ${duration}s`)
-      return { result: 'success', duration: `${duration}s` }
-    } catch (error) {
-      console.error('[sync:resource] Fatal error during synchronization task:', error)
-      throw error
     }
+
+    for (const type of dbTypes) {
+      const records = resources[type]
+      if (!records || records.length === 0) continue
+
+      const resourceStorage = useStorage(`data:resource:${type}`)
+
+      const settled = await Promise.allSettled(
+        records.map(async (record) => {
+          if (typeof record === 'string' || !record?.id) {
+            return
+          }
+
+          const resource = ((await resourceStorage.getItem(record.id)) as Resource & { htmlContent?: string }) ?? {
+            type,
+            notificationStatus: false,
+            record,
+          }
+
+          resource.record = record
+
+          if (type === 'email') {
+            let contentHtml = ''
+            try {
+              const blocksResponse = await throttledNotion(() => notion.blocks.children.list({ block_id: record.id }))
+              for (const block of blocksResponse.results as any[]) {
+                if (block.type === 'code') {
+                  contentHtml += block.code.rich_text.map((t: any) => t.plain_text).join('')
+                } else if (block.type === 'paragraph') {
+                  contentHtml += block.paragraph.rich_text.map((t: any) => t.plain_text).join('')
+                }
+              }
+            } catch {
+              /* empty */
+            }
+            resource.htmlContent = contentHtml
+          }
+
+          await resourceStorage.setItem(record.id, resource)
+        })
+      )
+    }
+
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2)
+    console.info(`[sync:resource] Completed synchronization in ${duration}s`)
+    return { result: 'success', duration: `${duration}s` }
   },
 })
