@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.5.15
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.14...v0.5.15)
+
+### 🚀 Enhancements
+
+- Add p-retry, p-throttle dependencies, update email template logic, and adjust task scheduling ([71cd0c2](https://github.com/Modest-Human-Brands/mconnect/commit/71cd0c2))
+
+### 🩹 Fixes
+
+- Added date-fns for date management & updated retainer contract ([45334ce](https://github.com/Modest-Human-Brands/mconnect/commit/45334ce))
+- Update utm parameter handling in email templates for consistent tracking ([b72bc75](https://github.com/Modest-Human-Brands/mconnect/commit/b72bc75))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.14
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.13...v0.5.14)
