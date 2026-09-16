@@ -13,7 +13,7 @@ export const retainerContractSchema = z.object({
     quoteNumber: z.string(),
     quoteDate: z.date(),
     startDate: z.date(),
-    engagementMonths: z.number().int().min(1),
+    months: z.number().int().min(1),
     renewalType: z.enum(['Auto-Renew', 'Manual Renewal', 'Fixed Term - No Renewal']),
     noticePeriodDays: z.number().int().min(0).default(30),
   }),
@@ -93,7 +93,7 @@ const placeholders: RetainerContractPayload = {
     quoteNumber: 'MHB-RT-2026-089',
     quoteDate: new Date(),
     startDate: new Date(),
-    engagementMonths: 6,
+    months: 6,
     renewalType: 'Manual Renewal',
     noticePeriodDays: 15,
   },
@@ -204,7 +204,7 @@ registerTemplate({
     const endDate = (() => {
       const start = engagement.startDate
       if (Number.isNaN(new Date(start).getTime())) return ''
-      return subDays(addMonths(start, Number.parseInt(`${engagement.engagementMonths}`)), 1).toISOString()
+      return subDays(addMonths(start, Number.parseInt(`${engagement.months}`)), 1).toISOString()
     })()
 
     return {
@@ -222,7 +222,7 @@ registerTemplate({
       serviceCategory: rawData?.serviceCategory || p.serviceCategory,
       startDate: engagement.startDate,
       endDate,
-      engagementMonths: Number.parseInt(`${engagement.engagementMonths}`),
+      engagementMonths: Number.parseInt(`${engagement.months}`),
 
       compensationSummary: describeCompensation(compensation),
 
