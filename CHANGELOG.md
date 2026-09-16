@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.16
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.15...v0.5.16)
+
+### 🩹 Fixes
+
+- Rename engagementMonths to months in retainer contract schema and related logic ([8c1ce9a](https://github.com/Modest-Human-Brands/mconnect/commit/8c1ce9a))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.15
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.14...v0.5.15)
