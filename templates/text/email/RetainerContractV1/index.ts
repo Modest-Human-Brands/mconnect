@@ -14,7 +14,7 @@ export const retainerContractSchema = z.object({
     quoteDate: z.date(),
     startDate: z.date(),
     months: z.number().int().min(1),
-    renewalType: z.enum(['Auto-Renew', 'Manual Renewal', 'Fixed Term - No Renewal']),
+    renewalType: z.enum(['Auto-Renew', 'Manual Renewal', 'No Renewal']),
     noticePeriodDays: z.number().int().min(0).default(30),
   }),
   serviceCategory: z.string(),
