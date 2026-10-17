@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.5.17
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.16...v0.5.17)
+
+### 🚀 Enhancements
+
+- Add Postman API collection and update dependencies ([37b4b66](https://github.com/Modest-Human-Brands/mconnect/commit/37b4b66))
+
+### 🩹 Fixes
+
+- Update renewalType options in retainer contract schema ([3565ace](https://github.com/Modest-Human-Brands/mconnect/commit/3565ace))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.16
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.15...v0.5.16)
