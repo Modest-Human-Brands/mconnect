@@ -19,6 +19,7 @@ export default defineConfig({
   },
   scheduledTasks: {
     '5,20,35,50 * * * *': ['sync:telemetry', 'sync:resource'],
+    '* * * * *': ['sync:email'],
   },
   runtimeConfig: {
     app: {
@@ -30,6 +31,10 @@ export default defineConfig({
     },
     private: {
       notionDbId: '',
+      googleClientId: '',
+      googleClientSecret: '',
+      microsoftClientId: '',
+      microsoftClientSecret: '',
     },
   },
   storage: {

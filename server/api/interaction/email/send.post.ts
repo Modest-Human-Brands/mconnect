@@ -6,16 +6,17 @@ import { render } from '@vue-email/render'
 import notion from '#server/utils/notion.ts'
 import dispatchEmail from '#server/utils/providers-email.ts'
 import { templateRegistry } from '#server/utils/template-registry-email.ts'
-import type { NotionContact, NotionDB, NotionOrganization } from '~/server/types'
+import type { NotionContact, NotionDB } from '~/server/types'
 
 import '#templates/text/email/index.ts'
 import notionNormalizeId from '#server/utils/notion-normalize-id.ts'
-import notionTextStringify from '#server/utils/notion-text-stringify.ts'
+import resolveOrgSlug from '#server/utils/resolve-org-slug.ts'
 
 const basePayload = z.object({
   userId: z.string().optional(),
   contactId: z.string().optional(),
   recipientEmail: z.email().optional(),
+  accountId: z.string().optional(),
 })
 
 const rawContent = z.object({
@@ -37,20 +38,10 @@ const bodySchema = z.union([
   basePayload.extend({ subject: z.string().optional(), displayName: z.string().optional() }).and(templatedContent),
 ])
 
-function isUuid(text: string) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(text)
-}
-
 export default defineEventHandler(async (event) => {
   try {
-    const orgId = event.req.headers.get('x-org-id')
-    if (!orgId) {
-      throw new HTTPError({
-        statusCode: 400,
-        statusMessage: 'x-org-id header is required',
-      })
-    }
-    const { userId, contactId, recipientEmail: bodyEmail, text, html, subject, template, variables, displayName } = await readValidatedBody(event, bodySchema)
+    const orgSlug = await resolveOrgSlug(event)
+    const { accountId, userId, contactId, recipientEmail: bodyEmail, text, html, subject, template, variables, displayName } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
@@ -63,12 +54,6 @@ export default defineEventHandler(async (event) => {
 
     if (!recipientEmail) {
       throw new HTTPError({ statusCode: 400, statusMessage: 'Valid recipientEmail or contactId is required.' })
-    }
-
-    let orgSlug = orgId
-    if (isUuid(orgId)) {
-      const orgPage = (await notion.pages.retrieve({ page_id: orgId })) as unknown as NotionOrganization
-      orgSlug = notionTextStringify(orgPage.properties.Id.rich_text) || orgId
     }
 
     let activeSubject = subject || ''
@@ -147,7 +132,8 @@ export default defineEventHandler(async (event) => {
           displayName,
           attachments,
         },
-        orgSlug
+        orgSlug,
+        accountId
       )
 
       // 4. Promote Notion page from Draft to Sent and append rendered HTML

@@ -12,19 +12,24 @@ const bodySchema = z.object({
   subject: z.string(),
   text: z.string().optional(),
   html: z.string().optional(),
+  direction: z.enum(['inbound', 'outbound']).default('inbound'),
+  date: z.iso.datetime({ offset: true }).optional(),
 })
 
 export default defineEventHandler(async (event) => {
   try {
-    const { from, to, subject, text, html } = await readValidatedBody(event, bodySchema)
+    const { from, to, subject, text, html, direction, date } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
 
-    const emailMatch = from.match(/<([^>]+)>/)
-    const rawEmail = emailMatch ? emailMatch[1] : from
+    // The contact is the other party: the sender of inbound mail, the first recipient of outbound mail.
+    const counterparty = direction === 'outbound' ? to.split(',')[0]!.trim() : from
 
-    const nameMatch = from.match(/^"?(.*?)"?\s*</)
+    const emailMatch = counterparty.match(/<([^>]+)>/)
+    const rawEmail = emailMatch ? emailMatch[1] : counterparty
+
+    const nameMatch = counterparty.match(/^"?(.*?)"?\s*</)
     const fallbackName = rawEmail.split('@')[0]
     const pocPerson = nameMatch && nameMatch[1].trim() ? nameMatch[1].trim() : fallbackName
 
@@ -66,13 +71,13 @@ export default defineEventHandler(async (event) => {
           rich_text: [{ text: { content: (text || 'HTML content only').slice(0, 2000) } }],
         },
         Status: {
-          status: { name: 'Received' },
+          status: { name: direction === 'outbound' ? 'Sent' : 'Received' },
         },
         Direction: {
-          select: { name: 'Inbound' },
+          select: { name: direction === 'outbound' ? 'Outbound' : 'Inbound' },
         },
         Timestamp: {
-          date: { start: new Date().toISOString() },
+          date: { start: date ?? new Date().toISOString() },
         },
         ...(contactId ? { Contact: { relation: [{ id: notionNormalizeId(contactId) }] } } : {}),
       },

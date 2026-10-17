@@ -589,22 +589,22 @@ MConnect includes an enterprise-grade telemetry engine designed to measure genui
 
 All scripts are executed using Bun:
 
-| Script                 | Command                                                  | Purpose                                                      |
-| :--------------------- | :------------------------------------------------------- | :----------------------------------------------------------- |
-| `bun run dev`          | `nitro dev`                                              | Starts local development server on port 3000 with HMR.       |
-| `bun run build`        | `nitro build`                                            | Builds optimized standalone production output in `.output/`. |
-| `bun run start`        | `node --env-file=.env.prod .output/server/index.mjs`     | Runs production build with Node.js.                          |
-| `bun run preview`      | `nitro preview`                                          | Previews the compiled production build locally.              |
-| `bun run test`         | `vitest run`                                             | Runs unit and integration test suite via Vitest.             |
-| `bun run test:load`    | `k6 run tests/load.test.ts`                              | Runs performance load tests with k6.                         |
-| `bun run lint`         | `eslint . --fix`                                         | Runs ESLint and automatically fixes formatting errors.       |
-| `bun run format`       | `prettier . --write`                                     | Formats all code with Prettier.                              |
-| `bun run generate`     | `dotenvx run -- bun run ./scripts/template-thumbnail.ts` | Renders HTML email previews and generates PNG thumbnails.    |
-| `bun run tunnel`       | `bunx untun tunnel http://localhost:3000`                | Creates an HTTP tunnel to receive external webhooks.         |
-| `bun run detect`       | `gitleaks git --verbose`                                 | Scans git repository history for leaked secrets.             |
-| `bun run clean`        | `nitro cleanup`                                          | Cleans temporary Nitro caches and artifacts.                 |
-| `bun run docker:build` | `docker build ... -t mconnect:dev .`                     | Builds the multi-stage Alpine Docker container.              |
-| `bun run docker:start` | `docker run ... mconnect:dev`                            | Runs container with mapped port 3500:3000.                   |
+| Script                 | Command                                              | Purpose                                                                           |
+| :--------------------- | :--------------------------------------------------- | :-------------------------------------------------------------------------------- |
+| `bun run dev`          | `nitro dev`                                          | Starts local development server on port 3000 with HMR.                            |
+| `bun run build`        | `nitro build`                                        | Builds optimized standalone production output in `.output/`.                      |
+| `bun run start`        | `node --env-file=.env.prod .output/server/index.mjs` | Runs production build with Node.js.                                               |
+| `bun run preview`      | `nitro preview`                                      | Previews the compiled production build locally.                                   |
+| `bun run test`         | `vitest run`                                         | Runs unit and integration test suite via Vitest.                                  |
+| `bun run test:load`    | `k6 run tests/load.test.ts`                          | Runs performance load tests with k6.                                              |
+| `bun run lint`         | `eslint . --fix`                                     | Runs ESLint and automatically fixes formatting errors.                            |
+| `bun run format`       | `prettier . --write`                                 | Formats all code with Prettier.                                                   |
+| `bun run generate`     | `nitro task run thumbnail:template`                  | Renders template sample PNGs to `public/templates` (needs `bun run dev` running). |
+| `bun run tunnel`       | `bunx untun tunnel http://localhost:3000`            | Creates an HTTP tunnel to receive external webhooks.                              |
+| `bun run detect`       | `gitleaks git --verbose`                             | Scans git repository history for leaked secrets.                                  |
+| `bun run clean`        | `nitro cleanup`                                      | Cleans temporary Nitro caches and artifacts.                                      |
+| `bun run docker:build` | `docker build ... -t mconnect:dev .`                 | Builds the multi-stage Alpine Docker container.                                   |
+| `bun run docker:start` | `docker run ... mconnect:dev`                        | Runs container with mapped port 3500:3000.                                        |
 
 </details>
 

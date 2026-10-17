@@ -1,9 +1,10 @@
-import { loadConfig } from 'c12'
 import { HTTPError } from 'nitro/h3'
-import nodemailer from 'nodemailer'
-
+import { randomUUID } from 'node:crypto'
 import MailComposer from 'nodemailer/lib/mail-composer'
-import { ImapFlow } from 'imapflow'
+
+import { markRecorded } from '#server/utils/email-ledger.ts'
+import { resolveEmailAccount, type EmailAccount } from '#server/utils/email-accounts.ts'
+import { findSentMailbox, openImapClient, openSmtpTransport } from '#server/utils/email-connection.ts'
 
 interface DispatchEmailPayload {
   to: string
@@ -14,50 +15,14 @@ interface DispatchEmailPayload {
   attachments?: { filename: string; content: Buffer<ArrayBuffer>; contentType: string }[]
 }
 
-let cachedEmailConfig: any = null
-
-async function getEmailInfrastructure(orgSlug: string) {
-  if (cachedEmailConfig) return cachedEmailConfig
-
-  const { config } = await loadConfig({
-    configFile: `../config/organizations/${orgSlug}.yaml`,
-  })
-
-  const emailSettings = config?.emailConfig
-  if (!emailSettings?.activeProvider) {
-    throw new HTTPError({ statusCode: 400, message: `Email configuration or activeProvider targeting rules are missing for ${orgSlug}.` })
-  }
-
-  cachedEmailConfig = emailSettings
-  return cachedEmailConfig
-}
-
-async function appendToSentFolder(mailOptions: any, settings: { host: string; port?: number; auth: { user: string; pass: string }; imapHost?: string; imapPort?: number }) {
+/** Gmail and Outlook file SMTP-sent mail under Sent themselves; plain IMAP servers do not. */
+async function appendToSentFolder(orgSlug: string, account: EmailAccount, mailOptions: any) {
   try {
-    const imapHost = settings.imapHost || settings.host.replace(/^smtp\./i, 'imap.')
-    const imapPort = Number(settings.imapPort || 993)
-
-    const composer = new MailComposer(mailOptions)
-    const messageBuffer = await composer.compile().build()
-
-    const client = new ImapFlow({
-      host: imapHost,
-      port: imapPort,
-      secure: true,
-      auth: {
-        user: settings.auth.user,
-        pass: settings.auth.pass,
-      },
-      logger: false,
-    })
-
-    await client.connect()
+    const messageBuffer = await new MailComposer(mailOptions).compile().build()
+    const client = await openImapClient(orgSlug, account)
     try {
-      const mailboxes = await client.list()
-      const sentMailbox = mailboxes.find((m) => m.specialUse === '\\Sent') || mailboxes.find((m) => /^sent/i.test(m.path) || /inbox\.sent/i.test(m.path))
-
-      const targetFolder = sentMailbox ? sentMailbox.path : 'Sent'
-      await client.append(targetFolder, messageBuffer, ['\\Seen'])
+      const sentMailbox = await findSentMailbox(client)
+      await client.append(sentMailbox ? sentMailbox.path : 'Sent', messageBuffer, ['\\Seen'])
     } finally {
       await client.logout()
     }
@@ -66,60 +31,31 @@ async function appendToSentFolder(mailOptions: any, settings: { host: string; po
   }
 }
 
-const emailProviderAdapters: Record<string, (payload: DispatchEmailPayload & { settings: any; defaults: any }) => Promise<{ messageId: string }>> = {
-  smtp: async (payload) => {
-    if (!payload.settings?.host || !payload.settings?.auth) {
-      throw new HTTPError({ statusCode: 400, message: 'Connection parameters for email provider SMTP are incomplete.' })
-    }
+export default async function (payload: DispatchEmailPayload, orgSlug: string, accountId?: string) {
+  const account = await resolveEmailAccount(orgSlug, accountId)
+  const fromName = payload.displayName || account.fromName
 
-    const transporter = nodemailer.createTransport({
-      host: payload.settings.host,
-      port: Number(payload.settings.port || 465),
-      secure: payload.settings.secure ?? payload.settings.port === 465,
-      auth: {
-        user: payload.settings.auth.user,
-        pass: payload.settings.auth.pass,
-      },
-    })
-    const fromName = payload.defaults?.fromName
-    const fromEmail = payload.defaults?.fromEmail
-
-    const mailOptions = {
-      from: `"${fromName}" <${fromEmail}>`,
-      to: payload.to,
-      subject: payload.subject,
-      text: payload.text,
-      html: payload.html,
-      attachments: payload.attachments,
-    }
-
-    const info = await transporter.sendMail(mailOptions)
-    appendToSentFolder(mailOptions, payload.settings).catch(() => {})
-
-    return { messageId: info.messageId }
-  },
-}
-
-export default async function (payload: DispatchEmailPayload, orgSlug: string) {
-  const emailConfigProfile = await getEmailInfrastructure(orgSlug)
-  const activeProviderName = emailConfigProfile.activeProvider
-
-  const adapterRunner = emailProviderAdapters[activeProviderName]
-  if (!adapterRunner) {
-    throw new HTTPError({ statusCode: 400, message: `The target email execution adapter "${activeProviderName}" is unrecognized or unmapped.` })
+  // One explicit Message-ID shared by the SMTP delivery and the copy appended to Sent, so sync can recognise it.
+  const messageId = `<${randomUUID()}@${account.address.split('@')[1]}>`
+  const mailOptions = {
+    messageId,
+    from: fromName ? { name: fromName, address: account.address } : account.address,
+    to: payload.to,
+    subject: payload.subject,
+    text: payload.text,
+    html: payload.html,
+    attachments: payload.attachments,
   }
 
-  const providerSettings = emailConfigProfile.providers?.[activeProviderName]
-  const defaults = emailConfigProfile.defaults
-
-  const result = await adapterRunner({
-    ...payload,
-    settings: providerSettings,
-    defaults,
-  })
-
-  return {
-    providerMessageId: result.messageId,
-    activeProviderName,
+  const transporter = await openSmtpTransport(orgSlug, account)
+  try {
+    await transporter.sendMail(mailOptions)
+    await markRecorded(messageId)
+    if (account.provider === 'imap') appendToSentFolder(orgSlug, account, mailOptions).catch(() => {})
+    return { providerMessageId: messageId, accountId: account.id, provider: account.provider }
+  } catch (error: any) {
+    throw new HTTPError({ statusCode: 502, statusMessage: `Sending from ${account.address} failed: ${error?.response || error?.message || 'unknown error'}` })
+  } finally {
+    transporter.close()
   }
 }

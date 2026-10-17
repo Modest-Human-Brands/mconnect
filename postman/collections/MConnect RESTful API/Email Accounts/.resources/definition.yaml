@@ -1,0 +1,3 @@
+$kind: collection
+description: Connect, list and remove the mailboxes an organization sends from and syncs. Every request needs the x-org-id header.
+order: 20000
