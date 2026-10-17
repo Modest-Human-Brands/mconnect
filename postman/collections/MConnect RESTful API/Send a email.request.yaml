@@ -1,0 +1,53 @@
+$kind: http-request
+description: |-
+  This is a GET request and it is used to "get" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).
+
+  A successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data.
+url: '{{base_url}}/api/interaction/email/send'
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "userId": "368ee3b0289a8066818fc6994958263e",
+        "contactId": "36dee3b0289a818ca9ecca3c28ad9855",
+        "orgId": "modest-human-brands",
+        "template": "internship-completion-certificate",
+        "variables": {
+            "recipientName": "Alex Mercer",
+            "recipientRole": "Senior Marketing Intern",
+            "scopeOfWork": "Digital Campaign Management",
+            "startDate": "June 1, 2025",
+            "endDate": "December 31, 2025",
+            "dateOfIssue": "2025-09-04",
+            "signerName": "Sarah Jenkins",
+            "signerTitle": "Director of Marketing",
+            "certificateUrl": "https://redcatpictures.com",
+            "tracking": {
+                "emailId": "test-certificate-1",
+                "baseUrl": "http://localhost:5100"
+            },
+            "organization": {
+                "id": "red-cat-pictures",
+                "name": "RED CAT PICTURES",
+                "website": "https://redcatpictures.com",
+                "branding": {
+                    "logo": "https://redcatpictures.com/logo-dark.svg",
+                    "color": {
+                        "primary": "#CD2D2D",
+                        "accent": ""
+                    },
+                    "font": "Exo 2"
+                },
+                "socials": {}
+            }
+        }
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+    language: text/javascript
+order: 12000

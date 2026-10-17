@@ -1,0 +1,81 @@
+$kind: http-request
+description: |-
+  This is a GET request and it is used to "get" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).
+
+  A successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data.
+url: '{{base_url}}/api/interaction/email/template/preview'
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "templateId": "content-release",
+        "variables": {
+            "recipient": {
+                "name": "Sarah Jenkins",
+                "email": "sarah@example.com"
+            },
+            "emailSubject": "Three Ways to Deepen Your Creative Flow",
+            "content": {
+                "badge": "New Release",
+                "title": "Three Ways to Deepen Your Creative Workflow",
+                "meta": "Posted by Modest Human Brands · 3 min read",
+                "imageUrl": "https://modesthumanbrands.com/images/hero-image-1.webp",
+                "excerpt": "You've been optimizing your routine for a while, and now you feel it's time to take your studio output to the next level. Here is how modern teams eliminate friction across production.",
+                "ctaLabel": "Read More",
+                "linkUrl": "https://modesthumanbrands.com/blog/creative-workflow"
+            },
+            "unsubscribeUrl": "https://modesthumanbrands.com/newsletter/unsubscribe",
+            "trackingPixelUrl": "http://localhost:3001/api/track/open?e=test",
+            "tracking": {
+                "emailId": "test-emailid-1",
+                "baseUrl": "http://localhost:3001"
+            },
+            "organization": {
+                "id": "modest-human-brands",
+                "name": "Modest Human Brands",
+                "legalName": "Modest Human Brands LLP",
+                "entityType": "LLP",
+                "tradeRelationship": "Primary",
+                "gstin": null,
+                "pan": "ABCDE0123F",
+                "address": "Abc Road, Near DEF, UIO - 1890",
+                "foundedYear": 2020,
+                "accountDetails": {
+                    "accountName": "Modest Human Brands LLP",
+                    "accountNumber": 1234567890,
+                    "bankName": "HDFC Bank",
+                    "ifscCode": "HDFC0001234"
+                },
+                "website": "https://modesthumanbrands.com",
+                "contactEmail": "hello@modesthumanbrands.com",
+                "billingEmail": "billing@modesthumanbrands.com",
+                "primaryContactId": "contact-1",
+                "organizationMemberIds": ["member-1"],
+                "branding": {
+                    "logo": "https://modesthumanbrands.com/logo.svg",
+                    "color": {
+                        "primary": "#111827",
+                        "accent": "#0284c7"
+                    },
+                    "font": "Exo2"
+                },
+                "phone": "+919999999999",
+                "whatsapp": "+919999999999",
+                "socials": {
+                    "instagram": "https://www.instagram.com/modesthumanbrands/",
+                    "facebook": "https://facebook.com/modesthumanbrands",
+                    "linkedin": "https://linkedin.com/company/modesthumanbrands",
+                    "youtube": "https://www.youtube.com/@modesthumanbrands"
+                }
+            }
+        }
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+    language: text/javascript
+order: 11000

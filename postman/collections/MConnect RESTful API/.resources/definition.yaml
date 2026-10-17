@@ -1,0 +1,6 @@
+$kind: collection
+description: ''
+variables:
+  base_url: ''
+  vobiz_auth_id: ''
+  vobiz_auth_token: ''

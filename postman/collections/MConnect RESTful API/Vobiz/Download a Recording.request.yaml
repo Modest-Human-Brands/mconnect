@@ -1,0 +1,10 @@
+$kind: http-request
+url: https://media.vobiz.ai/v1/Account/:auth_id/Recording/:recording_id.wav
+method: GET
+headers:
+  X-Auth-ID: '{{vobiz_auth_id}}'
+  X-Auth-Token: '{{vobiz_auth_token}}'
+pathVariables:
+  auth_id: '{{vobiz_auth_id}}'
+  recording_id: ''
+order: 4000
