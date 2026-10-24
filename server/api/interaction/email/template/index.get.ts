@@ -12,7 +12,7 @@ export default defineEventHandler(() => {
       id: template.id,
       label: template.label,
       description: template.description,
-      thumbnail: `${config.public.connectUrl}/previews/${template.id}.png`,
+      thumbnail: `${config.public.connectUrl}/templates/${template.id}.png`,
     }))
 
     return templates

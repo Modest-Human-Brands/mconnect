@@ -72,7 +72,7 @@ const chunkedPortfolio = computed(() => {
       <Preview>{{ heroHeadline || `Elevating ${categoryName} solutions with ${organizationName}` }}</Preview>
 
       <Body :style="{ fontFamily: `'${organizationFont || 'ui-sans-serif'}', system-ui, sans-serif` }" class="m-0 p-0 bg-white">
-        <Container class="mx-auto w-full min-w-[600px] p-6 bg-white">
+        <Container class="mx-auto w-full max-w-[600px] px-4 py-6 sm:p-6 bg-white">
           <!-- PURE CODE GRADIENT HEADER -->
           <Section class="mb-6">
             <Section class="h-4 w-full rounded" :style="{ background: `linear-gradient(90deg, #111827 0%, ${organizationColorPrimary} 100%)` }" />
@@ -123,10 +123,10 @@ const chunkedPortfolio = computed(() => {
 
             <!-- 2 Buttons -> Button 1 Accent color, Button 2 Primary color -->
             <template v-else-if="computedCtas.length === 2">
-              <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" class="mx-auto">
+              <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" class="mx-auto max-w-full">
                 <tbody>
-                  <tr>
-                    <td class="pr-2">
+                  <tr class="block sm:table-row">
+                    <td class="block sm:table-cell sm:pr-2 pb-3 sm:pb-0 text-center">
                       <Button
                         :href="computedCtas[0].url"
                         class="rounded px-6 py-3 text-sm font-bold text-white no-underline inline-block shadow-md tracking-wide"
@@ -134,7 +134,7 @@ const chunkedPortfolio = computed(() => {
                         {{ computedCtas[0].label }}
                       </Button>
                     </td>
-                    <td class="pl-2">
+                    <td class="block sm:table-cell sm:pl-2 text-center">
                       <Button
                         :href="computedCtas[1].url"
                         class="rounded px-6 py-3 text-sm font-bold text-white no-underline inline-block shadow-md tracking-wide"
@@ -156,7 +156,7 @@ const chunkedPortfolio = computed(() => {
               <Text v-if="sectionPretitle" class="m-0 text-xs font-mono font-bold tracking-wider uppercase text-gray-400">
                 {{ sectionPretitle }}
               </Text>
-              <Text class="m-0 text-xs sm:text-xl font-bold text-gray-900 mt-1">
+              <Text class="m-0 text-base sm:text-xl font-bold text-gray-900 mt-1">
                 {{ sectionTitle || 'Explore Solutions' }}
               </Text>
               <Text v-if="sectionDescription" class="m-0 text-xs text-gray-500 mt-1 leading-relaxed">
