@@ -2,7 +2,9 @@ import { z } from 'zod'
 import registerSMSTemplate from '#server/utils/template-registry-sms.ts'
 
 export const quotationSchema = z.object({
-  clientName: z.string(),
+  recipient: z.object({
+    name: z.string(),
+  }),
   quoteNumber: z.string(),
   totalAmount: z.union([z.string(), z.number()]),
   quotationUrl: z.string(),
@@ -46,7 +48,7 @@ export const quotationSchema = z.object({
 export type QuotationPayload = z.infer<typeof quotationSchema>
 
 const placeholders: QuotationPayload = {
-  clientName: 'Wayne Enterprises',
+  recipient: { name: 'Wayne Enterprises' },
   quoteNumber: 'QT-2026-089',
   totalAmount: '13,500.00',
   quotationUrl: 'https://modesthumanbrands.com/quote/12345',
@@ -98,7 +100,7 @@ registerSMSTemplate({
   placeholders,
   transformPayload: (data: QuotationPayload) => {
     const p = placeholders
-    const client = data?.clientName || p.clientName
+    const client = data?.recipient?.name || p.recipient.name
     const quoteNo = data?.quoteNumber || p.quoteNumber
     const amount = data?.totalAmount || p.totalAmount
     const link = data?.quotationUrl || p.quotationUrl

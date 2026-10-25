@@ -1,59 +1,40 @@
 $kind: http-request
 description: |-
-  This is a GET request and it is used to "get" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).
-
-  A successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data.
+  Sends an SMS to a contact's phone (or to recipientPhone). The organization comes from the x-org-id header.
 url: '{{base_url}}/api/interaction/sms/send'
 method: POST
+headers:
+  Content-Type: application/json
+  x-org-id: '{{org_id}}'
 body:
   type: json
-  content: "{\r
-
-    \    \"userId\": \"368ee3b0289a8066818fc6994958263e\",\r
-
-    \    \"contactId\": \"36dee3b0289a818ca9ecca3c28ad9855\",\r
-
-    \    \"template\": \"internship-completion-certificate\",\r
-
-    \    \"variables\": {\r
-
-    \        \"recipientName\": \"Alex Mercer\",\r
-
-    \        \"recipientRole\": \"Backend Core Systems Development\",\r
-
-    \        \"certificateUrl\": \"https://document.modesthumanbrands.com/api/document/4dd38bbf-8372-4a4b-a1c7-6f70d904f73e/content?download=true\",\r
-
-    \        \"organization\": {\r
-
-    \            \"id\": \"red-cat-pictures\",\r
-
-    \            \"name\": \"RED CAT PICTURES\",\r
-
-    \            \"website\": \"https://redcatpictures.com\",\r
-
-    \            \"branding\": {\r
-
-    \                \"logo\": \"https://redcatpictures.com/logo-dark.svg\",\r
-
-    \                \"color\": {\r
-
-    \                    \"primary\": \"#CD2D2D\",\r
-
-    \                    \"accent\": \"\"\r
-
-    \                },\r
-
-    \                \"font\": \"Exo 2\"\r
-
-    \            },\r
-
-    \            \"socials\": {}\r
-
-    \        }\r
-
-    \    }\r
-
-    }"
+  content: |-
+    {
+        "userId": "368ee3b0289a8066818fc6994958263e",
+        "contactId": "36dee3b0289a818ca9ecca3c28ad9855",
+        "template": "internship-completion-certificate",
+        "variables": {
+            "recipient": {
+                "name": "Alex Mercer",
+                "role": "Backend Core Systems Development"
+            },
+            "certificateUrl": "https://document.modesthumanbrands.com/api/document/4dd38bbf-8372-4a4b-a1c7-6f70d904f73e/content?download=true",
+            "organization": {
+                "id": "red-cat-pictures",
+                "name": "RED CAT PICTURES",
+                "website": "https://redcatpictures.com",
+                "branding": {
+                    "logo": "https://redcatpictures.com/logo-dark.svg",
+                    "color": {
+                        "primary": "#CD2D2D",
+                        "accent": ""
+                    },
+                    "font": "Exo 2"
+                },
+                "socials": {}
+            }
+        }
+    }
 scripts:
   - type: afterResponse
     code: |-

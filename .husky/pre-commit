@@ -1,20 +1,26 @@
 #!/usr/bin/env sh
 set -e
 
+# Get the list of staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g')
+
+# Postman collections live in paths with spaces and are validated by `postman collection lint`, not eslint/prettier
+LINT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -v '^postman/' | sed 's| |\\ |g' || true)
+
 # If gitleaks is available, scan each staged file
 if command -v gitleaks >/dev/null 2>&1; then
-  git diff --cached --name-only --diff-filter=ACMR | while IFS= read -r file; do
+  for file in $STAGED_FILES; do
     [ -f "$file" ] && gitleaks detect --source="$file" --no-git --no-banner --verbose
   done
 else
   echo "⚠️ gitleaks not found; skipping secret scan"
 fi
 
-# Lint
-bun run lint
+# Lint the staged files
+[ -z "$LINT_FILES" ] || bun lint $LINT_FILES
 
-# Format
-bun run format
+# Format the staged files, ignoring unknown files
+[ -z "$LINT_FILES" ] || bun format $LINT_FILES --ignore-unknown
 
 # Update the index to mark the changes in the staged files
 git update-index --again

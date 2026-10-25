@@ -15,8 +15,10 @@ body:
         "accountId": "00000000-0000-0000-0000-000000000000",
         "template": "internship-completion-certificate",
         "variables": {
-            "recipientName": "Alex Mercer",
-            "recipientRole": "Senior Marketing Intern",
+            "recipient": {
+                "name": "Alex Mercer",
+                "role": "Senior Marketing Intern"
+            },
             "scopeOfWork": "Digital Campaign Management",
             "startDate": "June 1, 2025",
             "endDate": "December 31, 2025",

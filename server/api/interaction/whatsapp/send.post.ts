@@ -1,16 +1,16 @@
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
-import type { NotionContact, NotionDB, NotionOrganization } from '~/server/types'
+import type { NotionContact, NotionDB } from '~/server/types'
 import notion from '#server/utils/notion.ts'
-import notionTextStringify from '#server/utils/notion-text-stringify.ts'
+import resolveOrgSlug from '#server/utils/resolve-org-slug.ts'
 
 import dispatchWhatsApp, { type WhatsAppPayload } from '#server/utils/providers-whatsapp.ts'
 import { templateRegistry } from '#server/utils/template-registry-whatsapp.ts'
 
 import '#templates/text/whatsapp/index.ts'
 
-const basePayload = z.object({ userId: z.string(), contactId: z.string(), orgId: z.string() })
+const basePayload = z.object({ userId: z.string().optional(), contactId: z.string() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -28,7 +28,8 @@ const bodySchema = z.union([basePayload.and(rawContent), basePayload.and(templat
 
 export default defineEventHandler(async (event) => {
   try {
-    const { contactId, userId, template, text, variables, orgId } = await readValidatedBody(event, bodySchema)
+    const orgSlug = await resolveOrgSlug(event)
+    const { contactId, userId, template, text, variables } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
@@ -62,9 +63,7 @@ export default defineEventHandler(async (event) => {
       if (templateData.header?.type) msgType = templateData.header.type.toUpperCase()
     }
 
-    const orgPage = (await notion.pages.retrieve({ page_id: orgId })) as unknown as NotionOrganization
-
-    const dispatchResult = await dispatchWhatsApp(finalizedPayload, notionTextStringify(orgPage.properties.Id.rich_text)!)
+    const dispatchResult = await dispatchWhatsApp(finalizedPayload, orgSlug)
 
     const messagePage = await notion.pages.create({
       parent: { data_source_id: notionDbId.message },

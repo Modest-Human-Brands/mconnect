@@ -2,8 +2,10 @@ import { z } from 'zod'
 import registerSMSTemplate from '#server/utils/template-registry-sms.ts'
 
 export const internshipCompletionCertificateSchema = z.object({
-  recipientName: z.string(),
-  recipientRole: z.string(),
+  recipient: z.object({
+    name: z.string(),
+    role: z.string(),
+  }),
   certificateUrl: z.string(),
   organization: z.object({
     id: z.string(),
@@ -45,8 +47,7 @@ export const internshipCompletionCertificateSchema = z.object({
 export type InternshipCompletionCertificatePayload = z.infer<typeof internshipCompletionCertificateSchema>
 
 const placeholders: InternshipCompletionCertificatePayload = {
-  recipientName: 'Alex Mercer',
-  recipientRole: 'Senior Marketing Intern',
+  recipient: { name: 'Alex Mercer', role: 'Senior Marketing Intern' },
   certificateUrl: 'https://modesthumanbrands.com/cert/12345',
   organization: {
     id: 'modest-human-brands',
@@ -97,8 +98,8 @@ registerSMSTemplate({
   transformPayload: (data: InternshipCompletionCertificatePayload) => {
     const p = placeholders
     const orgName = data?.organization?.name || p.organization?.name
-    const recipient = data?.recipientName || p.recipientName
-    const role = data?.recipientRole || p.recipientRole
+    const recipient = data?.recipient?.name || p.recipient.name
+    const role = data?.recipient?.role || p.recipient.role
     const url = data?.certificateUrl || p.certificateUrl
 
     const messageBody = `Hi ${recipient}, your official certificate of completion for your tenure as our ${role} at ${orgName} is ready! Download your verified PDF document here: ${url}`

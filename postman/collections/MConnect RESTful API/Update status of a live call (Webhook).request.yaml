@@ -1,28 +1,47 @@
 $kind: http-request
 description: |-
-  This is a GET request and it is used to "get" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).
-
-  A successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data.
+  LiveKit room webhook. LiveKit is the real caller: the body is a LiveKit event and the Authorization header is a JWT signed with the LiveKit API secret, carrying the SHA-256 of the raw body.
+  The pre-request script signs it for you from the collection variables livekit_api_key and livekit_api_secret (set them locally, never commit them).
+  Room names look like "inbound-call_<phone>" or "outbound-call_<contactId>_<userId>". This example uses participant_joined, which only logs and has no side effects. room_started creates contacts, dials agents over SIP and writes Notion call records.
 url: '{{base_url}}/api/interaction/phone/status'
 method: POST
+headers:
+  Content-Type: application/json
 body:
   type: json
-  content: "{\r
-
-    \  \"event\": \"hangup\",\r
-
-    \  \"callUuid\": \"vobiz-call-7890-xyz\",\r
-
-    \  \"from\": \"+918017275285\",\r
-
-    \  \"to\": \"+919876543210\",\r
-
-    \  \"duration\": 142,\r
-
-    \  \"recordingUrl\": \"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3\"\r
-
-    }"
+  content: |-
+    {
+        "event": "participant_joined",
+        "room": {
+            "sid": "RM_example123",
+            "name": "inbound-call_919876543210"
+        },
+        "participant": {
+            "sid": "PA_example123",
+            "identity": "sip_919876543210"
+        },
+        "id": "EV_example123",
+        "createdAt": 1790000000
+    }
 scripts:
+  - type: beforeRequest
+    code: |-
+      // Sign the webhook the way LiveKit does: HS256 JWT with a sha256 claim over the raw body.
+      const key = pm.variables.get('livekit_api_key')
+      const secret = pm.variables.get('livekit_api_secret')
+      if (!key || !secret) throw new Error('Set the livekit_api_key and livekit_api_secret collection variables')
+
+      const body = pm.variables.replaceIn(pm.request.body.raw)
+      const b64url = (words) => CryptoJS.enc.Base64.stringify(words).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_')
+      const encode = (value) => b64url(CryptoJS.enc.Utf8.parse(JSON.stringify(value)))
+
+      const now = Math.floor(Date.now() / 1000)
+      const header = encode({ alg: 'HS256', typ: 'JWT' })
+      const payload = encode({ iss: key, nbf: now - 5, exp: now + 600, sha256: CryptoJS.enc.Base64.stringify(CryptoJS.SHA256(body)) })
+      const signature = b64url(CryptoJS.HmacSHA256(`${header}.${payload}`, secret))
+
+      pm.request.headers.upsert({ key: 'Authorization', value: `${header}.${payload}.${signature}` })
+    language: text/javascript
   - type: afterResponse
     code: |-
       pm.test("Status code is 200", function () {

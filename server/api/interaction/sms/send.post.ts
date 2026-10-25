@@ -1,15 +1,15 @@
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
-import type { NotionContact, NotionDB, NotionOrganization } from '~/server/types'
+import type { NotionContact, NotionDB } from '~/server/types'
 import notion from '#server/utils/notion.ts'
-import notionTextStringify from '#server/utils/notion-text-stringify.ts'
+import resolveOrgSlug from '#server/utils/resolve-org-slug.ts'
 import dispatchSMS from '#server/utils/providers-sms.ts'
 import { templateRegistry } from '#server/utils/template-registry-sms.ts'
 
 import '#templates/text/sms/index.ts'
 
-const basePayload = z.object({ userId: z.string(), contactId: z.string().optional(), recipientPhone: z.string().optional(), orgId: z.string() })
+const basePayload = z.object({ userId: z.string(), contactId: z.string().optional(), recipientPhone: z.string().optional() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -27,7 +27,8 @@ const bodySchema = z.union([basePayload.and(rawContent), basePayload.and(templat
 
 export default defineEventHandler(async (event) => {
   try {
-    const { recipientPhone, userId, contactId, text, template, variables, orgId } = await readValidatedBody(event, bodySchema)
+    const orgSlug = await resolveOrgSlug(event)
+    const { recipientPhone, userId, contactId, text, template, variables } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB
@@ -38,7 +39,7 @@ export default defineEventHandler(async (event) => {
       finalizedPhone = contactPage.properties.Phone.phone_number ?? undefined
     }
 
-    if (!recipientPhone) throw new HTTPError({ statusCode: 400, statusMessage: 'Valid recipientPhone or contactId is required.' })
+    if (!finalizedPhone) throw new HTTPError({ statusCode: 400, statusMessage: 'Valid recipientPhone or contactId is required.' })
 
     let finalizedText = text || ''
 
@@ -52,9 +53,7 @@ export default defineEventHandler(async (event) => {
       finalizedText = transformedProps.text || text || `Template compiled for: ${template}`
     }
 
-    const orgPage = (await notion.pages.retrieve({ page_id: orgId })) as unknown as NotionOrganization
-
-    const dispatchResult = await dispatchSMS(recipientPhone, finalizedText, notionTextStringify(orgPage.properties.Id.rich_text)!)
+    const dispatchResult = await dispatchSMS(finalizedPhone, finalizedText, orgSlug)
 
     const messagePage = await notion.pages.create({
       parent: { data_source_id: notionDbId.message },
