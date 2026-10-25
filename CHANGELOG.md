@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.5.17
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.16...v0.5.17)
+
+### 🚀 Enhancements
+
+- Add Postman API collection and update dependencies ([37b4b66](https://github.com/Modest-Human-Brands/mconnect/commit/37b4b66))
+- **email:** Per-organization mail accounts with two-way sync, and template/PDF thumbnail tasks ([544f1e1](https://github.com/Modest-Human-Brands/mconnect/commit/544f1e1))
+- Enhance sms, whatsApp templates with recipient object structure, add livekit webhook support ([6590e5d](https://github.com/Modest-Human-Brands/mconnect/commit/6590e5d))
+- Implement API key authentication for protected routes and update related configurations ([c07374f](https://github.com/Modest-Human-Brands/mconnect/commit/c07374f))
+- Add webhook support for inbound SMS/WhatsApp and organization slug handling for LiveKit ([61c51c6](https://github.com/Modest-Human-Brands/mconnect/commit/61c51c6))
+
+### 🩹 Fixes
+
+- Update renewalType options in retainer contract schema ([3565ace](https://github.com/Modest-Human-Brands/mconnect/commit/3565ace))
+
+### 💅 Refactors
+
+- **api:** Update endpoint URLs and clean up email account ([5aeace7](https://github.com/Modest-Human-Brands/mconnect/commit/5aeace7))
+- Update organization slug handling and clean up request schemas ([4d5700b](https://github.com/Modest-Human-Brands/mconnect/commit/4d5700b))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.16
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.15...v0.5.16)
