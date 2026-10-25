@@ -140,6 +140,8 @@ bun run docker:start
 ---
 
 > **Authentication.** Every `/api/**` route requires an `x-api-key` header matching `NITRO_PRIVATE_API_KEY` (401 if missing or wrong, 503 if the server has no key configured). Exempt routes: `GET /api/health`, `/api/track/*` (opened by email clients), `POST /api/interaction/phone/status` (verified by the LiveKit signature), the OAuth callback `/api/email/accounts/oauth/:provider/callback`, and the SMS/WhatsApp template-preview WebSockets.
+>
+> Inbound SMS/WhatsApp webhooks (`POST /api/interaction/sms/receive`, `/whatsapp/receive`) also accept `?secret=<NITRO_PRIVATE_WEBHOOK_SECRET>` in the URL for providers that cannot send headers. The LiveKit webhook takes its organization from `?org=<slug>` (or `NITRO_PRIVATE_VOICE_ORG_SLUG`).
 
 ## API Reference
 

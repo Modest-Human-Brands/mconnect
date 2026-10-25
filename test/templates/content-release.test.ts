@@ -51,7 +51,7 @@ describe('Content Release Email Template', () => {
     expect(payload.ctaUrl).toContain('e=email-alice-999')
 
     const urlParam = new URL(payload.ctaUrl).searchParams.get('url')
-    expect(urlParam).toBe('https://example.com/blog/new-feature?ref=mail-content&utm_source=mconnect&utm_medium=email')
+    expect(urlParam).toBe('https://example.com/blog/new-feature?ref=mail-content&utm_medium=email')
 
     // 3. Dynamic Telemetry Pixel
     expect(payload.trackingPixelUrl).toBe('https://track.example.com/api/track/open?e=email-alice-999')

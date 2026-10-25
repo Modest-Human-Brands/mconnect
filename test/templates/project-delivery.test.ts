@@ -68,7 +68,7 @@ describe('Project Delivery Email Template', () => {
     expect(firstLink.url).toContain('e=email-delivery-test-456')
 
     const urlParam = new URL(firstLink.url).searchParams.get('url')
-    expect(urlParam).toBe('https://cdn.modesthumanbrands.com/deliveries/master.mov?ref=mail-delivery&utm_source=mconnect&utm_medium=email')
+    expect(urlParam).toBe('https://cdn.modesthumanbrands.com/deliveries/master.mov?ref=mail-delivery&utm_medium=email')
 
     // Dynamic telemetry pixel and honeypot trap link
     expect(payload.trackingPixelUrl).toBe('https://connect.modesthumanbrands.com/api/track/open?e=email-delivery-test-456')
@@ -78,8 +78,8 @@ describe('Project Delivery Email Template', () => {
     expect(payload.organizationName).toBe('Modest Human Brands')
     expect(payload.organizationWebsite).toBe('https://modesthumanbrands.com')
     expect(payload.organizationLogo).toBe('https://modesthumanbrands.com/logo.svg')
-    expect(payload.organizationColorPrimary).toBe('#2B2B2B')
-    expect(payload.organizationColorAccent).toBe('#4A85FF')
+    expect(payload.organizationColorPrimary).toBe('#111827')
+    expect(payload.organizationColorAccent).toBe('#5945EA')
     expect(payload.organizationFont).toBe('Exo2')
   })
 

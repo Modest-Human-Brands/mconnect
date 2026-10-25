@@ -1,6 +1,7 @@
 import { defineEventHandler, HTTPError } from 'nitro/h3'
 import { useStorage } from 'nitro/storage'
 import type { Resource } from '~/server/types'
+import notionIconUrl from '#server/utils/notion-icon-url.ts'
 import sanitizeEmailHtml from '#server/utils/sanitize-email-html.ts'
 
 export default defineEventHandler(async () => {
@@ -49,14 +50,14 @@ export default defineEventHandler(async () => {
         if (contactRecord) {
           senderName = contactRecord.properties.Name?.title?.[0]?.plain_text || contactRecord.properties.Name?.title?.[0]?.text?.content || 'Unknown Contact'
           senderEmail = contactRecord.properties.Email?.email || 'contact@example.com'
-          avatarUrl = contactRecord.icon?.type === 'external' ? contactRecord.icon.external.url : contactRecord.icon?.type === 'file' ? contactRecord.icon.file?.url : undefined
+          avatarUrl = notionIconUrl(contactRecord.icon)
         }
       } else if (userId) {
         const userRecord = users.find((u) => u.id === userId)
         if (userRecord) {
           senderName = userRecord.properties.Name?.title?.[0]?.plain_text || 'System User'
           senderEmail = userRecord.properties.Email?.email || 'system@modesthuman.com'
-          avatarUrl = userRecord.icon?.type === 'external' ? userRecord.icon.external.url : userRecord.icon?.type === 'file' ? userRecord.icon.file?.url : undefined
+          avatarUrl = notionIconUrl(userRecord.icon)
           isVerified = true
         }
       }

@@ -81,7 +81,7 @@ describe('Quotation Email Template', () => {
     expect(payload.ctaUrl).toContain('e=email-quote-test-101')
 
     const urlParam = new URL(payload.ctaUrl).searchParams.get('url')
-    expect(urlParam).toBe('https://modesthumanbrands.com/proposals/QT-2026-789?ref=mail-quotation&utm_source=mconnect&utm_medium=email')
+    expect(urlParam).toBe('https://modesthumanbrands.com/proposals/QT-2026-789?ref=mail-quotation&utm_medium=email')
 
     // Dynamic telemetry pixel & honeypot URLs
     expect(payload.trackingPixelUrl).toBe('https://connect.modesthumanbrands.com/api/track/open?e=email-quote-test-101')
@@ -91,8 +91,8 @@ describe('Quotation Email Template', () => {
     expect(payload.organizationName).toBe('Modest Human Brands')
     expect(payload.organizationWebsite).toBe('https://modesthumanbrands.com')
     expect(payload.organizationLogo).toBe('https://modesthumanbrands.com/logo.svg')
-    expect(payload.organizationColorPrimary).toBe('#2B2B2B')
-    expect(payload.organizationColorAccent).toBe('#4A85FF')
+    expect(payload.organizationColorPrimary).toBe('#111827')
+    expect(payload.organizationColorAccent).toBe('#5945EA')
     expect(payload.organizationFont).toBe('Exo2')
   })
 

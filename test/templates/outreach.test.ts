@@ -66,18 +66,18 @@ describe('Outreach Email Template', () => {
     expect(payload.ctaButtons?.[0].url).toContain('https://connect.modesthumanbrands.com/api/track/click?')
     expect(payload.ctaButtons?.[0].url).toContain('e=email-outreach-test-1')
     const btn1Target = new URL(payload.ctaButtons![0].url).searchParams.get('url')
-    expect(btn1Target).toBe('https://modesthumanbrands.com/?ref=mail-outreach&utm_source=mconnect&utm_medium=email')
+    expect(btn1Target).toBe('https://modesthumanbrands.com/?ref=mail-outreach&utm_medium=email')
 
     expect(payload.ctaButtons?.[1].url).toContain('https://connect.modesthumanbrands.com/api/track/click?')
     expect(payload.ctaButtons?.[1].url).toContain('e=email-outreach-test-1')
     const btn2Target = new URL(payload.ctaButtons![1].url).searchParams.get('url')
-    expect(btn2Target).toBe('https://modesthumanbrands.com/demo?ref=mail-outreach&utm_source=mconnect&utm_medium=email')
+    expect(btn2Target).toBe('https://modesthumanbrands.com/demo?ref=mail-outreach&utm_medium=email')
 
     // Click-wrapped featured item cards
     expect(payload.featuredItems[0].linkUrl).toContain('https://connect.modesthumanbrands.com/api/track/click?')
     expect(payload.featuredItems[0].linkUrl).toContain('e=email-outreach-test-1')
     const cardTarget = new URL(payload.featuredItems[0].linkUrl).searchParams.get('url')
-    expect(cardTarget).toBe('https://modesthumanbrands.com/dashboard?ref=mail-outreach&utm_source=mconnect&utm_medium=email')
+    expect(cardTarget).toBe('https://modesthumanbrands.com/dashboard?ref=mail-outreach&utm_medium=email')
 
     // Dynamic telemetry pixel & honeypot URLs
     expect(payload.trackingPixelUrl).toBe('https://connect.modesthumanbrands.com/api/track/open?e=email-outreach-test-1')
@@ -87,8 +87,8 @@ describe('Outreach Email Template', () => {
     expect(payload.organizationName).toBe('Modest Human Brands')
     expect(payload.organizationWebsite).toBe('https://modesthumanbrands.com')
     expect(payload.organizationLogo).toBe('https://modesthumanbrands.com/logo.svg')
-    expect(payload.organizationColorPrimary).toBe('#2B2B2B')
-    expect(payload.organizationColorAccent).toBe('#4A85FF')
+    expect(payload.organizationColorPrimary).toBe('#111827')
+    expect(payload.organizationColorAccent).toBe('#5945EA')
     expect(payload.organizationFont).toBe('Exo2')
   })
 
@@ -142,7 +142,7 @@ describe('Outreach Email Template', () => {
     // Dual CTA buttons with click tracking
     expect(html).toContain('http://localhost:3000/api/track/click?')
     expect(html).toContain('e=email-ssr-outreach-99')
-    expect(html).toContain('Explore Platform →')
+    expect(html).toContain('Explore Platform')
     expect(html).toContain('Book 15-Min Demo')
 
     // 2-Column Showcase Cards

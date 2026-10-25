@@ -2,8 +2,9 @@ $kind: http-request
 description: |-
   LiveKit room webhook. LiveKit is the real caller: the body is a LiveKit event and the Authorization header is a JWT signed with the LiveKit API secret, carrying the SHA-256 of the raw body.
   The pre-request script signs it for you from the collection variables livekit_api_key and livekit_api_secret (set them locally, never commit them).
+  The organization comes from the ?org=<slug> query on the webhook URL (configure it in LiveKit), or NITRO_PRIVATE_VOICE_ORG_SLUG as a fallback.
   Room names look like "inbound-call_<phone>" or "outbound-call_<contactId>_<userId>". This example uses participant_joined, which only logs and has no side effects. room_started creates contacts, dials agents over SIP and writes Notion call records.
-url: '{{base_url}}/api/interaction/phone/status'
+url: '{{base_url}}/api/interaction/phone/status?org={{org_id}}'
 method: POST
 headers:
   Content-Type: application/json

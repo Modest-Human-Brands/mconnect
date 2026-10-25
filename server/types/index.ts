@@ -404,6 +404,10 @@ export interface NotionEmail {
       type: 'relation'
       relation: { id: string }[]
     }
+    Organization?: {
+      type: 'relation'
+      relation: { id: string }[]
+    }
     Contact: {
       type: 'relation'
       relation: { id: string }[]

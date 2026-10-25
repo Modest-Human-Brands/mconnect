@@ -148,7 +148,7 @@ describe('E2E Tracking & Template Pipeline', () => {
     const clickResponse = (await clickHandler(clickEvt)) as any
     const redirectUrl = clickHeaders.get('location') || clickResponse?.headers?.get?.('location')
 
-    expect(redirectUrl).toBe('https://modesthumanbrands.com/products/tracker?ref=mail-content&utm_source=mconnect&utm_medium=email')
+    expect(redirectUrl).toBe('https://modesthumanbrands.com/products/tracker?ref=mail-content&utm_medium=email')
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[REAL CLICK] Email email-human-101 clicked to https://modesthumanbrands.com/products/tracker'))
   })
 

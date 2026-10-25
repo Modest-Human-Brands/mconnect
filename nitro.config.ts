@@ -32,6 +32,8 @@ export default defineConfig({
     private: {
       notionDbId: '',
       apiKey: '',
+      webhookSecret: '',
+      voiceOrgSlug: '',
       googleClientId: '',
       googleClientSecret: '',
       microsoftClientId: '',

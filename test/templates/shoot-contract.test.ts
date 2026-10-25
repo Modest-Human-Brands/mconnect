@@ -20,18 +20,18 @@ vi.mock('~/server/utils/template-registry-email', () => ({
   },
 }))
 
-import Component from '~/templates/text/email/ContractV1/component.vue'
-import '#templates/text/email/RetainerContractV1/index.ts'
+import Component from '~/templates/text/email/ShootContractV1/component.vue'
+import '#templates/text/email/ShootContractV1/index.ts'
 
-describe('Contract Email Template', () => {
+describe('Shoot Contract Email Template', () => {
   beforeAll(() => {
     expect(mocks.templateConfig).toBeDefined()
-    expect(mocks.templateConfig.id).toBe('contract')
+    expect(mocks.templateConfig.id).toBe('shoot-contract')
   })
 
   it('generates tracked CTA, dynamic pixel, and honeypot with explicit tracking parameters', () => {
     const rawData = {
-      contact: {
+      recipient: {
         name: 'Jane Doe',
         role: 'Director of Photography',
       },
@@ -65,7 +65,7 @@ describe('Contract Email Template', () => {
     expect(payload.ctaUrl).toContain('e=email-contract-test-99')
 
     const urlParam = new URL(payload.ctaUrl).searchParams.get('url')
-    expect(urlParam).toBe('https://modesthumanbrands.com/contracts/sign/123?ref=mail-contract&utm_source=mconnect&utm_medium=email')
+    expect(urlParam).toBe('https://modesthumanbrands.com/contracts/sign/123?ref=mail-contract&utm_medium=email')
 
     // 3. Telemetry Open Pixel & Honeypot Link
     expect(payload.trackingPixelUrl).toBe('https://connect.modesthumanbrands.com/api/track/open?e=email-contract-test-99')
@@ -75,14 +75,14 @@ describe('Contract Email Template', () => {
     expect(payload.organizationName).toBe('Modest Human Brands')
     expect(payload.organizationWebsite).toBe('https://modesthumanbrands.com')
     expect(payload.organizationLogo).toBe('https://modesthumanbrands.com/logo.svg')
-    expect(payload.organizationColorPrimary).toBe('#2B2B2B')
-    expect(payload.organizationColorAccent).toBe('#4A85FF')
+    expect(payload.organizationColorPrimary).toBe('#111827')
+    expect(payload.organizationColorAccent).toBe('#5945EA')
     expect(payload.organizationFont).toBe('Exo2')
   })
 
   it('falls back to default placeholder tracking when tracking is omitted', () => {
     const rawData = {
-      contact: {
+      recipient: {
         name: 'Sam Smith',
         role: 'Gaffer',
       },
@@ -119,7 +119,7 @@ describe('Contract Email Template', () => {
 
   it('renders compiled HTML containing the tracked CTA button, honeypot trap, and telemetry pixel', async () => {
     const rawData = {
-      contact: {
+      recipient: {
         name: 'Mark Taylor',
         role: 'Sound Engineer',
       },

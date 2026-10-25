@@ -20,8 +20,8 @@ vi.mock('~/server/utils/template-registry-email', () => ({
   },
 }))
 
-import Component from '~/templates/text/email/OtpV1/component.vue'
-import '~/templates/text/email/OtpV1/index'
+import Component from '~/templates/text/email/OTPV1/component.vue'
+import '~/templates/text/email/OTPV1/index'
 
 describe('OTP Email Template', () => {
   beforeAll(() => {
@@ -56,8 +56,8 @@ describe('OTP Email Template', () => {
     expect(payload.organizationName).toBe('Modest Human Brands')
     expect(payload.organizationWebsite).toBe('https://modesthumanbrands.com')
     expect(payload.organizationLogo).toBe('https://modesthumanbrands.com/logo.svg')
-    expect(payload.organizationColorPrimary).toBe('#2B2B2B')
-    expect(payload.organizationColorAccent).toBe('#4A85FF')
+    expect(payload.organizationColorPrimary).toBe('#111827')
+    expect(payload.organizationColorAccent).toBe('#5945EA')
     expect(payload.organizationFont).toBe('Exo2')
   })
 

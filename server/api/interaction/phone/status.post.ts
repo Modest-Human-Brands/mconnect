@@ -1,16 +1,20 @@
-import { defineEventHandler, HTTPError } from 'nitro/h3'
+import { defineEventHandler, getQuery, HTTPError } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { SipClient, WebhookReceiver } from 'livekit-server-sdk'
 import { loadConfig } from 'c12'
 import { $fetch } from 'ofetch'
 
+import { assertOrgSlug } from '#server/utils/email-accounts.ts'
 import apiKeyHeaders from '#server/utils/api-key.ts'
 import notion from '#server/utils/notion.ts'
 import type { NotionDB, NotionUser } from '~/server/types'
 import notionQueryDb from '#server/utils/notion-query-db.ts'
 
 export default defineEventHandler(async (event) => {
-  const orgSlug = 'red-cat-pictures-1'
+  // LiveKit cannot send custom headers, so the organization comes from the webhook URL (`?org=<slug>`),
+  // falling back to NITRO_PRIVATE_VOICE_ORG_SLUG for a single-tenant setup.
+  const { org } = getQuery<{ org?: string }>(event)
+  const orgSlug = assertOrgSlug(org || (useRuntimeConfig().private.voiceOrgSlug as string) || '')
 
   const {
     config: {

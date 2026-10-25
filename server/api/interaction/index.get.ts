@@ -1,30 +1,31 @@
 import { defineEventHandler, HTTPError } from 'nitro/h3'
 import { useStorage } from 'nitro/storage'
 import type { Resource } from '~/server/types'
+import notionIconUrl from '#server/utils/notion-icon-url.ts'
+import notionOrgSlug from '#server/utils/notion-org-slug.ts'
+import resolveOrgSlug from '#server/utils/resolve-org-slug.ts'
 import sanitizeEmailHtml from '#server/utils/sanitize-email-html.ts'
 
 export default defineEventHandler(async (event) => {
   try {
-    const orgId = event.req.headers.get('x-org-id')
-    if (!orgId) {
-      throw new HTTPError({
-        statusCode: 400,
-        statusMessage: 'x-org-id header is required',
-      })
-    }
+    const orgSlug = resolveOrgSlug(event)
 
     const contactStorage = useStorage<Resource<'contact'>>('data:resource:contact')
     const contacts = (await contactStorage.getItems(await contactStorage.getKeys())).flatMap(({ value }) => value?.record || [])
-    // .filter((c) => c.properties.Organization?.relation?.some((r) => r.id === orgId))
 
     const userStorage = useStorage<Resource<'user'>>('data:resource:user')
     const users = (await userStorage.getItems(await userStorage.getKeys())).flatMap(({ value }) => value?.record || [])
-    // .filter((u) => u.properties.Organization?.relation?.some((r) => r.id === orgId))
 
     const emailStorage = useStorage<Resource<'email'> & { htmlContent?: string }>('data:resource:email')
-    const emailResources = (await emailStorage.getItems(await emailStorage.getKeys()))
-      .flatMap(({ value }) => value || [])
-      .filter((e) => e.record.properties.Organization?.relation?.some((r) => r.id === orgId))
+    const allEmails = (await emailStorage.getItems(await emailStorage.getKeys())).flatMap(({ value }) => value || [])
+
+    // Emails relate to an organization by Notion page id, while callers identify it by slug.
+    const emailResources = []
+    for (const email of allEmails) {
+      const relations = email.record.properties.Organization?.relation ?? []
+      const slugs = await Promise.all(relations.map((relation) => notionOrgSlug(relation.id)))
+      if (slugs.includes(orgSlug)) emailResources.push(email)
+    }
 
     const messages: {
       id: string
@@ -61,14 +62,14 @@ export default defineEventHandler(async (event) => {
         if (contactRecord) {
           senderName = contactRecord.properties.Name?.title?.[0]?.plain_text || contactRecord.properties.Name?.title?.[0]?.text?.content || 'Unknown Contact'
           senderEmail = contactRecord.properties.Email?.email || 'contact@example.com'
-          avatarUrl = contactRecord.icon?.type === 'external' ? contactRecord.icon.external.url : contactRecord.icon?.type === 'file' ? contactRecord.icon.file?.url : undefined
+          avatarUrl = notionIconUrl(contactRecord.icon)
         }
       } else if (userId) {
         const userRecord = users.find((u) => u.id === userId)
         if (userRecord) {
           senderName = userRecord.properties.Name?.title?.[0]?.plain_text || 'System User'
           senderEmail = userRecord.properties.Email?.email || 'system@modesthuman.com'
-          avatarUrl = userRecord.icon?.type === 'external' ? userRecord.icon.external.url : userRecord.icon?.type === 'file' ? userRecord.icon.file?.url : undefined
+          avatarUrl = notionIconUrl(userRecord.icon)
           isVerified = true
         }
       }

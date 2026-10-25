@@ -60,7 +60,7 @@ describe('Internship Completion Certificate Email Template', () => {
     expect(payload.ctaUrl).toContain('e=email-cert-101')
 
     const urlParam = new URL(payload.ctaUrl).searchParams.get('url')
-    expect(urlParam).toBe('https://modesthumanbrands.com/certificates/dev-intern-101.pdf?ref=mail-certificate&utm_source=mconnect&utm_medium=email')
+    expect(urlParam).toBe('https://modesthumanbrands.com/certificates/dev-intern-101.pdf?ref=mail-certificate&utm_medium=email')
 
     // Dynamic Telemetry Pixel & Honeypot Trap Link
     expect(payload.trackingPixelUrl).toBe('https://connect.modesthumanbrands.com/api/track/open?e=email-cert-101')
@@ -70,8 +70,8 @@ describe('Internship Completion Certificate Email Template', () => {
     expect(payload.organizationName).toBe('Modest Human Brands')
     expect(payload.organizationWebsite).toBe('https://modesthumanbrands.com')
     expect(payload.organizationLogo).toBe('https://modesthumanbrands.com/logo.svg')
-    expect(payload.organizationColorPrimary).toBe('#2B2B2B')
-    expect(payload.organizationColorAccent).toBe('#4A85FF')
+    expect(payload.organizationColorPrimary).toBe('#111827')
+    expect(payload.organizationColorAccent).toBe('#5945EA')
     expect(payload.organizationFont).toBe('Exo2')
   })
 
