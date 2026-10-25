@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.18
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.17...v0.5.18)
+
+### 💅 Refactors
+
+- Reorganize .env.example structure and add missing environment variables ([3fd31e0](https://github.com/Modest-Human-Brands/mconnect/commit/3fd31e0))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.17
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.16...v0.5.17)
