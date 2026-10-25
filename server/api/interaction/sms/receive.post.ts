@@ -2,6 +2,7 @@ import { useRuntimeConfig } from 'nitro/runtime-config'
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { z } from 'zod'
 import { $fetch } from 'ofetch'
+import apiKeyHeaders from '#server/utils/api-key.ts'
 import notion from '#server/utils/notion.ts'
 
 const bodySchema = z.object({
@@ -19,6 +20,7 @@ export default defineEventHandler(async (event) => {
 
     const { contactId } = await $fetch('/api/contacts', {
       baseURL: config.public.connectUrl,
+      headers: apiKeyHeaders(),
       method: 'PUT',
       body: {
         brand: 'Unknown',

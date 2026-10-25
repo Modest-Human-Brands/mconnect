@@ -31,6 +31,7 @@ export default defineConfig({
     },
     private: {
       notionDbId: '',
+      apiKey: '',
       googleClientId: '',
       googleClientSecret: '',
       microsoftClientId: '',

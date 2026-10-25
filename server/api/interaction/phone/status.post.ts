@@ -4,6 +4,7 @@ import { SipClient, WebhookReceiver } from 'livekit-server-sdk'
 import { loadConfig } from 'c12'
 import { $fetch } from 'ofetch'
 
+import apiKeyHeaders from '#server/utils/api-key.ts'
 import notion from '#server/utils/notion.ts'
 import type { NotionDB, NotionUser } from '~/server/types'
 import notionQueryDb from '#server/utils/notion-query-db.ts'
@@ -56,6 +57,7 @@ export default defineEventHandler(async (event) => {
           status: string
         }>('/api/contacts', {
           baseURL: config.public.connectUrl,
+          headers: apiKeyHeaders(),
           method: 'PUT',
           body:
             direction === 'inbound-call'

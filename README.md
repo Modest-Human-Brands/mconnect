@@ -105,6 +105,7 @@ NOTION_API_KEY=secret_your_notion_api_key
 # Public & Private Runtime Config
 NITRO_PUBLIC_CONNECT_URL=http://localhost:3000
 NITRO_PRIVATE_NOTION_DB_ID={"contact":"<id>","user":"<id>","email":"<id>","message":"<id>","call":"<id>","telemetry":"<id>"}
+NITRO_PRIVATE_API_KEY=<long-random-secret>
 
 # Versioning & Host Identifiers
 NITRO_APP_VERSION=0.5.16
@@ -137,6 +138,8 @@ bun run docker:start
 ```
 
 ---
+
+> **Authentication.** Every `/api/**` route requires an `x-api-key` header matching `NITRO_PRIVATE_API_KEY` (401 if missing or wrong, 503 if the server has no key configured). Exempt routes: `GET /api/health`, `/api/track/*` (opened by email clients), `POST /api/interaction/phone/status` (verified by the LiveKit signature), the OAuth callback `/api/email/accounts/oauth/:provider/callback`, and the SMS/WhatsApp template-preview WebSockets.
 
 ## API Reference
 

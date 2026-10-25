@@ -5,6 +5,8 @@ description: |-
   A successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data.
 url: '{{base_url}}/api/interaction/email/template/preview'
 method: POST
+headers:
+  x-api-key: '{{api_key}}'
 body:
   type: json
   content: |-

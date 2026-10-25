@@ -5,6 +5,8 @@ description: |-
   A successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data.
 url: '{{base_url}}/api/contacts/:contactId/timeline?limit=50&offset=0'
 method: GET
+headers:
+  x-api-key: '{{api_key}}'
 queryParams:
   limit: '50'
   offset: '0'

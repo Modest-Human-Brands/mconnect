@@ -5,6 +5,7 @@ import { simpleParser } from 'mailparser'
 import { $fetch } from 'ofetch'
 import type { ImapFlow } from 'imapflow'
 
+import apiKeyHeaders from '#server/utils/api-key.ts'
 import { listEmailAccounts, listOrgSlugs, type EmailAccount } from '#server/utils/email-accounts.ts'
 import { findSentMailbox, openImapClient } from '#server/utils/email-connection.ts'
 import { isRecorded, markRecorded } from '#server/utils/email-ledger.ts'
@@ -57,6 +58,7 @@ async function syncFolder(client: ImapFlow, folder: string, direction: Direction
         if (!messageId || !(await isRecorded(messageId))) {
           await $fetch('/api/interaction/email/receive', {
             baseURL,
+            headers: apiKeyHeaders(),
             method: 'POST',
             body: {
               from: parsed.from?.text ?? '',

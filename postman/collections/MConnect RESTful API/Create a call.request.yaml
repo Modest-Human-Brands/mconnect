@@ -4,6 +4,7 @@ description: |-
 url: '{{base_url}}/api/interaction/phone/send'
 method: POST
 headers:
+  x-api-key: '{{api_key}}'
   Content-Type: application/json
   x-org-id: '{{org_id}}'
 body:
