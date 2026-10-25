@@ -1,27 +1,26 @@
 import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { z } from 'zod'
-import type { NotionContact, NotionOrganization, NotionUser } from '~/server/types'
+import type { NotionContact, NotionUser } from '~/server/types'
 import notion from '#server/utils/notion.ts'
-import notionTextStringify from '#server/utils/notion-text-stringify.ts'
+import resolveOrgSlug from '#server/utils/resolve-org-slug.ts'
 import { initializeLiveKitSipBridge } from '#server/utils/providers-phone.ts'
 
 const bodySchema = z.object({
   contactId: z.string().min(1),
   userId: z.string().min(1),
-  orgId: z.string(),
   recordCall: z.boolean(),
   webCall: z.boolean().optional(),
 })
 
 export default defineEventHandler(async (event) => {
   try {
-    const { contactId, userId, recordCall, orgId, webCall } = await readValidatedBody(event, bodySchema)
+    const orgSlug = await resolveOrgSlug(event)
+    const { contactId, userId, recordCall, webCall } = await readValidatedBody(event, bodySchema)
 
     console.log(`[Voice Engine]: Initializing LiveKit room bridge sequence for Contact: ${contactId} by User: ${userId}`)
 
     const contactPage = (await notion.pages.retrieve({ page_id: contactId })) as unknown as NotionContact
     const userPage = (await notion.pages.retrieve({ page_id: userId })) as unknown as NotionUser
-    const orgPage = (await notion.pages.retrieve({ page_id: orgId })) as unknown as NotionOrganization
 
     const destinationPhone = contactPage.properties.Phone.phone_number
     const userPhone = userPage.properties.Phone.phone_number
@@ -43,7 +42,7 @@ export default defineEventHandler(async (event) => {
         webCall: !!webCall,
         recordCall,
       },
-      notionTextStringify(orgPage.properties.Id.rich_text)!
+      orgSlug
     )
 
     return {

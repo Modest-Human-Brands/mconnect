@@ -292,7 +292,7 @@ Retrieves a unified chronological history (newest first) across Emails, Messages
 Dispatches an email via the configured SMTP provider, compiles Vue email templates (or delivers raw text/HTML), tracks recipient engagement, and creates a Notion email record.
 
 - **Headers:**
-  - `x-org-id` (`string`, **required**): Tenant organization page ID or slug (e.g. `modest-human-brands`).
+  - `x-org-id` (`string`, **required**): Tenant organization slug (e.g. `modest-human-brands`).
 
 - **Request Body (JSON):**
 
@@ -402,12 +402,14 @@ Retrieves full details and sanitized HTML for a single email interaction by its 
 
 Dispatches SMS via Fast2SMS, Vobiz, or Twilio, and creates a Notion message page.
 
+- **Headers:**
+  - `x-org-id` (`string`, **required**): Tenant organization slug (e.g. `modest-human-brands`).
+
 - **Request Body (JSON):**
 
   ```json
   {
     "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
-    "orgId": "307ee3b0289a8116afb0f6a1795a27a0",
     "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
     "recipientPhone": "+919876543210",
     "template": "none",
@@ -453,13 +455,15 @@ Inbound SMS webhook target. Upserts the contact and appends an inbound message r
 
 Dispatches WhatsApp messages or approved template structures via Meta Cloud API / Vobiz.
 
+- **Headers:**
+  - `x-org-id` (`string`, **required**): Tenant organization slug (e.g. `modest-human-brands`).
+
 - **Request Body (JSON):**
 
   ```json
   {
     "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
     "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
-    "orgId": "307ee3b0289a8116afb0f6a1795a27a0",
     "template": "none",
     "text": "Hi Alex, your requested quotation has been generated and sent to your email."
   }
@@ -502,13 +506,15 @@ Inbound webhook listener for WhatsApp messages.
 
 Initiates a dual-leg voice call by creating a LiveKit media room, issuing an agent session token, and launching an outbound SIP trunk bridge to the destination party.
 
+- **Headers:**
+  - `x-org-id` (`string`, **required**): Tenant organization slug (e.g. `modest-human-brands`).
+
 - **Request Body (JSON):**
 
   ```json
   {
     "contactId": "36bee3b0289a8030a6f9c0eea0708f12",
     "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
-    "orgId": "307ee3b0289a8116afb0f6a1795a27a0",
     "recordCall": true,
     "webCall": false
   }

@@ -1,25 +1,20 @@
 $kind: http-request
 description: |-
-  This is a GET request and it is used to "get" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).
-
-  A successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data.
+  Starts a dual-leg LiveKit call between a user and a contact. The organization comes from the x-org-id header.
 url: '{{base_url}}/api/interaction/phone/send'
 method: POST
+headers:
+  Content-Type: application/json
+  x-org-id: '{{org_id}}'
 body:
   type: json
-  content: "{\r
-
-    \    \"userId\": \"307ee3b0289a8179a8a8d2efcdb67bbf\",\r
-
-    \    \"contactId\": \"366ee3b0289a81e59557e36826164832\",\r
-
-    \    \"recordCall\": true,\r
-
-    \    \"orgId\": \"307ee3b0289a8116afb0f6a1795a27a0\",\r
-
-    \    \"webCall\": false\r
-
-    }"
+  content: |-
+    {
+        "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
+        "contactId": "366ee3b0289a81e59557e36826164832",
+        "recordCall": true,
+        "webCall": false
+    }
 scripts:
   - type: afterResponse
     code: |-
