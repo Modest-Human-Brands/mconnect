@@ -55,7 +55,7 @@
     "node-html-to-image": "^6.2.0",
     "nodemailer": "^10.1.1",
     "ofetch": "^1.5.1",
-    "p-retry": "^8.0.1",
+    "p-retry": "^9.0.0",
     "p-throttle": "^8.1.1",
     "pdf-to-img": "^7.0.1",
     "unplugin-vue": "^8.0.0",
