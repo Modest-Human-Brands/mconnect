@@ -23,7 +23,7 @@
         "node-html-to-image": "^6.2.0",
         "nodemailer": "^10.1.1",
         "ofetch": "^1.5.1",
-        "p-retry": "^8.0.1",
+        "p-retry": "^9.0.0",
         "p-throttle": "^8.1.1",
         "pdf-to-img": "^7.0.1",
         "unplugin-vue": "^8.0.0",
@@ -875,7 +875,7 @@
 
     "p-locate": ["p-locate@5.0.0", "", { "dependencies": { "p-limit": "^3.0.2" } }, "sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw=="],
 
-    "p-retry": ["p-retry@8.0.1", "", { "dependencies": { "is-network-error": "^1.3.0" } }, "sha512-NAigyu8hfvJe7MsS18mnc4is0MZtau3QMdBklaJKK23oBQb6occO3UPM3vHmTckW8KhfyjMZaUOqdTFEYliHgg=="],
+    "p-retry": ["p-retry@9.0.0", "", { "dependencies": { "is-network-error": "^1.3.2" } }, "sha512-HuEats8gYn/UUYa5uyveyQGv75mQmwdFtuMgnZlS12dj/7bdnJSO6keaTjgcZUhvkANTj5EO3lACUmV3xmgj0Q=="],
 
     "p-throttle": ["p-throttle@8.1.1", "", {}, "sha512-xxWFBUyvbrQ10XC3VAr0SoXoOCKXqCX/yvbFIkBE98upphHFwjIKR6AId13ZH3jngFfF6yK43QTOtrngYAmFMA=="],
 
