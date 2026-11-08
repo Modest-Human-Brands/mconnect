@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.5.18
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.17...v0.5.18)
+
+### 💅 Refactors
+
+- Reorganize .env.example structure and add missing environment variables ([3fd31e0](https://github.com/Modest-Human-Brands/mconnect/commit/3fd31e0))
+- Update .env.example structure and integrate environment variables into nitro.config ([2d5b5c2](https://github.com/Modest-Human-Brands/mconnect/commit/2d5b5c2))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+
 ## v0.5.17
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.16...v0.5.17)
