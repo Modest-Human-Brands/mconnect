@@ -4,12 +4,13 @@ import { z } from 'zod'
 import type { NotionContact, NotionDB } from '~/server/types'
 import notion from '#server/utils/notion.ts'
 import resolveOrgSlug from '#server/utils/resolve-org-slug.ts'
+import resolveUserId from '#server/utils/resolve-user-id.ts'
 import dispatchSMS from '#server/utils/providers-sms.ts'
 import { templateRegistry } from '#server/utils/template-registry-sms.ts'
 
 import '#templates/text/sms/index.ts'
 
-const basePayload = z.object({ userId: z.string(), contactId: z.string().optional(), recipientPhone: z.string().optional() })
+const basePayload = z.object({ contactId: z.string().optional(), recipientPhone: z.string().optional() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -28,7 +29,8 @@ const bodySchema = z.union([basePayload.and(rawContent), basePayload.and(templat
 export default defineEventHandler(async (event) => {
   try {
     const orgSlug = await resolveOrgSlug(event)
-    const { recipientPhone, userId, contactId, text, template, variables } = await readValidatedBody(event, bodySchema)
+    const userId = resolveUserId(event)
+    const { recipientPhone, contactId, text, template, variables } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB

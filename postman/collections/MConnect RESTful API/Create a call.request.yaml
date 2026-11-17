@@ -5,13 +5,13 @@ url: '{{base_url}}/api/interaction/phone/send'
 method: POST
 headers:
   x-api-key: '{{api_key}}'
+  x-user-id: '{{user_id}}'
   Content-Type: application/json
   x-org-id: '{{org_id}}'
 body:
   type: json
   content: |-
     {
-        "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
         "contactId": "366ee3b0289a81e59557e36826164832",
         "recordCall": true,
         "webCall": false

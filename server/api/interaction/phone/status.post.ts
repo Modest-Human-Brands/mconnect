@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
           status: string
         }>('/api/contacts', {
           baseURL: config.public.connectUrl,
-          headers: apiKeyHeaders(),
+          headers: apiKeyHeaders(orgSlug),
           method: 'PUT',
           body:
             direction === 'inbound-call'

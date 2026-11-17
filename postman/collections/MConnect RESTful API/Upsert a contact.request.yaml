@@ -7,6 +7,8 @@ url: '{{base_url}}/api/contacts'
 method: PUT
 headers:
   x-api-key: '{{api_key}}'
+  x-org-id: '{{org_id}}'
+  x-user-id: '{{user_id}}'
 body:
   type: json
   content: "{\r

@@ -5,13 +5,13 @@ url: '{{base_url}}/api/interaction/email/send'
 method: POST
 headers:
   x-api-key: '{{api_key}}'
+  x-user-id: '{{user_id}}'
   Content-Type: application/json
   x-org-id: '{{org_id}}'
 body:
   type: json
   content: |-
     {
-        "userId": "368ee3b0289a8066818fc6994958263e",
         "contactId": "36dee3b0289a818ca9ecca3c28ad9855",
         "accountId": "00000000-0000-0000-0000-000000000000",
         "template": "internship-completion-certificate",

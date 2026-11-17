@@ -11,9 +11,9 @@ import type { NotionContact, NotionDB } from '~/server/types'
 import '#templates/text/email/index.ts'
 import notionNormalizeId from '#server/utils/notion-normalize-id.ts'
 import resolveOrgSlug from '#server/utils/resolve-org-slug.ts'
+import resolveUserId from '#server/utils/resolve-user-id.ts'
 
 const basePayload = z.object({
-  userId: z.string().optional(),
   contactId: z.string().optional(),
   recipientEmail: z.email().optional(),
   accountId: z.string().optional(),
@@ -41,7 +41,8 @@ const bodySchema = z.union([
 export default defineEventHandler(async (event) => {
   try {
     const orgSlug = await resolveOrgSlug(event)
-    const { accountId, userId, contactId, recipientEmail: bodyEmail, text, html, subject, template, variables, displayName } = await readValidatedBody(event, bodySchema)
+    const userId = resolveUserId(event)
+    const { accountId, contactId, recipientEmail: bodyEmail, text, html, subject, template, variables, displayName } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB

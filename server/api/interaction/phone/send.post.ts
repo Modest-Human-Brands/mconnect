@@ -3,11 +3,11 @@ import { z } from 'zod'
 import type { NotionContact, NotionUser } from '~/server/types'
 import notion from '#server/utils/notion.ts'
 import resolveOrgSlug from '#server/utils/resolve-org-slug.ts'
+import resolveUserId from '#server/utils/resolve-user-id.ts'
 import { initializeLiveKitSipBridge } from '#server/utils/providers-phone.ts'
 
 const bodySchema = z.object({
   contactId: z.string().min(1),
-  userId: z.string().min(1),
   recordCall: z.boolean(),
   webCall: z.boolean().optional(),
 })
@@ -15,7 +15,8 @@ const bodySchema = z.object({
 export default defineEventHandler(async (event) => {
   try {
     const orgSlug = await resolveOrgSlug(event)
-    const { contactId, userId, recordCall, webCall } = await readValidatedBody(event, bodySchema)
+    const userId = resolveUserId(event)
+    const { contactId, recordCall, webCall } = await readValidatedBody(event, bodySchema)
 
     console.log(`[Voice Engine]: Initializing LiveKit room bridge sequence for Contact: ${contactId} by User: ${userId}`)
 

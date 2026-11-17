@@ -4,13 +4,14 @@ import { z } from 'zod'
 import type { NotionContact, NotionDB } from '~/server/types'
 import notion from '#server/utils/notion.ts'
 import resolveOrgSlug from '#server/utils/resolve-org-slug.ts'
+import resolveUserId from '#server/utils/resolve-user-id.ts'
 
 import dispatchWhatsApp, { type WhatsAppPayload } from '#server/utils/providers-whatsapp.ts'
 import { templateRegistry } from '#server/utils/template-registry-whatsapp.ts'
 
 import '#templates/text/whatsapp/index.ts'
 
-const basePayload = z.object({ userId: z.string().optional(), contactId: z.string() })
+const basePayload = z.object({ contactId: z.string() })
 
 const rawContent = z.object({
   template: z.literal('none'),
@@ -29,7 +30,8 @@ const bodySchema = z.union([basePayload.and(rawContent), basePayload.and(templat
 export default defineEventHandler(async (event) => {
   try {
     const orgSlug = await resolveOrgSlug(event)
-    const { contactId, userId, template, text, variables } = await readValidatedBody(event, bodySchema)
+    const userId = resolveUserId(event)
+    const { contactId, template, text, variables } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
     const notionDbId = JSON.parse(config.private.notionDbId) as NotionDB

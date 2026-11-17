@@ -58,7 +58,7 @@ async function syncFolder(client: ImapFlow, folder: string, direction: Direction
         if (!messageId || !(await isRecorded(messageId))) {
           await $fetch('/api/interaction/email/receive', {
             baseURL,
-            headers: apiKeyHeaders(),
+            headers: apiKeyHeaders(orgSlug),
             method: 'POST',
             body: {
               from: parsed.from?.text ?? '',

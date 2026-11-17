@@ -7,6 +7,8 @@ url: '{{base_url}}/api/interaction/email/:id/telemetry'
 method: GET
 headers:
   x-api-key: '{{api_key}}'
+  x-org-id: '{{org_id}}'
+  x-user-id: '{{user_id}}'
 pathVariables:
   id: 3d9ee3b0-289a-810b-a411-cae2da082698
 scripts:

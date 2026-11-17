@@ -139,7 +139,7 @@ bun run docker:start
 
 ---
 
-> **Authentication.** Every `/api/**` route requires an `x-api-key` header matching `NITRO_PRIVATE_API_KEY` (401 if missing or wrong, 503 if the server has no key configured). Exempt routes: `GET /api/health`, `/api/track/*` (opened by email clients), `POST /api/interaction/phone/status` (verified by the LiveKit signature), the OAuth callback `/api/email/accounts/oauth/:provider/callback`, and the SMS/WhatsApp template-preview WebSockets.
+> **Authentication.** Every `/api/**` route requires an `x-api-key` header matching `NITRO_PRIVATE_API_KEY` (401 if missing or wrong, 503 if the server has no key configured), plus `x-org-id` (organization slug) and `x-user-id` (acting user) headers (400 if missing). Machine-to-machine routes take no user: `POST /api/interaction/email/receive` needs the key and `x-org-id`; the SMS/WhatsApp `receive` webhooks accept `?secret=` and `?org=<slug>` in place of the headers. Exempt routes: `GET /api/health`, `/api/track/*` (opened by email clients), `POST /api/interaction/phone/status` (verified by the LiveKit signature), the OAuth callback `/api/email/accounts/oauth/:provider/callback`, and the SMS/WhatsApp template-preview WebSockets.
 >
 > Inbound SMS/WhatsApp webhooks (`POST /api/interaction/sms/receive`, `/whatsapp/receive`) also accept `?secret=<NITRO_PRIVATE_WEBHOOK_SECRET>` in the URL for providers that cannot send headers. The LiveKit webhook takes its organization from `?org=<slug>` (or `NITRO_PRIVATE_VOICE_ORG_SLUG`).
 
@@ -298,12 +298,12 @@ Dispatches an email via the configured SMTP provider, compiles Vue email templat
 
 - **Headers:**
   - `x-org-id` (`string`, **required**): Tenant organization slug (e.g. `modest-human-brands`).
+  - `x-user-id` (`string`, **required**): The acting user (their Notion user page id).
 
 - **Request Body (JSON):**
 
   ```json
   {
-    "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
     "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
     "recipientEmail": "client@example.com",
     "displayName": "Shirsendu from Modest Human",
@@ -409,12 +409,12 @@ Dispatches SMS via Fast2SMS, Vobiz, or Twilio, and creates a Notion message page
 
 - **Headers:**
   - `x-org-id` (`string`, **required**): Tenant organization slug (e.g. `modest-human-brands`).
+  - `x-user-id` (`string`, **required**): The acting user (their Notion user page id).
 
 - **Request Body (JSON):**
 
   ```json
   {
-    "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
     "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
     "recipientPhone": "+919876543210",
     "template": "none",
@@ -462,12 +462,12 @@ Dispatches WhatsApp messages or approved template structures via Meta Cloud API 
 
 - **Headers:**
   - `x-org-id` (`string`, **required**): Tenant organization slug (e.g. `modest-human-brands`).
+  - `x-user-id` (`string`, **required**): The acting user (their Notion user page id).
 
 - **Request Body (JSON):**
 
   ```json
   {
-    "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
     "contactId": "367ee3b0-289a-81c9-b502-d21a1ed375b0",
     "template": "none",
     "text": "Hi Alex, your requested quotation has been generated and sent to your email."
@@ -513,13 +513,13 @@ Initiates a dual-leg voice call by creating a LiveKit media room, issuing an age
 
 - **Headers:**
   - `x-org-id` (`string`, **required**): Tenant organization slug (e.g. `modest-human-brands`).
+  - `x-user-id` (`string`, **required**): The acting user (their Notion user page id).
 
 - **Request Body (JSON):**
 
   ```json
   {
     "contactId": "36bee3b0289a8030a6f9c0eea0708f12",
-    "userId": "307ee3b0289a8179a8a8d2efcdb67bbf",
     "recordCall": true,
     "webCall": false
   }

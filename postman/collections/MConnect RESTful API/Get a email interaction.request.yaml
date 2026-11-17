@@ -7,6 +7,8 @@ url: '{{base_url}}/api/interaction/email/:id'
 method: GET
 headers:
   x-api-key: '{{api_key}}'
+  x-org-id: '{{org_id}}'
+  x-user-id: '{{user_id}}'
 pathVariables:
   id: 3d7ee3b0-289a-813c-9f9a-cc34ad08fd1c
 scripts:

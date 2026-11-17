@@ -3,6 +3,7 @@ import { defineEventHandler, HTTPError, readValidatedBody } from 'nitro/h3'
 import { z } from 'zod'
 import { $fetch } from 'ofetch'
 import apiKeyHeaders from '#server/utils/api-key.ts'
+import resolveOrgSlug from '#server/utils/resolve-org-slug.ts'
 import notion from '#server/utils/notion.ts'
 import notionNormalizeId from '#server/utils/notion-normalize-id.ts'
 import type { NotionDB } from '~/server/types'
@@ -19,6 +20,7 @@ const bodySchema = z.object({
 
 export default defineEventHandler(async (event) => {
   try {
+    const orgSlug = resolveOrgSlug(event)
     const { from, to, subject, text, html, direction, date } = await readValidatedBody(event, bodySchema)
 
     const config = useRuntimeConfig()
@@ -51,7 +53,7 @@ export default defineEventHandler(async (event) => {
 
     const { contactId } = await $fetch('/api/contacts', {
       baseURL: config.public.connectUrl,
-      headers: apiKeyHeaders(),
+      headers: apiKeyHeaders(orgSlug),
       method: 'PUT',
       body: {
         brand: 'Unknown',

@@ -1,0 +1,23 @@
+# TODO
+
+- [x] Nitro backend application setup
+- [x] System health diagnostics endpoint (`GET /api/health`)
+- [x] Unified CRM contacts directory retrieval (`GET /api/contacts`)
+- [x] CRM contact profile upsert and status sync (`PUT /api/contacts`)
+- [x] Contact interaction timeline history (`GET /api/contacts/:contactId/timeline`)
+- [x] Outbound email dispatch via SMTP (`POST /api/interaction/email/send`)
+- [x] Inbound email webhook and IMAP parser (`POST /api/interaction/email/receive`)
+- [x] Email interaction history and telemetry query (`GET /api/interaction/email`, `GET /api/interaction/email/:id`)
+- [x] Outbound SMS sending gateway (`POST /api/interaction/sms/send`)
+- [x] Inbound SMS webhook receiver (`POST /api/interaction/sms/receive`)
+- [x] WhatsApp message sending gateway (`POST /api/interaction/whatsapp/send`)
+- [x] WhatsApp message webhook receiver (`POST /api/interaction/whatsapp/receive`)
+- [x] Telephony voice call dispatch via LiveKit SIP (`POST /api/interaction/phone/send`)
+- [x] Telephony call status and recording webhook handler (`POST /api/interaction/phone/status`)
+- [x] Email template catalog and live HTML preview (`GET /api/interaction/email/template`, `POST /preview`)
+- [x] SMS and WhatsApp visual template rendering and preview
+- [x] Email open, click, and honeypot anti-bot tracking telemetry (`/api/track/*`)
+- [x] IMAP and OAuth email account connection (`/api/email/accounts/*`)
+- [ ] Calculate call duration and mark Notion interaction as COMPLETED in phone status handler
+- [ ] Document email account management endpoints in README
+- [ ] Complete full webhook verification for production SMS/WhatsApp providers

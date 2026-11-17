@@ -4,6 +4,7 @@ variables:
   base_url: ''
   api_key: ''
   org_id: modest-human-brands
+  user_id: 368ee3b0289a8066818fc6994958263e
   vobiz_auth_id: ''
   vobiz_auth_token: ''
   livekit_api_key: ''
