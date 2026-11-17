@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.5.19
+
+[compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.17...v0.5.19)
+
+### 💅 Refactors
+
+- Reorganize .env.example structure and add missing environment variables ([3fd31e0](https://github.com/Modest-Human-Brands/mconnect/commit/3fd31e0))
+- Update .env.example structure and integrate environment variables into nitro.config ([2d5b5c2](https://github.com/Modest-Human-Brands/mconnect/commit/2d5b5c2))
+- Enhance API auth by adding x-org-id and x-user-id headers across multiple endpoints ([d06a968](https://github.com/Modest-Human-Brands/mconnect/commit/d06a968))
+
+### 🤖 CI
+
+- **release:** Update version ([cb866f7](https://github.com/Modest-Human-Brands/mconnect/commit/cb866f7))
+- **release:** Update version ([16f36f4](https://github.com/Modest-Human-Brands/mconnect/commit/16f36f4))
+
+### ❤️ Contributors
+
+- Shirsendu Bairagi ([@shba007](https://github.com/shba007))
+- Shba007 ([@shba007](https://github.com/shba007))
+
 ## v0.5.18
 
 [compare changes](https://github.com/Modest-Human-Brands/mconnect/compare/v0.5.17...v0.5.18)
